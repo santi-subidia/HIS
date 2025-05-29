@@ -1,0 +1,118 @@
+extends layout
+
+block content
+  .row
+    .col-lg-12.mb-4
+      .card.shadow
+        .card-header.bg-white
+          h5.mb-0
+            i.fas.fa-user-plus.me-2.text-primary
+            | Registro de Nuevo Paciente
+
+        .card-body
+          if exito
+            .alert.alert-success #{exito}
+          if error
+            each err in error
+              .alert.alert-danger #{err.message}
+
+          form(action="/pacientes/registro" method="POST")
+            .row.mb-4
+              .col-md-4.mb-3
+                label.form-label(for="DNI") DNI
+                input#DNI.form-control(
+                  type="text"
+                  name="DNI"
+                  required
+                  value=(valores && valores.DNI) || ""
+                )
+
+              .col-md-4.mb-3
+                label.form-label(for="apellido") Apellido
+                input#apellido.form-control(
+                  type="text"
+                  name="apellido"
+                  required
+                  value=(valores && valores.apellido) || ""
+                )
+
+              .col-md-4.mb-3
+                label.form-label(for="nombre") Nombre
+                input#nombre.form-control(
+                  type="text"
+                  name="nombre"
+                  required
+                  value=(valores && valores.nombre) || ""
+                )
+
+            .row.mb-4
+              .col-md-4.mb-3
+                label.form-label(for="sexo") Sexo
+                select#sexo.form-select(name="sexo" required)
+                  option(value="") Seleccione...
+                  option(value="1" selected=(valores && valores.sexo === '1')) Masculino
+                  option(value="2" selected=(valores && valores.sexo === '2')) Femenino
+
+              .col-md-4.mb-3
+                label.form-label(for="fechaNacimiento") Fecha de Nacimiento
+                input#fechaNacimiento.form-control(
+                  type="date"
+                  name="fechaNacimiento"
+                  required
+                  value=(valores && valores.fechaNacimiento) || ""
+                )
+
+              .col-md-4.mb-3
+                label.form-label(for="id_tipoSangre") Tipo de Sangre
+                select#id_tipoSangre.form-select(name="id_tipoSangre" required)
+                  option(value="") Seleccione...
+                  each tipo in tiposSangre
+                    option(
+                      value=tipo.id
+                      selected=(valores && valores.id_tipoSangre == tipo.id)
+                    ) #{tipo.tipo}#{tipo.Rh ? '+' : '-'}
+
+            .row.mb-4
+              .col-md-6.mb-3
+                label.form-label(for="domicilio") Domicilio
+                input#domicilio.form-control(
+                  type="text"
+                  name="domicilio"
+                  required
+                  minlength="5"
+                  maxlength="100"
+                  value=(valores && valores.domicilio) || ""
+                )
+
+              .col-md-6.mb-3
+                label.form-label(for="nro_Telefono") Teléfono
+                input#nro_Telefono.form-control(
+                  type="tel"
+                  name="nro_Telefono"
+                  required
+                  minlength="7"
+                  maxlength="15"
+                  value=(valores && valores.nro_Telefono) || ""
+                )
+
+            .row.mb-4
+              .col-md-6.mb-3
+                label.form-label(for="id_localidad") Localidad
+                select#id_localidad.form-select(name="id_localidad" required)
+                  option(value="") Seleccione...
+                  each localidad in localidades
+                    option(
+                      value=localidad.id
+                      selected=(valores && valores.id_localidad == localidad.id)
+                    ) #{localidad.nombre} - #{localidad.provincia.nombre}
+
+            .row.mt-4
+              .col-12
+                .d-flex.justify-content-end
+                  button.btn.btn-secondary.me-2(type="button" onclick="window.history.back()")
+                    i.fas.fa-times.me-1
+                    | Cancelar
+                  button.btn.btn-primary(type="submit")
+                    i.fas.fa-save.me-1
+                    | Guardar Paciente
+
