@@ -1,0 +1,96 @@
+extends layout
+
+block content
+  .row
+    .col-lg-12.mb-4
+      h3.text-primary.mb-4
+        i.fas.fa-user-edit.me-2
+        | Actualizar Datos del Paciente
+
+  form(action="/pacientes/actualizar" method="GET")
+    .card.shadow
+      .card-header.bg-white
+        h5.mb-0
+          i.fas.fa-id-card.me-2
+          | Buscar por DNI
+
+      .card-body
+        .row.mb-3
+          .col-md-6
+            label.form-label(for="dni") DNI
+            input#dni.form-control(type="text" name="dni" required maxlength="8" placeholder="Ingrese el DNI del paciente")
+        .row
+          .col-12.d-flex.justify-content-end
+            button.btn.btn-primary(type="submit")
+              i.fas.fa-search.me-2
+              | Buscar
+
+  if mensaje
+    .alert.alert-warning.mt-4 #{mensaje}
+
+  if paciente
+    form(action=`/pacientes/actualizar/${paciente.id}` method="POST")
+      .card.mt-4.shadow
+        .card-header.bg-info.text-white
+          h5.mb-0
+            i.fas.fa-user-cog.me-2
+            | Datos del Paciente
+
+        .card-body
+          input(type="hidden" name="DNI" value=paciente.DNI)
+          .row
+            .col-md-6.mb-3
+              label.form-label(for="nombre") Nombre
+              input#nombre.form-control(type="text" name="nombre" value=paciente.nombre required)
+            .col-md-6.mb-3
+              label.form-label(for="apellido") Apellido
+              input#apellido.form-control(type="text" name="apellido" value=paciente.apellido required)
+
+          .row
+            .col-md-6.mb-3
+              label.form-label(for="domicilio") Domicilio
+              input#domicilio.form-control(type="text" name="domicilio" value=paciente.domicilio required)
+
+            .col-md-6.mb-3
+              label.form-label(for="nro_Telefono") Teléfono
+              input#nro_Telefono.form-control(type="text" name="nro_Telefono" value=paciente.nro_Telefono required)
+
+          .row
+            .col-md-6.mb-3
+              label.form-label(for="fechaNacimiento") Fecha de Nacimiento
+              input#fechaNacimiento.form-control(type="date" name="fechaNacimiento" value=paciente.fechaNacimiento required)
+            .col-md-6.mb-3
+              label.form-label(for="sexo") Sexo
+              select#sexo.form-select(name="sexo" required)
+                option(value="1" selected=paciente.sexo==1) Masculino
+                option(value="2" selected=paciente.sexo==2) Femenino
+
+          .row
+            .col-md-6.mb-3
+              label.form-label(for="id_tipoSangre") Tipo de Sangre
+              select#id_tipoSangre.form-select(name="id_tipoSangre" required)
+                option(value="") Seleccione...
+                each tipo in tiposSangre
+                  option(
+                    value=tipo.id
+                    selected=(paciente.id_tipoSangre == tipo.id)
+                  ) #{tipo.tipo}#{tipo.Rh ? '+' : '-'}
+
+            .col-md-6.mb-3
+              label.form-label(for="id_localidad") Localidad
+              select#id_localidad.form-select(name="id_localidad" required)
+                option(value="") Seleccione...
+                each localidad in localidades
+                  option(
+                    value=localidad.id
+                    selected=(paciente.id_localidad == localidad.id)
+                  ) #{localidad.nombre} - #{localidad.provincia.nombre}
+
+          .row.mt-4
+            .col-12.d-flex.justify-content-end
+              button.btn.btn-secondary.me-2(type="button" onclick="window.history.back()")
+                i.fas.fa-times.me-1
+                | Cancelar
+              button.btn.btn-success(type="submit")
+                i.fas.fa-save.me-1
+                | Guardar Cambios

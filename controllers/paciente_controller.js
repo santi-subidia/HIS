@@ -54,6 +54,77 @@ module.exports = {
       console.error('Error al registrar paciente:', error);
       res.status(500).send('Error interno del servidor');
     }
+  },
+
+  mostrarFormularioActualizar: async (req, res) => {
+    if (req.query.dni) {
+      return res.redirect(`/pacientes/actualizar/${req.query.dni}`);
+    }
+    res.render('actualizar-paciente', { paciente: null, mensaje: null });
+  },
+
+  buscarPacientePorDNI: async (req, res) => {
+    try {
+      const dni = req.params.dni;
+      const paciente = await Paciente.findOne({ where: { DNI: dni } });
+      if (!paciente) {
+        return res.render('actualizar-paciente', { paciente: null, mensaje: 'No se encontró un paciente con ese DNI.' });
+      }
+      
+      // Traer selects
+      const tiposSangre = await TipoSangre.findAll();
+      const localidades = await Localidad.findAll({ include: [{ model: Provincia, as: 'provincia' }] });
+
+      res.render('actualizar-paciente', {
+        paciente,
+        tiposSangre,
+        localidades,
+        mensaje: null
+      });
+    } catch (error) {
+      res.render('actualizar-paciente', { paciente: null, mensaje: 'Error al buscar paciente.' });
+    }
+  },
+
+  actualizarPaciente: async (req, res) => {
+    try {
+      const id = req.params.id;
+      const data = pacienteSchema.parse(req.body);
+
+
+      await Paciente.update(data, { where: { id } });
+
+      // Traer selects para volver a mostrar el formulario actualizado
+      const paciente = await Paciente.findByPk(id);
+      const tiposSangre = await TipoSangre.findAll();
+      const localidades = await Localidad.findAll({ include: [{ model: Provincia, as: 'provincia' }] });
+
+      res.render('actualizar-paciente', {
+        paciente,
+        tiposSangre,
+        localidades,
+        mensaje: 'Paciente actualizado correctamente.'
+      });
+    } catch (error) {
+      // Si hay error de validación, vuelve a mostrar el formulario con los datos ingresados
+      const tiposSangre = await TipoSangre.findAll();
+      const localidades = await Localidad.findAll({ include: [{ model: Provincia, as: 'provincia' }] });
+
+      let mensaje = 'Error al actualizar paciente.';
+      if (error.issues) { // Zod
+        mensaje += ' ' + error.issues.map(e => `${e.path}: ${e.message}`).join(' ');
+      } else if (error.errors) {
+        mensaje += ' ' + error.errors.map(e => e.message).join(' ');
+      }
+
+      res.render('actualizar-paciente', {
+        paciente: { ...req.body, id: req.params.id },
+        tiposSangre,
+        localidades,
+        mensaje
+      });
+    }
   }
+
 };
 
