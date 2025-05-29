@@ -1,6 +1,8 @@
+const { Provincia } = require('../models');
+
 module.exports = {
-  up: async (queryInterface, Sequelize) => {
-    await queryInterface.bulkInsert('provincias', [
+  up: async () => {
+    const provincias = [
       { id: 1, nombre: 'San Luis' },
       { id: 2, nombre: 'Buenos Aires' },
       { id: 3, nombre: 'Catamarca' },
@@ -25,7 +27,14 @@ module.exports = {
       { id: 22, nombre: 'Tierra del Fuego' },
       { id: 23, nombre: 'Tucumán' },
       { id: 24, nombre: 'Ciudad Autónoma de Buenos Aires' }
-    ]);
+    ];
+
+    for (const provincia of provincias) {
+      await Provincia.findOrCreate({
+        where: { id: provincia.id },
+        defaults: provincia
+      });
+    }
   },
 
   down: async (queryInterface, Sequelize) => {
