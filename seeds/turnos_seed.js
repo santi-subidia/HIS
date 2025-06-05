@@ -1,0 +1,40 @@
+const { Turno } = require('../models');
+
+module.exports = {
+  up: async () => {
+    const turnos = [
+      {
+        id: 1,
+        fecha: '2024-06-10T09:00:00', // Fecha y hora juntas
+        estado: 'pendiente',
+        id_paciente: 5,
+        id_motivo: 1
+      },
+      {
+        id: 2,
+        fecha: '2024-06-10T10:00:00',
+        estado: 'pendiente',
+        id_paciente: 6,
+        id_motivo: 2
+      },
+      {
+        id: 3,
+        fecha: '2024-06-11T11:00:00',
+        estado: 'pendiente',
+        id_paciente: 7,
+        id_motivo: 2
+      }
+    ];
+
+    for (const turno of turnos) {
+      await Turno.findOrCreate({
+        where: { id: turno.id },
+        defaults: turno
+      });
+    }
+  },
+
+  down: async (queryInterface, Sequelize) => {
+    await queryInterface.bulkDelete('turnos', null, {});
+  }
+};
