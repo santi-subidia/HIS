@@ -3,10 +3,10 @@ const { Model, DataTypes } = require('sequelize');
 module.exports = (sequelize) => {
   class Paciente extends Model {
     static associate(models) {
-      Paciente.belongsTo(models.Localidad, { foreignKey: 'id_localidad' });
-      Paciente.belongsTo(models.TipoSangre, { foreignKey: 'id_tipoSangre' });
-      Paciente.hasMany(models.Turno, { foreignKey: 'id_paciente' });
-      Paciente.hasMany(models.PacienteSeguro, { foreignKey: 'id_paciente' });
+      Paciente.belongsTo(models.Localidad, { foreignKey: 'id_localidad', as: 'localidad' });
+      Paciente.belongsTo(models.TipoSangre, { foreignKey: 'id_tipoSangre', as: 'tipoSangre' });
+      Paciente.hasMany(models.Turno, { foreignKey: 'id_paciente', as: 'turnos' });
+      Paciente.hasMany(models.PacienteSeguro, { foreignKey: 'id_paciente', as: 'seguros' });
     }
   }
 

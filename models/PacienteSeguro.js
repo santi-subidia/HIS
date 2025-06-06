@@ -3,9 +3,9 @@ const { Model, DataTypes } = require('sequelize');
 module.exports = (sequelize) => {
   class PacienteSeguro extends Model {
     static associate(models) {
-      PacienteSeguro.belongsTo(models.Paciente, { foreignKey: 'id_paciente' });
-      PacienteSeguro.belongsTo(models.Seguro, { foreignKey: 'id_seguro' });
-      PacienteSeguro.hasMany(models.Internacion, { foreignKey: 'id_paciente_seguro' });
+      PacienteSeguro.belongsTo(models.Paciente, { foreignKey: 'id_paciente', as: 'paciente' });
+      PacienteSeguro.belongsTo(models.Seguro, { foreignKey: 'id_seguro', as: 'seguro' });
+      PacienteSeguro.hasMany(models.Internacion, { foreignKey: 'id_paciente_seguro', as: 'internaciones' });
     }
   }
 
@@ -65,7 +65,18 @@ module.exports = (sequelize) => {
     sequelize,
     modelName: 'PacienteSeguro',
     tableName: 'paciente_seguro',
-    timestamps: false
+    timestamps: false,
+    hooks: {
+      beforeSave: (pacienteSeguro) => {
+        if (pacienteSeguro.fecha_hasta) {
+          const ahora = new Date();
+          const fechaHasta = new Date(pacienteSeguro.fecha_hasta);
+          pacienteSeguro.estado = fechaHasta < ahora ? 'inactivo' : 'activo';
+        } else {
+          pacienteSeguro.estado = 'activo';
+        }
+      }
+    }
   });
 
   return PacienteSeguro;

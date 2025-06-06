@@ -9,6 +9,18 @@ module.exports = (sequelize) => {
   }
 
   ContactoEmergencia.init({
+    DNI_contacto: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+      validate: {
+        notEmpty: { msg: "El DNI no puede estar vacío" },
+        is: {
+          args: /^[0-9]{7,9}$/,
+          msg: "El DNI debe contener entre 7 y 9 dígitos numéricos"
+        }
+      }
+    },
     nombre: {
       type: DataTypes.STRING,
       allowNull: false,

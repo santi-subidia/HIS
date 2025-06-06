@@ -35,14 +35,28 @@ module.exports = (sequelize) => {
       validate: {
         isInt: { msg: "La capacidad debe ser un número entero" },
         min: 1,
-        max: 10 // asumido, se puede ajustar
+        max: 2
+      }
+    },
+    camas_disponibles: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 1,
+      validate: {
+        isInt: { msg: "El campo camas_disponibles debe ser un número entero" },
+        min: 0
       }
     }
   }, {
     sequelize,
     modelName: 'Habitacion',
     tableName: 'habitaciones',
-    timestamps: false
+    timestamps: false,
+    hooks: {
+      beforeCreate: (habitacion) => {
+        habitacion.camas_disponibles = habitacion.capacidad;
+      }
+    }
   });
 
   return Habitacion;
