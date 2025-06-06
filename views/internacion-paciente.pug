@@ -1,0 +1,218 @@
+extends layout
+
+block content
+  .row
+    .col-lg-12.mb-4
+      h3.text-primary.mb-4
+        i.fas.fa-procedures.me-2
+        | Internación de Paciente
+
+  form(action="/internacion/registro/buscar" method="POST")
+    .card.shadow
+      .card-header.bg-white
+        h5.mb-0
+          i.fas.fa-id-card.me-2
+          | Buscar paciente por DNI
+
+      .card-body
+        .row.mb-3
+          .col-md-6
+            label.form-label(for="dni") DNI
+            input#dni.form-control(
+              type="text"
+              name="dni"
+              required
+              maxlength="9"
+              minlength="7"
+              title="El DNI debe contener solo números (7 a 9 dígitos)"
+              placeholder="Ingrese el DNI del paciente"
+            )
+            small.form-text.text-muted El DNI debe tener entre 7 y 9 dígitos numéricos.
+        .row
+          .col-12.d-flex.justify-content-end
+            button.btn.btn-primary(type="submit")
+              i.fas.fa-search.me-2
+              | Buscar Paciente
+
+  if mensaje
+    .alert.alert-warning.mt-4 #{mensaje}
+
+  if paciente
+    .card.mb-4.shadow
+      .card-body
+        h5.text-primary.mb-3
+          i.fas.fa-user.me-2
+          | Datos del paciente a internar
+        .row
+          .col-md-6.mb-2
+            strong Nombre completo:
+            |  #{paciente.nombre} #{paciente.apellido}
+          .col-md-6.mb-2
+            strong DNI:
+            |  #{paciente.DNI}
+
+    form(action=`/internacion/registro/${paciente.id}` method="POST")
+      .card.mt-4.shadow
+        .card-header.bg-success.text-white
+          h5.mb-0
+            i.fas.fa-user-check.me-2
+            | Formulario de Internación
+
+        .card-body
+          .row
+            .col-md-6.mb-3
+              label.form-label(for="motivo") Motivo de Internación
+              select#motivo.form-select(name="motivo" required)
+                option(value="") Seleccione...
+                each motivo in motivos
+                  option(
+                    value=motivo.id
+                    selected=(formData && formData.motivo == motivo.id) ? true : false
+                  )= motivo.nombre
+
+            .col-md-6.mb-3
+              label.form-label(for="detalle") Detalle de Internación
+              textarea#detalle.form-control(name="detalle" required rows="3")
+                | #{formData && formData.detalle ? formData.detalle : ''}
+
+          .row
+            .col-12
+              hr
+              .text-center.mb-3
+                span.bg-white.px-3.text-primary.fs-5.fw-bold(style="position:relative; top:-32px;") Seguro
+
+          .row
+            .col-md-4.mb-3
+              label.form-label(for="seguro") Seguro
+              select#seguro.form-select(name="seguro" required)
+                option(value="") Seleccione...
+                each seguro in seguros
+                  option(
+                    value=seguro.id
+                    selected=(formData && formData.seguro == seguro.id) ? true : false
+                  )= seguro.nombre
+
+            .col-md-4.mb-3
+              label.form-label(for="codigo_afiliado") Código de afiliado
+              input#codigoAfiliado.form-control(
+                type="text"
+                name="codigo_afiliado"
+                required
+                title="El código de afiliado debe contener solo números"
+                value=(formData && formData.codigo_afiliado ? formData.codigo_afiliado : '')
+              )
+              small.form-text.text-muted Solo números.
+
+            .col-md-2.mb-3
+              label.form-label(for="fecha_desde") Desde
+              input#fechaDesde.form-control(
+                type="date"
+                name="fecha_desde"
+                required
+                title="No puede ser una fecha futura"
+                value=(formData && formData.fecha_desde ? formData.fecha_desde : '')
+              )
+              small.form-text.text-muted No puede ser una fecha futura.
+
+            .col-md-2.mb-3
+              label.form-label(for="fecha_hasta") Hasta (Opcional)
+              input#fechaHasta.form-control(type="date" name="fecha_hasta" value=(formData && formData.fecha_hasta ? formData.fecha_hasta : ''))
+          .row
+            .col-12
+              hr
+              .text-center.mb-3
+                span.bg-white.px-3.text-success.fs-5.fw-bold(style="position:relative; top:-32px;") Contacto de emergencia
+
+          .row
+            .col-md-4.mb-3
+              label.form-label(for="dniContacto") DNI del contacto
+              input#dniContacto.form-control(type="text" name="dniContacto" maxlength="9" required value=(formData && formData.dniContacto ? formData.dniContacto : ''))
+
+            .col-md-4.mb-3
+              label.form-label(for="nombreContacto") Nombre del contacto
+              input#nombreContacto.form-control(
+                type="text"
+                name="nombreContacto"
+                required
+                title="Solo letras y espacios, entre 2 y 50 caracteres"
+                value=(formData && formData.nombreContacto ? formData.nombreContacto : '')
+              )
+              small.form-text.text-muted Solo letras y espacios, entre 2 y 50 caracteres.
+
+            .col-md-4.mb-3
+              label.form-label(for="apellidoContacto") Apellido del contacto
+              input#apellidoContacto.form-control(
+                type="text"
+                name="apellidoContacto"
+                required
+                title="Solo letras y espacios, entre 2 y 50 caracteres"
+                value=(formData && formData.apellidoContacto ? formData.apellidoContacto : '')
+              )
+              small.form-text.text-muted Solo letras y espacios, entre 2 y 50 caracteres.
+
+          .row
+            .col-md-4.mb-3
+              label.form-label(for="parentescoContacto") Parentesco
+              select#parentescoContacto.form-select(name="parentescoContacto" required)
+                option(value="") Seleccione...
+                each parentesco in parentescos
+                  option(
+                    value=parentesco.id
+                    selected=(formData && formData.parentescoContacto == parentesco.id) ? true : false
+                  )= parentesco.nombre
+
+            .col-md-4.mb-3
+              label.form-label(for="telefonoContacto") Teléfono del contacto
+              input#telefonoContacto.form-control(
+                type="text"
+                name="telefonoContacto"
+                required
+                title="El teléfono debe tener entre 7 y 15 dígitos numéricos"
+                value=(formData && formData.telefonoContacto ? formData.telefonoContacto : '')
+              )
+              small.form-text.text-muted Solo números, entre 7 y 15 dígitos.
+              input#sexoPaciente(type="hidden" value=paciente.sexo)
+
+
+          .row
+            .col-12
+              hr
+              .text-center.mb-3
+                span.bg-white.px-3.text-info.fs-5.fw-bold(style="position:relative; top:-32px;") Habitación
+
+          .row
+            .col-md-3.mb-3
+              label.form-label(for="sector") Sector
+              select#sector.form-select(name="sector" required)
+                option(value="") Seleccione...
+                each sector in sectores
+                  option(
+                    value=sector.id
+                    selected=(formData && formData.sector == sector.id) ? true : false
+                  )= sector.nombre
+
+            .col-md-3.mb-3
+              label.form-label(for="ala") Ala
+              select#ala.form-select(name="ala" required)
+                option(value="") Seleccione...
+
+            .col-md-3.mb-3
+              label.form-label(for="habitacion") Habitación
+              select#habitacion.form-select(name="habitacion" required disabled)
+                option(value="") Seleccione...
+
+            .col-md-3.mb-3
+              label.form-label(for="cama") Cama
+              select#cama.form-select(name="cama" required disabled)
+                option(value="") Seleccione...
+
+          .row.mt-4
+            .col-12.d-flex.justify-content-end
+              button.btn.btn-warning(type="submit")
+                i.fas.fa-bed.me-2
+                | Internar Paciente
+
+      .row
+        .col-12.mb-5
+
+  script(src="/scripts/internacion-paciente.js")

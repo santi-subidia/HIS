@@ -1,4 +1,4 @@
-const { pacienteSchema } = require('../schemas/paciente.schema');
+const { pacienteSchema } = require('../schemas/paciente_schema');
 const { Paciente, TipoSangre, Localidad, Provincia } = require('../models');
 
 module.exports = {

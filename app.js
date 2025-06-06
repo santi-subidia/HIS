@@ -9,6 +9,7 @@ const app = express();
 
 // Configuración de Express
 app.use(express.urlencoded({ extended: true }));
+app.use(express.static('public'));
 app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, 'views'));
 
@@ -17,7 +18,11 @@ app.get('/', (req, res) => {
   res.render('index', { title: 'Bienvenido a mi aplicación' });
 });
 
-app.use('/pacientes', require('./routes/paciente_routes')); // Asegúrate de que la ruta sea correcta
+
+app.use('/pacientes', require('./routes/paciente_routes'));
+app.use('/internacion', require('./routes/internacion_routes'));
+app.use('/api', require('./routes/api_routes'));
+
 
 const PORT = process.env.PORT || 3000;
 
@@ -26,8 +31,8 @@ app.listen(PORT, async () => {
     await sequelize.authenticate();
     console.log('✅ Conectado a la base de datos');
 
-    await sequelize.sync({ alter: true });
-    console.log('📦 Modelos sincronizados');
+    // await sequelize.sync({ alter: true });
+    // console.log('📦 Modelos sincronizados');
 
     console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
   } catch (error) {
