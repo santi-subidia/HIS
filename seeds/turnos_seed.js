@@ -5,7 +5,7 @@ module.exports = {
     const turnos = [
       {
         id: 1,
-        fecha: '2024-06-10T09:00:00', // Fecha y hora juntas
+        fecha: '2024-06-10T09:00:00',
         estado: 'pendiente',
         id_paciente: 5,
         id_motivo: 1

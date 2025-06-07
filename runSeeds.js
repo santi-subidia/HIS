@@ -12,7 +12,7 @@ const turnosSeed = require('./seeds/turnos_seed');
 
 async function runSeeds() {
   try {
-    // Sembrar provincias (sin borrar, solo inserta si no existe)
+    // Sembrar provincias
     await provinciasSeed.up();
     console.log('Seed de provincias ejecutado correctamente.');
 

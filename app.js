@@ -31,6 +31,8 @@ app.listen(PORT, async () => {
     await sequelize.authenticate();
     console.log('✅ Conectado a la base de datos');
 
+    // Descomentar la siguiente línea para sincronizar modelos con la base de datos
+    
     // await sequelize.sync({ alter: true });
     // console.log('📦 Modelos sincronizados');
 
