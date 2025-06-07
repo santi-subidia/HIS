@@ -1,7 +1,26 @@
 const { pacienteSchema } = require('../schemas/paciente_schema');
 const { Paciente, TipoSangre, Localidad, Provincia } = require('../models');
 
+
 module.exports = {
+
+  listarPacientes: async (req, res) => {
+    try {
+      const pacientes = await Paciente.findAll({
+        where: { id: { [require('sequelize').Op.gt]: 0 } }, // Solo pacientes con id positivo
+        include: [
+          { model: TipoSangre, as: 'tipoSangre' },
+          { model: Localidad, as: 'localidad', include: [{ model: Provincia, as: 'provincia' }] }
+        ]
+      });
+
+      res.render('listar-pacientes', { pacientes, mensaje: null });
+
+    } catch (error) {
+      console.error('Error al listar pacientes:', error);
+      res.render('listar-pacientes', { pacientes: [], mensaje: 'Error al listar pacientes.' });
+    }},
+
   mostrarFormularioRegistro: async (req, res) => {
     try {
       const tiposSangre = await TipoSangre.findAll();
@@ -57,15 +76,12 @@ module.exports = {
   },
 
   mostrarFormularioActualizar: async (req, res) => {
-    if (req.query.dni) {
-      return res.redirect(`/pacientes/actualizar/${req.query.dni}`);
-    }
     res.render('actualizar-paciente', { paciente: null, mensaje: null });
   },
 
   buscarPacientePorDNI: async (req, res) => {
     try {
-      const dni = req.params.dni;
+      const dni = req.body.dni;
       const paciente = await Paciente.findOne({ where: { DNI: dni } });
       if (!paciente) {
         return res.render('actualizar-paciente', { paciente: null, mensaje: 'No se encontró un paciente con ese DNI.' });
@@ -73,7 +89,7 @@ module.exports = {
       
       // Traer selects
       const tiposSangre = await TipoSangre.findAll();
-      const localidades = await Localidad.findAll({ include: [{ model: Provincia, as: 'provincia' }] });
+      const localidades = await Localidad.findAll({ include: [{ model: Provincia, as: 'provincia' }] });   
 
       res.render('actualizar-paciente', {
         paciente,

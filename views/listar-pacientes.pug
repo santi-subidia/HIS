@@ -1,0 +1,39 @@
+extends layout
+
+block content
+  h2 Lista de Pacientes
+
+  if mensaje
+    div.alert.alert-danger= mensaje
+
+  if pacientes.length
+    table.table.table-striped
+      thead
+        tr
+          th DNI
+          th Apellido
+          th Nombre
+          th Sexo
+          th Fecha de Nacimiento
+          th Teléfono
+          th Localidad
+          th Acciones
+      tbody
+        each paciente in pacientes
+          tr
+            td= paciente.DNI
+            td= paciente.apellido
+            td= paciente.nombre
+            td= paciente.sexo == '1' ? 'Masculino' : (paciente.sexo == '2' ? 'Femenino' : 'Otro')
+            td= paciente.fechaNacimiento ? new Date(paciente.fechaNacimiento).toLocaleDateString('es-AR') : '-'
+            td= paciente.nro_Telefono
+            td= paciente.localidad ? paciente.localidad.nombre : '-'
+            td
+              form(action="/pacientes/actualizar" method="POST" style="display:inline")
+                input(type="hidden" name="dni" value=paciente.DNI)
+                button.btn.btn-warning.btn-sm(type="submit") Actualizar
+              form(action="/internacion/registro/buscar" method="POST" style="display:inline")
+                input(type="hidden" name="dni" value=paciente.DNI)
+                button.btn.btn-success.btn-sm.ms-2(type="submit") Internar
+  else
+    div.alert.alert-info No hay pacientes registrados.
