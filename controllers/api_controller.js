@@ -37,10 +37,16 @@ module.exports = {
                 include: [{ model: Cama, required: true }]
             });
 
+            console.log('Habitaciones filtradas:', JSON.stringify(habitacionesFiltradas, null, 2));
+            
+
             // 2. Obtener IDs de habitaciones que NO van
             const habitacionesNoVanIds = [];
             for (const habitacion of habitacionesFiltradas) {
                 const camaOcupada = habitacion.Camas.find(c => c.estado === 'ocupada');
+
+                console.log(`Cama ocupada en habitación ${habitacion.id}:`, camaOcupada);
+                
                 if (!camaOcupada) continue;
 
                 const internacion = await Internacion.findOne({
@@ -56,10 +62,21 @@ module.exports = {
                     paciente = internacion.PacienteSeguro.paciente;
                 }
 
-                if (paciente && paciente.sexo && paciente.sexo !== sexo) {
+
+                console.log(`Paciente encontrado en habitación ${habitacion.id}:`, paciente);  
+                console.log(`Sexo del paciente: ${paciente ? paciente.sexo : 'No disponible'}`);
+                console.log(`Sexo esperado: ${sexo}`);
+                if (
+                  paciente &&
+                  paciente.sexo &&
+                  String(paciente.sexo) !== String(sexo)
+                ) {
                     habitacionesNoVanIds.push(habitacion.id);
                 }
             }
+
+            console.log('Habitaciones que no van:', JSON.stringify(habitacionesNoVanIds, null, 2));
+            
 
             // 3. Obtener todas las habitaciones del ala
             const todasHabitaciones = await Habitacion.findAll({

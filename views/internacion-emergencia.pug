@@ -1,0 +1,58 @@
+extends layout
+
+block content
+  .container
+    h2.mb-4.text-danger
+      i.fas.fa-triangle-exclamation.me-2
+      | Internación de Emergencia
+
+    p.text-muted.mb-4
+      i.fas.fa-info-circle.me-1
+      | Solo se requiere sexo y ubicación. Los demás datos se completarán luego.
+
+    if mensaje
+      .alert.alert-danger= mensaje
+
+    .card.shadow.mb-5
+      .card-body
+        form(method="POST", action="/internacion/emergencias")
+          .row.mb-3
+            .col-md-4
+              label.form-label(for="sexoPaciente") Sexo del paciente
+              select#sexoPaciente.form-select(name="sexo" required)
+                option(value="") Seleccione...
+                option(value="1") Masculino
+                option(value="2") Femenino
+
+          hr
+
+          .row.mb-3
+            .col-md-3
+              label.form-label(for="sector") Sector
+              select#sector.form-select(name="sector" required)
+                option(value="") Seleccione...
+                each sector in sectores
+                  option(value=sector.id)= sector.nombre
+
+            .col-md-3
+              label.form-label(for="ala") Ala
+              select#ala.form-select(name="ala" required disabled)
+                option(value="") Seleccione...
+
+            .col-md-3
+              label.form-label(for="habitacion") Habitación
+              select#habitacion.form-select(name="habitacion" required disabled)
+                option(value="") Seleccione...
+
+            .col-md-3
+              label.form-label(for="cama") Cama
+              select#cama.form-select(name="cama" required disabled)
+                option(value="") Seleccione...
+
+          .row.mt-4
+            .col-12.d-flex.justify-content-end
+              button.btn.btn-danger.btn-lg(type="submit")
+                i.fas.fa-triangle-exclamation.me-2
+                | Internar de Emergencia
+
+    script(src="/scripts/internacion-paciente.js")

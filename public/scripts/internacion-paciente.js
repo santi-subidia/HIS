@@ -77,7 +77,9 @@ function cargarCamas() {
     return;
   }
 
-  const camas = JSON.parse(selected.dataset.camas);
+  console.log('Camas en data-camas:', selected.dataset.camas);
+  // Filtrar solo las camas disponibles (estado === 'disponible')
+  const camas = JSON.parse(selected.dataset.camas).filter(c => c.estado === 'disponible');
   camas.forEach(c => {
     const opt = document.createElement('option');
     opt.value = c.id;
@@ -89,6 +91,13 @@ function cargarCamas() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+  // Declarar todos los selects al inicio
+  const sexoSelect = document.getElementById('sexoPaciente');
+  const sectorSelect = document.getElementById('sector');
+  const alaSelect = document.getElementById('ala');
+  const habitacionSelect = document.getElementById('habitacion');
+  const camaSelect = document.getElementById('cama');
+
   document.querySelectorAll('form').forEach(form => {
     form.addEventListener('submit', function() {
       document.querySelectorAll('select:disabled').forEach(el => el.disabled = false);
@@ -96,20 +105,40 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   // Listener para cargar camas al cambiar habitación
-  const habSelect = document.getElementById('habitacion');
-  if (habSelect) {
-    habSelect.addEventListener('change', cargarCamas);
+  if (habitacionSelect) {
+    habitacionSelect.addEventListener('change', cargarCamas);
   }
 
   // Listener para cargar alas al cambiar sector
-  const sectorSelect = document.getElementById('sector');
   if (sectorSelect) {
     sectorSelect.addEventListener('change', cargarAlas);
   }
 
   // Listener para cargar habitaciones al cambiar ala
-  const alaSelect = document.getElementById('ala');
   if (alaSelect) {
     alaSelect.addEventListener('change', cargarHabitaciones);
+  }
+
+  // --- NUEVO: Control de selects dependientes del sexo ---
+  if (sexoSelect && sectorSelect) {
+    // Al inicio, deshabilitar sector si no hay sexo seleccionado
+    if (!sexoSelect.value) {
+      sectorSelect.disabled = true;
+      alaSelect.disabled = true;
+      habitacionSelect.disabled = true;
+      camaSelect.disabled = true;
+    }
+
+    sexoSelect.addEventListener('change', function() {
+      // Siempre limpiar y deshabilitar todos los selects de ubicación al cambiar sexo
+      sectorSelect.value = '';
+      sectorSelect.disabled = !sexoSelect.value;
+      alaSelect.value = '';
+      alaSelect.disabled = true;
+      habitacionSelect.value = '';
+      habitacionSelect.disabled = true;
+      camaSelect.value = '';
+      camaSelect.disabled = true;
+    });
   }
 });

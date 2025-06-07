@@ -9,4 +9,7 @@ router.post('/registro/:id', internacionController.crearInternacion);
 
 router.get('/turnos', internacionController.mostrarTurnosInternacion);
 
+router.get('/emergencias', internacionController.mostrarFormularioEmergencia);
+router.post('/emergencias', internacionController.internarEmergencia);
+
 module.exports = router;

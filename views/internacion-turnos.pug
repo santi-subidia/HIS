@@ -1,0 +1,52 @@
+extends layout
+
+block content
+  .container
+    h2.mb-4 Internación por Turno
+
+    // Filtros
+    form.mb-3.d-flex.gap-3(method="GET", action="/internacion/turnos")
+      input.form-control(type="text", name="dni", placeholder="Buscar por DNI" value=(filters && filters.dni) || '')
+      input.form-control(type="text", name="nombre", placeholder="Buscar por Nombre" value=(filters && filters.nombre) || '')
+      input.form-control(type="date", name="fecha", placeholder="Fecha" value=(filters && filters.fecha) || '')
+      button.btn.btn-primary(type="submit") Filtrar
+
+    // Mensaje de error
+    if mensaje
+      .alert.alert-danger= mensaje
+
+    // Tabla de turnos
+    table.table.table-striped
+      thead
+        tr
+          th Turno ID
+          th Fecha
+          th Hora
+          th Paciente
+          th DNI
+          th Teléfono
+          th Estado
+          th Acción
+      tbody
+        if turnos.length
+          each turno in turnos
+            tr
+              td= turno.id
+              td= turno.fecha ? turno.fecha.toISOString().slice(0,10) : '-'
+              td= turno.fecha ? turno.fecha.toISOString().slice(11,16) : '-'
+              td= turno.Paciente ? turno.Paciente.nombre + ' ' + turno.Paciente.apellido : '-'
+              td= turno.Paciente ? turno.Paciente.DNI : '-'
+              td= turno.Paciente ? turno.Paciente.nro_Telefono : '-'
+              td= turno.estado
+              td
+                if turno.Paciente
+                  form(action="/internacion/registro/buscar" method="POST" style="display:inline;")
+                    input(type="hidden" name="dni" value=turno.Paciente.DNI)
+                    button.btn.btn-success(type="submit" title="Internar paciente")
+                      i.fas.fa-bed.me-1
+                      | Internar
+                else
+                  span.text-danger Sin paciente
+        else
+          tr
+            td(colspan="8").text-center No hay turnos para mostrar.
