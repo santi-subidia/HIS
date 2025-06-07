@@ -70,7 +70,7 @@ module.exports = (sequelize) => {
       allowNull: false,
       validate: {
         isInt: { msg: "Debe ser un número entero" },
-        min: 1
+        min: -1
       }
     },
     nro_Telefono: {
@@ -89,7 +89,7 @@ module.exports = (sequelize) => {
       allowNull: false,
       validate: {
         isInt: true,
-        min: 1
+        min: -1
       }
     },
     fechaNacimiento: {

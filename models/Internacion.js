@@ -14,10 +14,6 @@ module.exports = (sequelize) => {
     id_paciente_seguro: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      validate: {
-        isInt: { msg: "Debe ser un número entero" },
-        min: 1
-      }
     },
     id_cama: {
       type: DataTypes.INTEGER,

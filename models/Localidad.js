@@ -14,7 +14,7 @@ module.exports = (sequelize) => {
       allowNull: false,
       validate: {
         isInt: { msg: "La provincia debe ser un número entero" },
-        min: 1
+        min: -1
       }
     },
     nombre: {

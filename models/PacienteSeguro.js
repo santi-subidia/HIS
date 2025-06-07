@@ -13,17 +13,13 @@ module.exports = (sequelize) => {
     id_paciente: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      validate: {
-        isInt: { msg: "Debe ser un número entero" },
-        min: 1
-      }
     },
     id_seguro: {
       type: DataTypes.INTEGER,
       allowNull: false,
       validate: {
         isInt: { msg: "Debe ser un número entero" },
-        min: 1
+        min: -1
       }
     },
     codigo_afiliado: {
