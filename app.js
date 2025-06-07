@@ -30,11 +30,16 @@ app.listen(PORT, async () => {
   try {
     await sequelize.authenticate();
     console.log('✅ Conectado a la base de datos');
-
-    // Descomentar la siguiente línea para sincronizar modelos con la base de datos
     
-    // await sequelize.sync({ alter: true });
-    // console.log('📦 Modelos sincronizados');
+    if (process.env.SYNC_MODELS === 'true') {
+      await sequelize.sync({ alter: true });
+      console.log('📦 Modelos sincronizados');
+    }
+
+    if (process.env.RUN_SEEDS === 'true') {
+      require('./runSeeds');
+    }
+
 
     console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
   } catch (error) {
