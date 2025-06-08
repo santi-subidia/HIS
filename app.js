@@ -15,12 +15,11 @@ app.set('views', path.join(__dirname, 'views'));
 
 
 app.get('/', (req, res) => {
-  res.render('index', { title: 'Bienvenido a mi aplicación' });
+  res.render('index');
 });
-
-
 app.use('/pacientes', require('./routes/paciente_routes'));
 app.use('/internacion', require('./routes/internacion_routes'));
+app.use('/habitacion', require('./routes/habitacion_routes'));
 app.use('/api', require('./routes/api_routes'));
 
 

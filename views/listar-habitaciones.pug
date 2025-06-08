@@ -1,0 +1,34 @@
+extends layout
+
+block content
+  h2.mb-4 Gestión de Habitaciones
+
+  if mensaje
+    div.alert.alert-danger= mensaje
+
+  if habitaciones.length
+    table.table.table-striped
+      thead
+        tr
+          th Sector
+          th Ala
+          th Habitación
+          th Cama
+          th Estado
+      tbody
+        each habitacion in habitaciones
+          each cama in habitacion.Camas
+            tr
+              td= habitacion.Ala && habitacion.Ala.Sector ? habitacion.Ala.Sector.nombre : '-'
+              td= habitacion.Ala ? habitacion.Ala.ubicacion : '-'
+              td= habitacion.codigo
+              td= cama.nroCama
+              td
+                if cama.estado === 'disponible'
+                  span.badge.bg-success Disponible
+                else if cama.estado === 'ocupada'
+                  span.badge.bg-danger Ocupada
+                else
+                  span.badge.bg-secondary= cama.estado
+  else
+    div.alert.alert-info No hay habitaciones registradas.

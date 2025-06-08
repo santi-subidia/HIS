@@ -1,6 +1,36 @@
-extend layout
+extends layout
 
 block content
-        h1.text-center.mb-4
-          i.fas.fa-home.me-2.text-primary
-          | Bienvenido a la Página de Inicio
+  .container
+    h1.text-center.mb-4
+      i.fas.fa-home.me-2.text-primary
+      | Bienvenido al Sistema HIS
+
+    .row.mb-4
+      .col-md-8.offset-md-2
+        .card.shadow
+          .card-body
+            h3.text-primary Sistema de Información Hospitalaria (HIS)
+            p
+              | Esta aplicación está diseñada para gestionar de manera eficiente la información de pacientes, internaciones y recursos hospitalarios. El objetivo principal es facilitar el trabajo del personal de salud, optimizar la ocupación de camas y habitaciones, y mejorar la atención al paciente.
+            ul
+              li
+                strong Gestión de Pacientes:
+                |  Registro, actualización y consulta de datos personales y clínicos.
+              li
+                strong Internaciones:
+                |  Administración de ingresos y asignación de camas.
+              li
+                strong Habitaciones y Camas:
+                |  Visualización del estado de ocupación y disponibilidad, con detalle de sectores y alas.
+              li
+                strong Emergencias:
+                |  Proceso ágil para internaciones de urgencia.
+            p.mt-3
+              | El sistema busca centralizar la información y agilizar los procesos administrativos, contribuyendo a una mejor organización y calidad en la atención hospitalaria.
+
+    .row.mt-5
+      .col-md-8.offset-md-2
+        .alert.alert-info
+          i.fas.fa-info-circle.me-2
+          | Para comenzar, utiliza el menú superior para acceder a las distintas secciones del sistema.

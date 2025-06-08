@@ -4,6 +4,7 @@ const { ContactoEmergencia, PacienteSeguro, Internacion } = require('../models')
 const { contactoEmergenciaSchema } = require('../schemas/contactoEmergencia_schema');
 const { pacienteSeguroSchema } = require('../schemas/pacienteSeguro_schema');
 const { internacionSchema } = require('../schemas/internacion_schema');
+const { listarPacientes } = require('./paciente_controller');
 
 function calcularEstado(fecha_hasta) {
   if (!fecha_hasta) return 'activo';
@@ -37,6 +38,43 @@ async function generarDNIAnonimoPequeno() {
 }
 
 module.exports={
+
+    listarInternaciones: async (req, res) => {
+        try {
+            const internaciones = await Internacion.findAll({
+                include: [
+                    {
+                        model: PacienteSeguro,
+                        include: [
+                            { model: Paciente, as: 'paciente' }
+                        ]
+                    },
+                    {
+                        model: Cama,
+                        include: [
+                            {
+                                model: Habitacion,
+                                include: [
+                                    {
+                                        model: Ala,
+                                        include: [
+                                            { model: Sector }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ],
+                where: { estado: 'activa' }
+            });
+
+            res.render('listar-internaciones', { internaciones, mensaje: null });
+        } catch (error) {
+            console.error('Error al listar internaciones:', error);
+            res.render('listar-internaciones', { internaciones: [], mensaje: 'Error al listar internaciones.' });
+        }
+    },
     
     mostrarFormularioRegistro: async (req, res) => {
       res.render('internacion-paciente', {

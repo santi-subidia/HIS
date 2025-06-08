@@ -1,0 +1,33 @@
+extends layout
+
+block content
+  h2.mb-4 Lista de Internaciones
+
+  if mensaje
+    div.alert.alert-danger= mensaje
+
+  if internaciones.length
+    table.table.table-striped
+      thead
+        tr
+          th Paciente
+          th DNI
+          th Fecha de Ingreso
+          th Estado
+          th Sector
+          th Ala
+          th Habitación
+          th Cama
+      tbody
+        each internacion in internaciones
+          tr
+            td= internacion.PacienteSeguro && internacion.PacienteSeguro.paciente ? internacion.PacienteSeguro.paciente.nombre + ' ' + internacion.PacienteSeguro.paciente.apellido : '-'
+            td= internacion.PacienteSeguro && internacion.PacienteSeguro.paciente ? internacion.PacienteSeguro.paciente.DNI : '-'
+            td= internacion.fechaInternacion ? new Date(internacion.fechaInternacion).toLocaleDateString('es-AR') : '-'
+            td= internacion.estado
+            td= internacion.Cama && internacion.Cama.Habitacion && internacion.Cama.Habitacion.Ala && internacion.Cama.Habitacion.Ala.Sector ? internacion.Cama.Habitacion.Ala.Sector.nombre : '-'
+            td= internacion.Cama && internacion.Cama.Habitacion && internacion.Cama.Habitacion.Ala ? internacion.Cama.Habitacion.Ala.ubicacion : '-'
+            td= internacion.Cama && internacion.Cama.Habitacion ? internacion.Cama.Habitacion.codigo : '-'
+            td= internacion.Cama ? internacion.Cama.nroCama : '-'
+  else
+    div.alert.alert-info No hay internaciones registradas.
