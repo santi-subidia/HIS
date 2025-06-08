@@ -9,6 +9,7 @@ const infraestructuraSeed = require('./seeds/infraestructura_seed');
 const parentescoSeed = require('./seeds/parentescos_seed');
 const segurosSeed = require('./seeds/seguros_seed');
 const turnosSeed = require('./seeds/turnos_seed');
+const contactoEmergenciaSeed = require('./seeds/contacto_emergencia_seed');
 
 async function runSeeds() {
   try {
@@ -47,6 +48,10 @@ async function runSeeds() {
     // Sembrar turnos
     await turnosSeed.up();
     console.log('Seed de turnos ejecutado correctamente.');
+
+    // Sembrar contactos de emergencia
+    await contactoEmergenciaSeed.up();
+    console.log('Seed de contactos de emergencia ejecutado correctamente.');
 
   } catch (error) {
     console.error('Error al ejecutar las seeds:', error);
