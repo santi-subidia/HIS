@@ -4,30 +4,28 @@ const { Paciente, TipoSangre, Localidad, Provincia } = require('../models');
 
 module.exports = {
 
+  // Lista todos los pacientes con sus relaciones principales
   listarPacientes: async (req, res) => {
     try {
       const pacientes = await Paciente.findAll({
-        where: { id: { [require('sequelize').Op.gt]: 0 } }, // Solo pacientes con id positivo
+        where: { id: { [require('sequelize').Op.gt]: 0 } },
         include: [
           { model: TipoSangre, as: 'tipoSangre' },
           { model: Localidad, as: 'localidad', include: [{ model: Provincia, as: 'provincia' }] }
         ]
       });
-
       res.render('listar-pacientes', { pacientes, mensaje: null });
-
     } catch (error) {
       console.error('Error al listar pacientes:', error);
       res.render('listar-pacientes', { pacientes: [], mensaje: 'Error al listar pacientes.' });
-    }},
+    }
+  },
 
+  // Muestra el formulario de registro de paciente
   mostrarFormularioRegistro: async (req, res) => {
     try {
       const tiposSangre = await TipoSangre.findAll();
-      const localidades = await Localidad.findAll({
-        include: [{ model: Provincia, as: 'provincia' }]
-      });
-
+      const localidades = await Localidad.findAll({ include: [{ model: Provincia, as: 'provincia' }] });
       res.render('registro-paciente', { localidades, tiposSangre, valores: {}, error: null, exito: null });
     } catch (error) {
       console.error('Error cargando formulario:', error);
@@ -35,16 +33,14 @@ module.exports = {
     }
   },
 
+  // Registra un nuevo paciente
   registrarPaciente: async (req, res) => {
     try {
       const data = pacienteSchema.parse(req.body);
-
       await Paciente.create(data);
 
       const tiposSangre = await TipoSangre.findAll();
-      const localidades = await Localidad.findAll({
-        include: [{ model: Provincia, as: 'provincia' }]
-      });
+      const localidades = await Localidad.findAll({ include: [{ model: Provincia, as: 'provincia' }] });
 
       res.render('registro-paciente', {
         tiposSangre,
@@ -56,9 +52,7 @@ module.exports = {
 
     } catch (error) {
       const tiposSangre = await TipoSangre.findAll();
-      const localidades = await Localidad.findAll({
-        include: [{ model: Provincia, as: 'provincia' }]
-      });
+      const localidades = await Localidad.findAll({ include: [{ model: Provincia, as: 'provincia' }] });
 
       if (error.name === 'ZodError') {
         return res.status(400).render('registro-paciente', {
@@ -75,10 +69,12 @@ module.exports = {
     }
   },
 
+  // Muestra el formulario de actualización de paciente vacío
   mostrarFormularioActualizar: async (req, res) => {
     res.render('actualizar-paciente', { paciente: null, mensaje: null });
   },
 
+  // Busca un paciente por DNI y muestra el formulario de actualización
   buscarPacientePorDNI: async (req, res) => {
     try {
       const dni = req.body.dni;
@@ -86,10 +82,9 @@ module.exports = {
       if (!paciente) {
         return res.render('actualizar-paciente', { paciente: null, mensaje: 'No se encontró un paciente con ese DNI.' });
       }
-      
-      // Traer selects
+
       const tiposSangre = await TipoSangre.findAll();
-      const localidades = await Localidad.findAll({ include: [{ model: Provincia, as: 'provincia' }] });   
+      const localidades = await Localidad.findAll({ include: [{ model: Provincia, as: 'provincia' }] });
 
       res.render('actualizar-paciente', {
         paciente,
@@ -102,6 +97,7 @@ module.exports = {
     }
   },
 
+  // Actualiza los datos de un paciente
   actualizarPaciente: async (req, res) => {
     try {
       const id = req.params.id;

@@ -1,16 +1,12 @@
+// Carga las alas según el sector seleccionado
 async function cargarAlas() {
-  console.log(`Cargando alas`);
-  
   const sectorSelect = document.getElementById('sector');
   const alaSelect = document.getElementById('ala');
   alaSelect.innerHTML = '<option value="">Seleccione...</option>';
   alaSelect.disabled = true;
 
-  if (!sectorSelect.value) {
-    return;
-  }
+  if (!sectorSelect.value) return;
 
-  // Petición para cargar alas según el sector
   const res = await fetch(`/api/alas?sector=${sectorSelect.value}`);
   const data = await res.json();
 
@@ -24,15 +20,13 @@ async function cargarAlas() {
   alaSelect.disabled = false;
 }
 
+// Carga las habitaciones disponibles según ala y sexo del paciente
 async function cargarHabitaciones() {
-  console.log(`Cargando habitaciones`);
-  
-
   const id_ala = document.getElementById('ala').value;
   const sexoPaciente = document.getElementById('sexoPaciente').value;
   const habSelect = document.getElementById('habitacion');
   const camaSelect = document.getElementById('cama');
-  
+
   habSelect.innerHTML = '<option value="">Seleccione...</option>';
   camaSelect.innerHTML = '<option value="">Seleccione...</option>';
   camaSelect.disabled = true;
@@ -42,16 +36,11 @@ async function cargarHabitaciones() {
     return;
   }
 
-  // Petición con sexo y ala
   const res = await fetch(`/api/habitaciones?ala=${id_ala}&sexo=${sexoPaciente}`);
   const data = await res.json();
-  console.log('Respuesta de la API:', data);
 
   const habitaciones = data.habitacionesDisponibles;
-  if (!habitaciones || !Array.isArray(habitaciones)) {
-    console.error('La respuesta de la API no contiene habitacionesDisponibles:', data);
-    return;
-  }
+  if (!habitaciones || !Array.isArray(habitaciones)) return;
 
   habitaciones.forEach(h => {
     const option = document.createElement('option');
@@ -64,9 +53,8 @@ async function cargarHabitaciones() {
   habSelect.disabled = false;
 }
 
+// Carga las camas disponibles de la habitación seleccionada
 function cargarCamas() {
-  console.log(`Cargando camas`);
-
   const habSelect = document.getElementById('habitacion');
   const camaSelect = document.getElementById('cama');
   camaSelect.innerHTML = '<option value="">Seleccione...</option>';
@@ -77,8 +65,6 @@ function cargarCamas() {
     return;
   }
 
-  console.log('Camas en data-camas:', selected.dataset.camas);
-  // Filtrar solo las camas disponibles (estado === 'disponible')
   const camas = JSON.parse(selected.dataset.camas).filter(c => c.estado === 'disponible');
   camas.forEach(c => {
     const opt = document.createElement('option');
@@ -90,38 +76,27 @@ function cargarCamas() {
   camaSelect.disabled = camas.length === 0;
 }
 
+// Inicialización de listeners y control de selects dependientes
 document.addEventListener('DOMContentLoaded', function() {
-  // Declarar todos los selects al inicio
   const sexoSelect = document.getElementById('sexoPaciente');
   const sectorSelect = document.getElementById('sector');
   const alaSelect = document.getElementById('ala');
   const habitacionSelect = document.getElementById('habitacion');
   const camaSelect = document.getElementById('cama');
 
+  // Habilita selects al enviar el formulario (para que se envíen sus valores)
   document.querySelectorAll('form').forEach(form => {
     form.addEventListener('submit', function() {
       document.querySelectorAll('select:disabled').forEach(el => el.disabled = false);
     });
   });
 
-  // Listener para cargar camas al cambiar habitación
-  if (habitacionSelect) {
-    habitacionSelect.addEventListener('change', cargarCamas);
-  }
+  if (habitacionSelect) habitacionSelect.addEventListener('change', cargarCamas);
+  if (sectorSelect) sectorSelect.addEventListener('change', cargarAlas);
+  if (alaSelect) alaSelect.addEventListener('change', cargarHabitaciones);
 
-  // Listener para cargar alas al cambiar sector
-  if (sectorSelect) {
-    sectorSelect.addEventListener('change', cargarAlas);
-  }
-
-  // Listener para cargar habitaciones al cambiar ala
-  if (alaSelect) {
-    alaSelect.addEventListener('change', cargarHabitaciones);
-  }
-
-  // --- NUEVO: Control de selects dependientes del sexo ---
+  // Control de selects dependientes del sexo
   if (sexoSelect && sectorSelect) {
-    // Al inicio, deshabilitar sector si no hay sexo seleccionado
     if (!sexoSelect.value) {
       sectorSelect.disabled = true;
       alaSelect.disabled = true;
@@ -130,7 +105,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     sexoSelect.addEventListener('change', function() {
-      // Siempre limpiar y deshabilitar todos los selects de ubicación al cambiar sexo
       sectorSelect.value = '';
       sectorSelect.disabled = !sexoSelect.value;
       alaSelect.value = '';
