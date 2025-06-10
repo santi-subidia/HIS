@@ -79,7 +79,7 @@ block content
             .col-12
               hr
               .text-center.mb-3
-                span.bg-white.px-3.text-primary.fs-5.fw-bold(style="position:relative; top:-32px;") Seguro
+                span.bg-white.px-3.text-success.fs-5.fw-bold(style="position:relative; top:-32px;") Seguro
 
           .row
             .col-md-4.mb-3
@@ -103,7 +103,7 @@ block content
               )
               small.form-text.text-muted Solo números.
 
-            .col-md-2.mb-3
+            .col-md-4.mb-3
               label.form-label(for="fecha_desde") Desde
               input#fechaDesde.form-control(
                 type="date"
@@ -113,10 +113,6 @@ block content
                 value=(formData && formData.fecha_desde ? formData.fecha_desde : '')
               )
               small.form-text.text-muted No puede ser una fecha futura.
-
-            .col-md-2.mb-3
-              label.form-label(for="fecha_hasta") Hasta (Opcional)
-              input#fechaHasta.form-control(type="date" name="fecha_hasta" value=(formData && formData.fecha_hasta ? formData.fecha_hasta : ''))
           .row
             .col-12
               hr
@@ -178,7 +174,7 @@ block content
             .col-12
               hr
               .text-center.mb-3
-                span.bg-white.px-3.text-info.fs-5.fw-bold(style="position:relative; top:-32px;") Habitación
+                span.bg-white.px-3.text-success.fs-5.fw-bold(style="position:relative; top:-32px;") Habitación
 
           .row
             .col-md-3.mb-3

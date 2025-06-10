@@ -37,29 +37,36 @@ html(lang="es")
               ul.dropdown-menu
                 // Pacientes
                 li.dropdown-submenu
-                  a.dropdown-item.dropdown-toggle(href="/pacientes") Pacientes
+                  a.dropdown-item.dropdown-toggle(href="#") Pacientes
                   ul.dropdown-menu
+                    li
+                      a.dropdown-item(href="/pacientes") Lista de Pacientes
                     li
                       a.dropdown-item(href="/pacientes/registro") Registrar nuevo Paciente
                     li
                       a.dropdown-item(href="/pacientes/actualizar") Actualizar Paciente
-
                 // Internación
                 li.dropdown-submenu
-                  a.dropdown-item.dropdown-toggle(href="/internacion") Internación
+                  a.dropdown-item.dropdown-toggle(href="#") Internación
                   ul.dropdown-menu
                     li
-                      a.dropdown-item(href="/internacion/registro") Internacion de Paciente
+                      a.dropdown-item(href="/internacion") Lista de Internaciones
                     li
-                      a.dropdown-item(href="/internacion/turnos") Internacion por turno
-
+                      a.dropdown-item(href="/internacion/registro") Internacion de Paciente
+                // Turnos
+                li.dropdown-submenu
+                  a.dropdown-item.dropdown-toggle(href="#") Turnos
+                  ul.dropdown-menu
+                    li
+                      a.dropdown-item(href="/turnos/listar") Listar turnos
+                    li
+                      a.dropdown-item(href="/turnos/registrar") crear turno
                 // Habitaciones
                 li.dropdown-submenu
                   a.dropdown-item.dropdown-toggle(href="#") Habitaciones
                   ul.dropdown-menu
                     li
                       a.dropdown-item(href="/habitacion/listar") Gestión de Habitaciones
-
                 li
                   a.dropdown-item.bg-danger.text-white(href="/internacion/emergencias") Emergencia
 

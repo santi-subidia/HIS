@@ -1,0 +1,66 @@
+extends layout
+
+block content
+  .container
+    h2.mb-4 Crear Turno
+
+    if mensaje
+      div.alert.alert-danger= mensaje
+    if exito
+      div.alert.alert-success= exito
+
+    form(action="/turnos/crear" method="POST")
+      .row.mb-3
+        .col-md-6.mb-3
+          label.form-label(for="dni") DNI del Paciente
+          input#dni.form-control(
+            type="text"
+            name="dni"
+            required
+            minlength="7"
+            maxlength="9"
+            placeholder="Ingrese el DNI del paciente"
+            value=(valores && valores.dni) || ""
+            readonly=(paciente ? true : false)
+          )
+          small.form-text.text-muted Ingrese el DNI y pulse "Buscar paciente".
+            // Botón alineado a la derecha y azul
+          .d-flex.justify-content-end.mt-2
+            button.btn.btn-primary(
+            type="submit"
+            name="buscar"
+            value="1"
+            disabled=paciente
+          ) Buscar paciente
+      
+
+      if paciente
+        .row.mb-3
+          .col-md-6.mb-3
+            label.form-label Paciente encontrado:
+            div.fw-bold= paciente.nombre + ' ' + paciente.apellido
+
+        .row.mb-3
+          .col-md-6.mb-3
+            label.form-label(for="motivo") Motivo
+            select#motivo.form-select(name="motivo" required)
+              option(value="") Seleccione un motivo...
+              each motivo in motivos
+                option(value=motivo.id selected=(valores && valores.motivo == motivo.id))= motivo.nombre
+
+          .col-md-6.mb-3
+            label.form-label(for="fecha") Fecha y hora
+            input#fecha.form-control(
+              type="datetime-local"
+              name="fecha"
+              required
+              value=(valores && valores.fecha) || ""
+            )
+
+        button.btn.btn-primary(type="submit" name="crear" value="1") Crear Turno
+
+    if sugerirCrearPaciente
+      div.mt-4
+        div.alert.alert-warning
+          | No se encontró un paciente con ese DNI.
+          a.btn.btn-sm.btn-success.ms-2(href="/pacientes/registro") Registrar nuevo paciente

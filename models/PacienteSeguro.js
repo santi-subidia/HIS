@@ -40,13 +40,6 @@ module.exports = (sequelize) => {
         isDate: { msg: "Debe ser una fecha válida" }
       }
     },
-    fecha_hasta: {
-      type: DataTypes.DATE,
-      allowNull: true,
-      validate: {
-        isDate: { msg: "Debe ser una fecha válida" }
-      }
-    },
     estado: {
       type: DataTypes.ENUM('activo', 'inactivo'),
       allowNull: false,
@@ -62,17 +55,6 @@ module.exports = (sequelize) => {
     modelName: 'PacienteSeguro',
     tableName: 'paciente_seguro',
     timestamps: false,
-    hooks: {
-      beforeSave: (pacienteSeguro) => {
-        if (pacienteSeguro.fecha_hasta) {
-          const ahora = new Date();
-          const fechaHasta = new Date(pacienteSeguro.fecha_hasta);
-          pacienteSeguro.estado = fechaHasta < ahora ? 'inactivo' : 'activo';
-        } else {
-          pacienteSeguro.estado = 'activo';
-        }
-      }
-    }
   });
 
   return PacienteSeguro;

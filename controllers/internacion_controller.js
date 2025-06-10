@@ -195,7 +195,6 @@ module.exports = {
         id_seguro: Number(req.body.seguro),
         codigo_afiliado: req.body.codigo_afiliado,
         fecha_desde: req.body.fecha_desde,
-        fecha_hasta: req.body.fecha_hasta || null,
       });
       pacienteSeguroData.estado = calcularEstado(pacienteSeguroData.fecha_hasta);
       const [pacienteSeguro] = await PacienteSeguro.findOrCreate({
@@ -282,47 +281,6 @@ module.exports = {
     }
   },
 
-  // Muestra los turnos de internación filtrados por DNI o nombre
-  mostrarTurnosInternacion: async (req, res) => {
-    try {
-      const where = {};
-      const errors = [];
-      if (req.query.dni) {
-        if (!/^\d{7,9}$/.test(req.query.dni)) {
-          errors.push('El DNI debe ser numérico y tener entre 7 y 9 dígitos.');
-        } else {
-          where['$Paciente.DNI$'] = req.query.dni;
-        }
-      }
-      if (req.query.nombre) {
-        if (!/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/.test(req.query.nombre)) {
-          errors.push('El nombre solo puede contener letras y espacios.');
-        } else {
-          where['$Paciente.nombre$'] = { [Op.like]: `%${req.query.nombre}%` };
-        }
-      }
-      let turnos = [];
-      if (errors.length === 0) {
-        turnos = await Turno.findAll({
-          where,
-          include: [{ model: Paciente, as: 'Paciente' }]
-        });
-      }
-      res.render('internacion-turnos', {
-        turnos,
-        filters: req.query,
-        mensaje: errors.length ? errors.join(' ') : null
-      });
-    } catch (error) {
-      console.error(error);
-      res.render('internacion-turnos', {
-        turnos: [],
-        filters: req.query,
-        mensaje: 'Error al cargar los turnos.'
-      });
-    }
-  },
-
   // Muestra el formulario de internación por emergencia
   mostrarFormularioEmergencia: async (req, res) => {
     try {
@@ -370,7 +328,6 @@ module.exports = {
           id_seguro: 1,
           codigo_afiliado: paciente.DNI,
           fecha_desde: new Date(),
-          fecha_hasta: null,
           estado: 'activo'
         }
       });

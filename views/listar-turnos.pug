@@ -39,12 +39,14 @@ block content
               td= turno.Paciente ? turno.Paciente.nro_Telefono : '-'
               td= turno.estado
               td
-                if turno.Paciente
+                if turno.Paciente && turno.estado !== 'cancelado'
                   form(action="/internacion/registro/buscar" method="POST" style="display:inline;")
                     input(type="hidden" name="dni" value=turno.Paciente.DNI)
                     button.btn.btn-success(type="submit" title="Internar paciente")
                       i.fas.fa-bed.me-1
                       | Internar
+                else if turno.estado === 'cancelado'
+                  span.text-muted No disponible
                 else
                   span.text-danger Sin paciente
         else

@@ -24,8 +24,12 @@ block content
                   type="text"
                   name="DNI"
                   required
+                  minlength="7"
+                  maxlength="9"
+                  placeholder="Ingrese el DNI del paciente"
                   value=(valores && valores.DNI) || ""
                 )
+                small.form-text.text-muted El DNI debe tener entre 7 y 9 dígitos numéricos.
 
               .col-md-4.mb-3
                 label.form-label(for="apellido") Apellido
@@ -33,8 +37,12 @@ block content
                   type="text"
                   name="apellido"
                   required
+                  minlength="2"
+                  maxlength="50"
+                  placeholder="Ingrese el apellido (sin espacios)"
                   value=(valores && valores.apellido) || ""
                 )
+                small.form-text.text-muted Solo letras, sin espacios.
 
               .col-md-4.mb-3
                 label.form-label(for="nombre") Nombre
@@ -42,8 +50,12 @@ block content
                   type="text"
                   name="nombre"
                   required
+                  minlength="2"
+                  maxlength="50"
+                  placeholder="Ingrese el nombre (sin espacios)"
                   value=(valores && valores.nombre) || ""
                 )
+                small.form-text.text-muted Solo letras, sin espacios.
 
             .row.mb-4
               .col-md-4.mb-3
@@ -61,6 +73,7 @@ block content
                   required
                   value=(valores && valores.fechaNacimiento) || ""
                 )
+                small.form-text.text-muted No puede ser una fecha futura ni mayor a 126 años atrás.
 
               .col-md-4.mb-3
                 label.form-label(for="id_tipoSangre") Tipo de Sangre
@@ -81,8 +94,10 @@ block content
                   required
                   minlength="5"
                   maxlength="100"
+                  placeholder="Ingrese el domicilio"
                   value=(valores && valores.domicilio) || ""
                 )
+                small.form-text.text-muted Entre 5 y 100 caracteres.
 
               .col-md-6.mb-3
                 label.form-label(for="nro_Telefono") Teléfono
@@ -92,8 +107,10 @@ block content
                   required
                   minlength="7"
                   maxlength="15"
+                  placeholder="Ingrese el teléfono"
                   value=(valores && valores.nro_Telefono) || ""
                 )
+                small.form-text.text-muted Solo números, entre 7 y 15 dígitos.
 
             .row.mb-4
               .col-md-6.mb-3
