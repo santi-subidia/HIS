@@ -4,14 +4,6 @@ const { pacienteSeguroSchema } = require('../schemas/pacienteSeguro_schema');
 const { internacionSchema } = require('../schemas/internacion_schema');
 const { Op } = require('sequelize');
 
-// Utilidad: calcula el estado de un pacienteSeguro según fecha_hasta
-function calcularEstado(fecha_hasta) {
-  if (!fecha_hasta) return 'activo';
-  const ahora = new Date();
-  const hasta = new Date(fecha_hasta);
-  return hasta < ahora ? 'inactivo' : 'activo';
-}
-
 // Utilidad: genera un id negativo único para paciente desconocido
 async function generarIdPacienteDesconocido() {
   const minPaciente = await Paciente.min('id', { where: { id: { [Op.lt]: 0 } } });
@@ -150,7 +142,7 @@ module.exports = {
         include: [{ model: PacienteSeguro, where: { id_paciente: pacienteId } }],
         where: { estado: 'activa' }
       });
-
+      
       if (internacionActiva) {
         const paciente = await Paciente.findByPk(pacienteId);
         const camaObj = await Cama.findByPk(internacionActiva.id_cama);
@@ -189,14 +181,25 @@ module.exports = {
       });
       await contacto.update(contactoData);
 
+      const paciente = await Paciente.findOne({
+        where: { DNI: req.body.dniContacto }
+      });
+      if (paciente) {
+        await paciente.update({
+          nombre: req.body.nombreContacto,
+          apellido: req.body.apellidoContacto,
+          nro_Telefono: req.body.telefonoContacto
+        });
+      }
+
       // 2. Parsear y crear/actualizar pacienteSeguro
       const pacienteSeguroData = pacienteSeguroSchema.parse({
         id_paciente: pacienteId,
         id_seguro: Number(req.body.seguro),
         codigo_afiliado: req.body.codigo_afiliado,
         fecha_desde: req.body.fecha_desde,
+        estado: 'activo'
       });
-      pacienteSeguroData.estado = calcularEstado(pacienteSeguroData.fecha_hasta);
       const [pacienteSeguro] = await PacienteSeguro.findOrCreate({
         where: {
           id_paciente: pacienteSeguroData.id_paciente,
@@ -205,7 +208,10 @@ module.exports = {
         },
         defaults: pacienteSeguroData
       });
-      await pacienteSeguro.update(pacienteSeguroData);
+      await pacienteSeguro.update({
+        ...pacienteSeguroData,
+        estado: pacienteSeguroData.estado || pacienteSeguro.estado || 'activo'
+      });
 
       // 3. Crear la internación
       const internacionData = internacionSchema.parse({

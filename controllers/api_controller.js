@@ -1,6 +1,4 @@
-// routes/api.js o donde manejes tus rutas API
-const { where } = require('sequelize');
-const { Ala, Habitacion, Cama, Internacion, PacienteSeguro, Paciente } = require('../models');
+const { Ala, Habitacion, Cama, Internacion, PacienteSeguro, Paciente, ContactoEmergencia } = require('../models');
 
 
 module.exports = {
@@ -62,6 +60,44 @@ module.exports = {
     } catch (error) {
       console.error('Error al obtener habitaciones:', error);
       res.status(500).json({ error: 'Error al obtener habitaciones' });
+    }
+  },
+
+  buscarPaciente: async (req, res ) => {
+    const { dni } = req.params;
+    try {
+      const paciente = await Paciente.findOne({ where: { DNI: dni } });
+      if (!paciente) {
+        return res.json({ existe: false });
+      }
+      res.json({
+        existe: true,
+        nombre: paciente.nombre,
+        apellido: paciente.apellido,
+        nro_Telefono: paciente.nro_Telefono
+      });
+    } catch (error) {
+      console.error('Error al verificar paciente:', error);
+      res.status(500).json({ error: 'Error al verificar paciente' });
+    }
+  },
+
+  buscarContactoEmergencia: async (req, res) => {
+    const { dni } = req.params;
+    try {
+      const contacto = await ContactoEmergencia.findOne({ where: { DNI_contacto: dni } });
+      if (!contacto) {
+        return res.json({ existe: false });
+      }
+      res.json({
+        existe: true,
+        nombre: contacto.nombre,
+        apellido: contacto.apellido,
+        telefono: contacto.telefono
+      });
+    } catch (error) {
+      console.error('Error al verificar contacto de emergencia:', error);
+      res.status(500).json({ error: 'Error al verificar contacto de emergencia' });
     }
   }
 };

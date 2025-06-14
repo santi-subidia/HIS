@@ -9,6 +9,7 @@ const pacienteSeguroSchema = z.object({
   fecha_desde: z.string()
     .refine(val => !isNaN(Date.parse(val)), { message: 'Fecha desde inválida' })
     .refine(val => new Date(val) <= new Date(), { message: 'La fecha desde no puede ser futura' }),
-  });
+  estado: z.enum(['activo', 'inactivo'], { required_error: 'Estado requerido' })
+});
 
 module.exports = { pacienteSeguroSchema };

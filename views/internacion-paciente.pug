@@ -122,7 +122,16 @@ block content
           .row
             .col-md-4.mb-3
               label.form-label(for="dniContacto") DNI del contacto
-              input#dniContacto.form-control(type="text" name="dniContacto" maxlength="9" required value=(formData && formData.dniContacto ? formData.dniContacto : ''))
+              .input-group
+                input#dniContacto.form-control(
+                  type="text"
+                  name="dniContacto"
+                  maxlength="9"
+                  required
+                  value=(formData && formData.dniContacto ? formData.dniContacto : '')
+                  autocomplete="off"
+                )
+                button#buscarContacto.btn.btn-outline-primary(type="button") Buscar
 
             .col-md-4.mb-3
               label.form-label(for="nombreContacto") Nombre del contacto
@@ -132,6 +141,7 @@ block content
                 required
                 title="Solo letras y espacios, entre 2 y 50 caracteres"
                 value=(formData && formData.nombreContacto ? formData.nombreContacto : '')
+                disabled
               )
               small.form-text.text-muted Solo letras y espacios, entre 2 y 50 caracteres.
 
@@ -143,13 +153,14 @@ block content
                 required
                 title="Solo letras y espacios, entre 2 y 50 caracteres"
                 value=(formData && formData.apellidoContacto ? formData.apellidoContacto : '')
+                disabled
               )
               small.form-text.text-muted Solo letras y espacios, entre 2 y 50 caracteres.
 
           .row
             .col-md-4.mb-3
               label.form-label(for="parentescoContacto") Parentesco
-              select#parentescoContacto.form-select(name="parentescoContacto" required)
+              select#parentescoContacto.form-select(name="parentescoContacto" required disabled)
                 option(value="") Seleccione...
                 each parentesco in parentescos
                   option(
@@ -165,10 +176,16 @@ block content
                 required
                 title="El teléfono debe tener entre 7 y 15 dígitos numéricos"
                 value=(formData && formData.telefonoContacto ? formData.telefonoContacto : '')
+                disabled
               )
               small.form-text.text-muted Solo números, entre 7 y 15 dígitos.
               input#sexoPaciente(type="hidden" value=paciente.sexo)
 
+          .row
+            .col-12
+                .alert.alert-warning.mt-2(style="display:none" id="alertaContacto")
+                  i.fas.fa-exclamation-triangle.me-2
+                  | Este contacto ya existe como paciente. Si modificas algún dato, se actualizarán los datos del paciente.
 
           .row
             .col-12
@@ -212,3 +229,4 @@ block content
         .col-12.mb-5
 
   script(src="/scripts/internacion-paciente.js")
+  script(src="/scripts/contactoEmergencia.js")

@@ -112,7 +112,7 @@ module.exports = {
       if (!motivo) errors.push("Debe seleccionar un motivo.");
       if (!fecha || isNaN(Date.parse(fecha))) {
         errors.push("Fecha inválida.");
-      } else if (new Date(fecha) < new Date()) {
+      } else if (new Date(fecha) <= new Date()) {
         errors.push("La fecha del turno debe ser futura.");
       }
 
