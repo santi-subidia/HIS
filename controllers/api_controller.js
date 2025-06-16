@@ -74,7 +74,13 @@ module.exports = {
         existe: true,
         nombre: paciente.nombre,
         apellido: paciente.apellido,
-        nro_Telefono: paciente.nro_Telefono
+        sexo: paciente.sexo,
+        fechaNacimiento: paciente.fechaNacimiento,
+        tipoSangre: paciente.tipoSangre,
+        domicilio: paciente.domicilio,
+        localidad: paciente.id_localidad,
+        nro_Telefono: paciente.nro_Telefono,
+
       });
     } catch (error) {
       console.error('Error al verificar paciente:', error);
@@ -93,7 +99,8 @@ module.exports = {
         existe: true,
         nombre: contacto.nombre,
         apellido: contacto.apellido,
-        telefono: contacto.telefono
+        telefono: contacto.telefono,
+        id_parentesco: contacto.id_parentesco
       });
     } catch (error) {
       console.error('Error al verificar contacto de emergencia:', error);

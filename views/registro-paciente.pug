@@ -15,20 +15,26 @@ block content
           if error
             each err in error
               .alert.alert-danger #{err.message}
+          
+          .alert.alert-warning.mt-2(style="display:none" id="alerta")
+                  i.fas.fa-exclamation-triangle.me-2
+                  span#alerta-texto 
 
           form(action="/pacientes/registro" method="POST")
             .row.mb-4
               .col-md-4.mb-3
                 label.form-label(for="DNI") DNI
-                input#DNI.form-control(
-                  type="text"
-                  name="DNI"
-                  required
-                  minlength="7"
-                  maxlength="9"
-                  placeholder="Ingrese el DNI del paciente"
-                  value=(valores && valores.DNI) || ""
-                )
+                .input-group
+                  input#DNI.form-control(
+                    type="text"
+                    name="DNI"
+                    required
+                    minlength="7"
+                    maxlength="9"
+                    placeholder="Ingrese el DNI del paciente"
+                    value=(valores && valores.DNI) || ""
+                  )
+                  button#buscarDNI.btn.btn-outline-primary(type="button") Buscar
                 small.form-text.text-muted El DNI debe tener entre 7 y 9 dígitos numéricos.
 
               .col-md-4.mb-3
@@ -41,8 +47,9 @@ block content
                   maxlength="50"
                   placeholder="Ingrese el apellido (sin espacios)"
                   value=(valores && valores.apellido) || ""
+                  disabled
                 )
-                small.form-text.text-muted Solo letras, sin espacios.
+                small.form-text.text-muted Solo letras y espacios.
 
               .col-md-4.mb-3
                 label.form-label(for="nombre") Nombre
@@ -54,13 +61,14 @@ block content
                   maxlength="50"
                   placeholder="Ingrese el nombre (sin espacios)"
                   value=(valores && valores.nombre) || ""
+                  disabled
                 )
                 small.form-text.text-muted Solo letras, sin espacios.
 
             .row.mb-4
               .col-md-4.mb-3
                 label.form-label(for="sexo") Sexo
-                select#sexo.form-select(name="sexo" required)
+                select#sexo.form-select(name="sexo" required disabled)
                   option(value="") Seleccione...
                   option(value="1" selected=(valores && valores.sexo === '1')) Masculino
                   option(value="2" selected=(valores && valores.sexo === '2')) Femenino
@@ -72,12 +80,13 @@ block content
                   name="fechaNacimiento"
                   required
                   value=(valores && valores.fechaNacimiento) || ""
+                  disabled
                 )
                 small.form-text.text-muted No puede ser una fecha futura ni mayor a 126 años atrás.
 
               .col-md-4.mb-3
                 label.form-label(for="id_tipoSangre") Tipo de Sangre
-                select#id_tipoSangre.form-select(name="id_tipoSangre" required)
+                select#id_tipoSangre.form-select(name="id_tipoSangre" required disabled)
                   option(value="") Seleccione...
                   each tipo in tiposSangre
                     option(
@@ -96,6 +105,7 @@ block content
                   maxlength="100"
                   placeholder="Ingrese el domicilio"
                   value=(valores && valores.domicilio) || ""
+                  disabled 
                 )
                 small.form-text.text-muted Entre 5 y 100 caracteres.
 
@@ -109,13 +119,14 @@ block content
                   maxlength="15"
                   placeholder="Ingrese el teléfono"
                   value=(valores && valores.nro_Telefono) || ""
+                  disabled
                 )
                 small.form-text.text-muted Solo números, entre 7 y 15 dígitos.
 
             .row.mb-4
               .col-md-6.mb-3
                 label.form-label(for="id_localidad") Localidad
-                select#id_localidad.form-select(name="id_localidad" required)
+                select#id_localidad.form-select(name="id_localidad" required disabled)
                   option(value="") Seleccione...
                   each localidad in localidades
                     option(
@@ -133,3 +144,4 @@ block content
                     i.fas.fa-save.me-1
                     | Guardar Paciente
 
+      script(src="/scripts/registro-paciente.js")

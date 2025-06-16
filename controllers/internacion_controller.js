@@ -192,6 +192,24 @@ module.exports = {
         });
       }
 
+      // Verificar que el teléfono de contacto de emergencia no exista en Paciente
+      const telefonoEnPaciente = await Paciente.findOne({ where: { nro_Telefono: contactoData.telefono } });
+      if (telefonoEnPaciente) {
+        const sectores = await Sector.findAll();
+        const parentescos = await Parentesco.findAll();
+        const seguros = await Seguro.findAll();
+        const motivos = await Motivo.findAll();
+        const paciente = await Paciente.findByPk(pacienteId);
+        return res.render('internacion-paciente', {
+          mensaje: 'El número de teléfono del contacto de emergencia ya está registrado como paciente.',
+          paciente,
+          sectores,
+          parentescos,
+          seguros,
+          motivos
+        });
+      }
+
       // 2. Parsear y crear/actualizar pacienteSeguro
       const pacienteSeguroData = pacienteSeguroSchema.parse({
         id_paciente: pacienteId,

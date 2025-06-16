@@ -1,5 +1,5 @@
 const { pacienteSchema } = require('../schemas/paciente_schema');
-const { Paciente, TipoSangre, Localidad, Provincia } = require('../models');
+const { Paciente, TipoSangre, Localidad, Provincia, ContactoEmergencia } = require('../models');
 
 
 module.exports = {
@@ -37,6 +37,30 @@ module.exports = {
   registrarPaciente: async (req, res) => {
     try {
       const data = pacienteSchema.parse(req.body);
+
+      const contacto = ContactoEmergencia.findOne({ where: { DNI_contacto: data.DNI } });
+
+      if (contacto) {
+        contacto.nombre = data.nombre;
+        contacto.apellido = data.apellido;
+        contacto.telefono = data.nro_Telefono;
+
+        
+      }
+      // Verificar que el teléfono no exista en ContactoEmergencia
+      const telefonoEnContacto = await ContactoEmergencia.findOne({ where: { telefono: data.nro_Telefono } });
+      if (telefonoEnContacto) {
+        const tiposSangre = await TipoSangre.findAll();
+        const localidades = await Localidad.findAll({ include: [{ model: Provincia, as: 'provincia' }] });
+        return res.status(400).render('registro-paciente', {
+          tiposSangre,
+          localidades,
+          valores: req.body,
+          error: [{ message: 'El número de teléfono ya está registrado como contacto de emergencia.' }],
+          exito: null
+        });
+      }
+
       await Paciente.create(data);
 
       const tiposSangre = await TipoSangre.findAll();
@@ -54,12 +78,24 @@ module.exports = {
       const tiposSangre = await TipoSangre.findAll();
       const localidades = await Localidad.findAll({ include: [{ model: Provincia, as: 'provincia' }] });
 
+      // Manejo de errores de Zod
       if (error.name === 'ZodError') {
         return res.status(400).render('registro-paciente', {
           tiposSangre,
           localidades,
           valores: req.body,
           error: error.errors,
+          exito: null
+        });
+      }
+      // Manejo de errores de Sequelize
+      if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeDatabaseError') {
+        const errores = error.errors ? error.errors.map(e => ({ message: e.message })) : [{ message: 'Error de validación en la base de datos.' }];
+        return res.status(400).render('registro-paciente', {
+          tiposSangre,
+          localidades,
+          valores: req.body,
+          error: errores,
           exito: null
         });
       }
@@ -104,6 +140,19 @@ module.exports = {
       const data = pacienteSchema.parse(req.body);
 
 
+      // Verificar que el teléfono no exista en ContactoEmergencia (excepto si es el mismo paciente)
+      const telefonoEnContacto = await ContactoEmergencia.findOne({ where: { telefono: data.nro_Telefono } });
+      if (telefonoEnContacto) {
+        const tiposSangre = await TipoSangre.findAll();
+        const localidades = await Localidad.findAll({ include: [{ model: Provincia, as: 'provincia' }] });
+        return res.render('actualizar-paciente', {
+          paciente: { ...req.body, id },
+          tiposSangre,
+          localidades,
+          mensaje: 'El número de teléfono ya está registrado como contacto de emergencia.'
+        });
+      }
+
       await Paciente.update(data, { where: { id } });
 
       // Traer selects para volver a mostrar el formulario actualizado
@@ -126,7 +175,13 @@ module.exports = {
       if (error.issues) { // Zod
         mensaje += ' ' + error.issues.map(e => `${e.path}: ${e.message}`).join(' ');
       } else if (error.errors) {
-        mensaje += ' ' + error.errors.map(e => e.message).join(' ');
+        // Personalizar mensaje de unicidad
+        mensaje += ' ' + error.errors.map(e => {
+          if (e.message && e.message.includes('must be unique')) {
+            return 'El número de teléfono ya está registrado para otro paciente.';
+          }
+          return e.message;
+        }).join(' ');
       }
 
       res.render('actualizar-paciente', {
