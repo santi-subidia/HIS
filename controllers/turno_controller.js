@@ -6,12 +6,15 @@ module.exports = {
   listarTurnos: async (req, res) => {
     try {
       // Actualiza turnos pendientes con fecha pasada a cancelado
+      const hoy = new Date();
+      hoy.setHours(0, 0, 0, 0);
+
       await Turno.update(
         { estado: 'cancelado' },
         {
           where: {
             estado: 'pendiente',
-            fecha: { [Op.lt]: new Date() }
+            fecha: { [Op.lt]: hoy }
           }
         }
       );
