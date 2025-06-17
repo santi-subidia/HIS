@@ -140,8 +140,14 @@ module.exports = {
       if (!motivo) errors.push("Debe seleccionar un motivo.");
       if (!fecha || isNaN(Date.parse(fecha))) {
         errors.push("Fecha inválida.");
-      } else if (new Date(fecha) <= new Date()) {
-        errors.push("La fecha del turno debe ser futura.");
+      } else {
+        const hoy = new Date();
+        hoy.setHours(0, 0, 0, 0);
+        const fechaTurno = new Date(fecha);
+        fechaTurno.setHours(0, 0, 0, 0);
+        if (fechaTurno < hoy) {
+          errors.push("La fecha del turno no puede ser pasada.");
+        }
       }
 
       const paciente = await Paciente.findOne({ where: { DNI: dni } });
