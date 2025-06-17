@@ -45,7 +45,7 @@ block content
                   required
                   minlength="2"
                   maxlength="50"
-                  placeholder="Ingrese el apellido (sin espacios)"
+                  placeholder="Ingrese el apellido"
                   value=(valores && valores.apellido) || ""
                   disabled
                 )
@@ -59,11 +59,11 @@ block content
                   required
                   minlength="2"
                   maxlength="50"
-                  placeholder="Ingrese el nombre (sin espacios)"
+                  placeholder="Ingrese el nombre"
                   value=(valores && valores.nombre) || ""
                   disabled
                 )
-                small.form-text.text-muted Solo letras, sin espacios.
+                small.form-text.text-muted Solo letras y espacios.
 
             .row.mb-4
               .col-md-4.mb-3
@@ -82,7 +82,7 @@ block content
                   value=(valores && valores.fechaNacimiento) || ""
                   disabled
                 )
-                small.form-text.text-muted No puede ser una fecha futura ni mayor a 126 años atrás.
+                small.form-text.text-muted No puede ser una fecha futura, ni mayor a 126 años atrás.
 
               .col-md-4.mb-3
                 label.form-label(for="id_tipoSangre") Tipo de Sangre

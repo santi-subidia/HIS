@@ -176,23 +176,23 @@ module.exports = {
         id_parentesco: req.body.parentescoContacto
       });
       
-      // Verificar que el teléfono de contacto de emergencia no exista en Paciente
-      const telefonoEnPaciente = await Paciente.findOne({ where: { nro_Telefono: contactoData.telefono } });
-      if (telefonoEnPaciente && telefonoEnPaciente.DNI !== req.body.dniContacto) {
-        const sectores = await Sector.findAll();
-        const parentescos = await Parentesco.findAll();
-        const seguros = await Seguro.findAll();
-        const motivos = await Motivo.findAll();
-        const paciente = await Paciente.findByPk(pacienteId);
-        return res.render('internacion-paciente', {
-          mensaje: 'Numero de telefono ya asociado a otro DNI',
-          paciente,
-          sectores,
-          parentescos,
-          seguros,
-          motivos
-        });
-      }
+      // // Verificar que el teléfono de contacto de emergencia no exista en Paciente
+      // const telefonoEnPaciente = await Paciente.findOne({ where: { nro_Telefono: contactoData.telefono } });
+      // if (telefonoEnPaciente && telefonoEnPaciente.DNI !== req.body.dniContacto) {
+      //   const sectores = await Sector.findAll();
+      //   const parentescos = await Parentesco.findAll();
+      //   const seguros = await Seguro.findAll();
+      //   const motivos = await Motivo.findAll();
+      //   const paciente = await Paciente.findByPk(pacienteId);
+      //   return res.render('internacion-paciente', {
+      //     mensaje: 'Numero de telefono ya asociado a otro DNI',
+      //     paciente,
+      //     sectores,
+      //     parentescos,
+      //     seguros,
+      //     motivos
+      //   });
+      // }
 
       const [contacto] = await ContactoEmergencia.findOrCreate({
         where: { 
@@ -345,12 +345,12 @@ module.exports = {
         defaults: {
           id: nuevoId,
           nombre: 'Desconocido',
-          apellido: 'Desconocido',
+          apellido: sexo === 1 ? 'Masculino' : 'Femenino',
           sexo,
           fechaNacimiento: new Date('1900-01-01'),
           id_tipoSangre: 1,
           domicilio: '',
-          nro_Telefono: '0000000',
+          nro_Telefono: anonDNI,
           id_localidad: 1
         }
       });

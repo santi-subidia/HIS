@@ -38,28 +38,56 @@ module.exports = {
     try {
       const data = pacienteSchema.parse(req.body);
 
-      const contacto = ContactoEmergencia.findOne({ where: { DNI_contacto: data.DNI } });
-
-      if (contacto) {
-        contacto.nombre = data.nombre;
-        contacto.apellido = data.apellido;
-        contacto.telefono = data.nro_Telefono;
-
-        
-      }
-      // Verificar que el teléfono no exista en ContactoEmergencia
-      const telefonoEnContacto = await ContactoEmergencia.findOne({ where: { telefono: data.nro_Telefono } });
-      if (telefonoEnContacto) {
+      // Verificar si el DNI ya existe
+      const pacienteExistente = await Paciente.findOne({ where: { DNI: data.DNI } });
+      if (pacienteExistente) {
         const tiposSangre = await TipoSangre.findAll();
         const localidades = await Localidad.findAll({ include: [{ model: Provincia, as: 'provincia' }] });
         return res.status(400).render('registro-paciente', {
           tiposSangre,
           localidades,
           valores: req.body,
-          error: [{ message: 'El número de teléfono ya está registrado como contacto de emergencia.' }],
+          error: [{ message: 'El DNI ya está registrado para otro paciente.' }],
           exito: null
         });
       }
+
+      const contacto = await ContactoEmergencia.findOne({ where: { DNI_contacto: data.DNI } });
+
+      if (contacto) {
+        await contacto.update({
+          nombre: data.nombre,
+          apellido: data.apellido,
+          telefono: data.nro_Telefono
+        });
+      }
+
+      // // Verificar que el teléfono no exista en ContactoEmergencia
+      // const telefonoEnContacto = await ContactoEmergencia.findOne({ where: { telefono: data.nro_Telefono } });
+      // if (telefonoEnContacto && telefonoEnContacto.DNI_contacto !== data.DNI) {
+      //   const tiposSangre = await TipoSangre.findAll();
+      //   const localidades = await Localidad.findAll({ include: [{ model: Provincia, as: 'provincia' }] });
+      //   return res.status(400).render('registro-paciente', {
+      //     tiposSangre,
+      //     localidades,
+      //     valores: req.body,
+      //     error: [{ message: 'El número de teléfono ya está registrado como contacto de emergencia.' }],
+      //     exito: null
+      //   });
+      // }
+
+      // const telefonoEnPaciente = await Paciente.findOne({ where: { nro_Telefono: data.nro_Telefono } });
+      // if (telefonoEnPaciente) {
+      //   const tiposSangre = await TipoSangre.findAll();
+      //   const localidades = await Localidad.findAll({ include: [{ model: Provincia, as: 'provincia' }] });
+      //   return res.status(400).render('registro-paciente', {
+      //     tiposSangre,
+      //     localidades,
+      //     valores: req.body,
+      //     error: [{ message: 'El número de teléfono ya está registrado para otro paciente.' }],
+      //     exito: null
+      //   });
+      // }
 
       await Paciente.create(data);
 
@@ -122,8 +150,12 @@ module.exports = {
       const tiposSangre = await TipoSangre.findAll();
       const localidades = await Localidad.findAll({ include: [{ model: Provincia, as: 'provincia' }] });
 
+      let fecha = new Date(paciente.fechaNacimiento);
+      fecha = fecha.toISOString().split('T')[0]; // Formatear a YYYY-MM-DD
+
       res.render('actualizar-paciente', {
         paciente,
+        fecha,
         tiposSangre,
         localidades,
         mensaje: null
@@ -140,18 +172,18 @@ module.exports = {
       const data = pacienteSchema.parse(req.body);
 
 
-      // Verificar que el teléfono no exista en ContactoEmergencia (excepto si es el mismo paciente)
-      const telefonoEnContacto = await ContactoEmergencia.findOne({ where: { telefono: data.nro_Telefono } });
-      if (telefonoEnContacto) {
-        const tiposSangre = await TipoSangre.findAll();
-        const localidades = await Localidad.findAll({ include: [{ model: Provincia, as: 'provincia' }] });
-        return res.render('actualizar-paciente', {
-          paciente: { ...req.body, id },
-          tiposSangre,
-          localidades,
-          mensaje: 'El número de teléfono ya está registrado como contacto de emergencia.'
-        });
-      }
+      // // Verificar que el teléfono no exista en ContactoEmergencia (excepto si es el mismo paciente)
+      // const telefonoEnContacto = await ContactoEmergencia.findOne({ where: { telefono: data.nro_Telefono } });
+      // if (telefonoEnContacto && telefonoEnContacto.DNI_contacto !== data.DNI) {
+      //   const tiposSangre = await TipoSangre.findAll();
+      //   const localidades = await Localidad.findAll({ include: [{ model: Provincia, as: 'provincia' }] });
+      //   return res.render('actualizar-paciente', {
+      //     paciente: { ...req.body, id },
+      //     tiposSangre,
+      //     localidades,
+      //     mensaje: 'El número de teléfono ya está registrado como contacto de emergencia.'
+      //   });
+      // }
 
       await Paciente.update(data, { where: { id } });
 
@@ -160,10 +192,14 @@ module.exports = {
       const tiposSangre = await TipoSangre.findAll();
       const localidades = await Localidad.findAll({ include: [{ model: Provincia, as: 'provincia' }] });
 
+      let fecha = new Date(paciente.fechaNacimiento);
+      fecha = fecha.toISOString().split('T')[0]; // Formatear a YYYY-MM-DD
+
       res.render('actualizar-paciente', {
         paciente,
         tiposSangre,
         localidades,
+        fecha,
         mensaje: 'Paciente actualizado correctamente.'
       });
     } catch (error) {

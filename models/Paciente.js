@@ -76,7 +76,6 @@ module.exports = (sequelize) => {
     nro_Telefono: {
       type: DataTypes.STRING,
       allowNull: true,
-      unique: true,
       validate: {
         isNumeric: { msg: "El número de teléfono solo debe contener números" },
         len: {
