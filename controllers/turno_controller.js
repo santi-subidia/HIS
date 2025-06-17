@@ -16,10 +16,38 @@ module.exports = {
         }
       );
 
-      // Obtiene turnos actualizados con sus relaciones
+      // Filtros
+      const dni = req.query.dni ? req.query.dni.trim() : undefined;
+      const nombre = req.query.nombre ? req.query.nombre.trim() : undefined;
+      const fecha = req.query.fecha ? req.query.fecha.trim() : undefined;
+      const whereTurno = {};
+      const wherePaciente = {};
+
+      if (fecha) {
+        // Filtra por fecha exacta (solo día)
+        whereTurno.fecha = {
+          [Op.gte]: new Date(fecha + 'T00:00:00'),
+          [Op.lt]: new Date(fecha + 'T23:59:59')
+        };
+      }
+
+      if (dni) {
+        wherePaciente.DNI = dni;
+      }
+
+      if (nombre) {
+        wherePaciente.nombre = { [Op.like]: `%${nombre}%` };
+      }
+
+      // Obtiene turnos actualizados con sus relaciones y filtros
       const turnos = await Turno.findAll({
+        where: whereTurno,
         include: [
-          { model: Paciente, as: 'Paciente' },
+          {
+            model: Paciente,
+            as: 'Paciente',
+            where: Object.keys(wherePaciente).length ? wherePaciente : undefined
+          },
           { model: Motivo }
         ],
         order: [['fecha', 'DESC']]

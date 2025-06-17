@@ -175,8 +175,30 @@ module.exports = {
         telefono: req.body.telefonoContacto,
         id_parentesco: req.body.parentescoContacto
       });
+      
+      // Verificar que el teléfono de contacto de emergencia no exista en Paciente
+      const telefonoEnPaciente = await Paciente.findOne({ where: { nro_Telefono: contactoData.telefono } });
+      if (telefonoEnPaciente && telefonoEnPaciente.DNI !== req.body.dniContacto) {
+        const sectores = await Sector.findAll();
+        const parentescos = await Parentesco.findAll();
+        const seguros = await Seguro.findAll();
+        const motivos = await Motivo.findAll();
+        const paciente = await Paciente.findByPk(pacienteId);
+        return res.render('internacion-paciente', {
+          mensaje: 'Numero de telefono ya asociado a otro DNI',
+          paciente,
+          sectores,
+          parentescos,
+          seguros,
+          motivos
+        });
+      }
+
       const [contacto] = await ContactoEmergencia.findOrCreate({
-        where: { DNI_contacto: contactoData.DNI_contacto },
+        where: { 
+          DNI_contacto: contactoData.DNI_contacto,
+          id_parentesco: contactoData.id_parentesco
+        },
         defaults: contactoData
       });
       await contacto.update(contactoData);
@@ -192,23 +214,6 @@ module.exports = {
         });
       }
 
-      // Verificar que el teléfono de contacto de emergencia no exista en Paciente
-      const telefonoEnPaciente = await Paciente.findOne({ where: { nro_Telefono: contactoData.telefono } });
-      if (telefonoEnPaciente) {
-        const sectores = await Sector.findAll();
-        const parentescos = await Parentesco.findAll();
-        const seguros = await Seguro.findAll();
-        const motivos = await Motivo.findAll();
-        const paciente = await Paciente.findByPk(pacienteId);
-        return res.render('internacion-paciente', {
-          mensaje: 'El número de teléfono del contacto de emergencia ya está registrado como paciente.',
-          paciente,
-          sectores,
-          parentescos,
-          seguros,
-          motivos
-        });
-      }
 
       // 2. Parsear y crear/actualizar pacienteSeguro
       const pacienteSeguroData = pacienteSeguroSchema.parse({
@@ -286,14 +291,25 @@ module.exports = {
     } catch (error) {
       console.error(error);
       let mensaje = 'Error al crear internación.';
+
+      // Mensaje personalizado para código de afiliado duplicado
+      if (error.name === 'SequelizeUniqueConstraintError' && error.errors) {
+        const uniqueField = error.errors.find(e => e.path === 'codigo_afiliado');
+        if (uniqueField) {
+          mensaje = 'El código de afiliado ya está registrado para otro paciente o seguro.';
+        }
+      }
+
       if (error.issues) {
         mensaje += ' ' + error.issues.map(e => `${e.path}: ${e.message}`).join(' ');
       }
+
       const sectores = await Sector.findAll();
       const parentescos = await Parentesco.findAll();
       const seguros = await Seguro.findAll();
       const motivos = await Motivo.findAll();
       const paciente = await Paciente.findByPk(req.params.id);
+
       res.render('internacion-paciente', {
         mensaje,
         paciente,

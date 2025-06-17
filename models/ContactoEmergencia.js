@@ -12,7 +12,6 @@ module.exports = (sequelize) => {
     DNI_contacto: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: true,
       validate: {
         notEmpty: { msg: "El DNI no puede estar vacío" },
         is: {
@@ -46,7 +45,6 @@ module.exports = (sequelize) => {
     telefono: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: true,
       validate: {
         notEmpty: { msg: "El teléfono es obligatorio" },
         isNumeric: { msg: "El teléfono solo puede contener números" },
@@ -68,7 +66,13 @@ module.exports = (sequelize) => {
     sequelize,
     modelName: 'ContactoEmergencia',
     tableName: 'contactosEmergencias',
-    timestamps: false
+    timestamps: false,
+    indexes: [
+      {
+        unique: true,
+        fields: ['DNI_contacto', 'id_parentesco']
+      }
+    ]
   });
 
   return ContactoEmergencia;

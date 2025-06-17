@@ -25,6 +25,7 @@ module.exports = (sequelize) => {
     codigo_afiliado: {
       type: DataTypes.STRING,
       allowNull: false,
+      unique: true,
       validate: {
         notEmpty: { msg: "El código de afiliado no puede estar vacío" },
         len: {

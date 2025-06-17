@@ -100,7 +100,6 @@ module.exports = {
         nombre: contacto.nombre,
         apellido: contacto.apellido,
         telefono: contacto.telefono,
-        id_parentesco: contacto.id_parentesco
       });
     } catch (error) {
       console.error('Error al verificar contacto de emergencia:', error);
