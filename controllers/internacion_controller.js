@@ -339,13 +339,16 @@ module.exports = {
       const nuevoId = await generarIdPacienteDesconocido();
       const anonDNI = await generarDNIAnonimoPequeno();
 
+      console.log(`Sexo del paciente: ${sexo}`);
+      
+
       // 2. Crear paciente anónimo
       const [paciente] = await Paciente.findOrCreate({
         where: { DNI: anonDNI },
         defaults: {
           id: nuevoId,
           nombre: 'Desconocido',
-          apellido: sexo === 1 ? 'Masculino' : 'Femenino',
+          apellido: Number(sexo) === 1 ? 'Masculino' : 'Femenino',
           sexo,
           fechaNacimiento: new Date('1900-01-01'),
           id_tipoSangre: 1,
