@@ -17,32 +17,40 @@ module.exports = {
       sectoresDB.push(created);
     }
 
-    // Alas
+    // Más alas por sector
     const alas = [
+      // Clínica Médica
       { ubicacion: 'Ala Norte', id_sector: sectoresDB[0].id },
       { ubicacion: 'Ala Sur', id_sector: sectoresDB[0].id },
+      { ubicacion: 'Ala Este', id_sector: sectoresDB[0].id },
+      { ubicacion: 'Ala Oeste', id_sector: sectoresDB[0].id },
+      { ubicacion: 'Ala Central', id_sector: sectoresDB[0].id },
+      // Quirúrgico
+      { ubicacion: 'Ala Norte', id_sector: sectoresDB[1].id },
+      { ubicacion: 'Ala Sur', id_sector: sectoresDB[1].id },
       { ubicacion: 'Ala Este', id_sector: sectoresDB[1].id },
-      { ubicacion: 'Ala Oeste', id_sector: sectoresDB[1].id }
+      { ubicacion: 'Ala Oeste', id_sector: sectoresDB[1].id },
+      { ubicacion: 'Ala Central', id_sector: sectoresDB[1].id }
     ];
 
     const alasDB = [];
     for (const ala of alas) {
       const [created] = await Ala.findOrCreate({
-        where: { ubicacion: ala.ubicacion },
+        where: { ubicacion: ala.ubicacion, id_sector: ala.id_sector },
         defaults: ala
       });
       alasDB.push(created);
     }
 
-    // Habitaciones (capacidad alternada: 1 o 2)
+    // Habitaciones: 4 por ala, capacidad alternada 1 y 2
     let habId = 1;
     const habitaciones = [];
-    for (let i = 0; i < alasDB.length; i++) {
-      for (let j = 1; j <= 2; j++) {
-        const capacidad = (j % 2 === 0) ? 2 : 1;
+    for (const ala of alasDB) {
+      for (let j = 1; j <= 4; j++) {
+        const capacidad = (j % 2 === 0) ? 2 : 1; // alterna entre 1 y 2
         habitaciones.push({
           codigo: `HAB-${habId}`,
-          id_ala: alasDB[i].id,
+          id_ala: ala.id,
           capacidad
         });
         habId++;
@@ -58,7 +66,7 @@ module.exports = {
       habitacionesDB.push(created);
     }
 
-    // Camas (según la capacidad de la habitación)
+    // Camas según la capacidad de la habitación (solo 1 o 2)
     for (const habitacion of habitacionesDB) {
       for (let n = 1; n <= habitacion.capacidad; n++) {
         await Cama.findOrCreate({
