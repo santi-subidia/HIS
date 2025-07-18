@@ -3,55 +3,22 @@ const { Model, DataTypes } = require('sequelize');
 module.exports = (sequelize) => {
   class ContactoEmergencia extends Model {
     static associate(models) {
+      // Un contacto de emergencia pertenece a un parentesco
       ContactoEmergencia.belongsTo(models.Parentesco, { foreignKey: 'id_parentesco' });
+      // Un contacto de emergencia pertenece a una persona
+      ContactoEmergencia.belongsTo(models.Persona, { foreignKey: 'id_persona', as: 'persona' });
+      // Un contacto de emergencia puede tener muchas internaciones
       ContactoEmergencia.hasMany(models.Internacion, { foreignKey: 'id_contactoEmergencia' });
     }
   }
 
   ContactoEmergencia.init({
-    DNI_contacto: {
-      type: DataTypes.STRING,
+    id_persona: {
+      type: DataTypes.INTEGER,
       allowNull: false,
       validate: {
-        notEmpty: { msg: "El DNI no puede estar vacío" },
-        is: {
-          args: /^[0-9]{7,9}$/,
-          msg: "El DNI debe contener entre 7 y 9 dígitos numéricos"
-        }
-      }
-    },
-    nombre: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      validate: {
-        notEmpty: { msg: "El nombre no puede estar vacío" },
-        len: {
-          args: [2, 50],
-          msg: "El nombre debe tener entre 2 y 50 caracteres"
-        }
-      }
-    },
-    apellido: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      validate: {
-        notEmpty: { msg: "El apellido no puede estar vacío" },
-        len: {
-          args: [2, 50],
-          msg: "El apellido debe tener entre 2 y 50 caracteres"
-        }
-      }
-    },
-    telefono: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      validate: {
-        notEmpty: { msg: "El teléfono es obligatorio" },
-        isNumeric: { msg: "El teléfono solo puede contener números" },
-        len: {
-          args: [7, 15],
-          msg: "El teléfono debe tener entre 7 y 15 dígitos"
-        }
+        isInt: { msg: "El ID de persona debe ser un número entero" },
+        min: 1
       }
     },
     id_parentesco: {

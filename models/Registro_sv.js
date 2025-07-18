@@ -3,7 +3,10 @@ const { Model, DataTypes } = require('sequelize');
 module.exports = (sequelize) => {
   class Registro_sv extends Model {
     static associate(models) {
-
+      // Un registro de signos vitales pertenece a una internación
+      Registro_sv.belongsTo(models.Internacion, { foreignKey: 'id_internacion', as: 'internacion' });
+      // Un registro de signos vitales es realizado por un empleado
+      Registro_sv.belongsTo(models.Empleado, { foreignKey: 'id_empleado', as: 'empleado' });
     }
   }
 

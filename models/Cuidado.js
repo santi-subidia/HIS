@@ -3,7 +3,12 @@ const { Model, DataTypes } = require('sequelize');
 module.exports = (sequelize) => {
   class Cuidado extends Model {
     static associate(models) {
-
+      // Un cuidado pertenece a una reseta
+      Cuidado.belongsTo(models.Reseta, { foreignKey: 'id_reseta', as: 'reseta' });
+      // Un cuidado puede tener muchas evaluaciones
+      Cuidado.hasMany(models.Evaluacion, { foreignKey: 'id_cuidado', as: 'evaluaciones' });
+      // Un cuidado puede tener muchas altas    
+      Cuidado.hasMany(models.Alta, { foreignKey: 'id_cuidado', as: 'altas' });
     }
   }
 

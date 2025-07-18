@@ -3,7 +3,10 @@ const { Model, DataTypes } = require('sequelize');
 module.exports = (sequelize) => {
   class Usuario extends Model {
     static associate(models) {
-        
+      // Un usuario puede estar asociado a un empleado
+      Usuario.hasOne(models.Empleado, { foreignKey: 'id_usuario', as: 'empleado' });
+      // Un usuario tiene un rol
+      Usuario.belongsTo(models.Rol, { foreignKey: 'id_rol', as: 'rol' });
     }
   }
 
@@ -21,7 +24,7 @@ module.exports = (sequelize) => {
       }
     },
     password: {
-      type: DataTypes.UUIDV4,
+      type: DataTypes.STRING,
       allowNull: false,
       validate: {
         notEmpty: { msg: "La contraseña no puede estar vacía" },

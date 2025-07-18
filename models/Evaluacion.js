@@ -3,7 +3,12 @@ const { Model, DataTypes } = require('sequelize');
 module.exports = (sequelize) => {
   class Evaluacion extends Model {
     static associate(models) {
-
+      // Una evaluación pertenece a un empleado
+      Evaluacion.belongsTo(models.Empleado, { foreignKey: 'id_empleado', as: 'empleado' });
+      // Una evaluación pertenece a una internación
+      Evaluacion.belongsTo(models.Internacion, { foreignKey: 'id_internacion', as: 'internacion' });
+      // Una evaluación pertenece a unos cuidados
+      Evaluacion.belongsTo(models.Cuidado, { foreignKey: 'id_cuidado', as: 'cuidado' });
     }
   }
 
@@ -24,7 +29,7 @@ module.exports = (sequelize) => {
         min: -1
       }
     },
-    id_cuidados: {
+    id_cuidado: {
       type: DataTypes.INTEGER,
       allowNull: false,
       validate: {

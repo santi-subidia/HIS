@@ -3,8 +3,10 @@ const { Model, DataTypes } = require('sequelize');
 module.exports = (sequelize) => {
   class Renglon_reseta extends Model {
     static associate(models) {
-      Renglon_reseta.belongsTo(models.Reseta, { foreignKey: 'id_reseta' });
-      Renglon_reseta.belongsTo(models.Medicamento, { foreignKey: 'id_medicamento' });
+      // Un renglón de reseta pertenece a una reseta
+      // y a un medicamento
+      Renglon_reseta.belongsTo(models.Reseta, { foreignKey: 'id_reseta', as: 'reseta' });
+      Renglon_reseta.belongsTo(models.Medicamento, { foreignKey: 'id_medicamento', as: 'medicamento' });
     }
   }
 
@@ -35,21 +37,33 @@ module.exports = (sequelize) => {
         min: -1
       }
     },
-    cantidad: {
-      type: DataTypes.INTEGER,
+    dosis: {
+      type: DataTypes.STRING,
       allowNull: false,
       validate: {
-        isInt: { msg: "Debe ser un número entero" },
-        min: 1
+        len: {
+          args: [0, 255],
+          msg: "La dosis no puede exceder los 255 caracteres"
+        }
       }
     },
-    dosis: {
+    duracion: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        len: {
+          args: [0, 255],
+          msg: "La duración no puede exceder los 255 caracteres"
+        }
+      }
+    },
+    indicaciones: {
       type: DataTypes.STRING,
       allowNull: true,
       validate: {
         len: {
           args: [0, 255],
-          msg: "La dosis no puede exceder los 255 caracteres"
+          msg: "Las indicaciones no pueden exceder los 255 caracteres"
         }
       }
     }

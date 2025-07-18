@@ -3,7 +3,10 @@ const { Model, DataTypes } = require('sequelize');
 module.exports = (sequelize) => {
   class Medicamento extends Model {
     static associate(models) {
-
+      // Un medicamento puede pertenecer a un tipo
+      Medicamento.belongsTo(models.Tipo, { foreignKey: 'id_tipo', as: 'tipo' });
+      // Un medicamento puede tener muchos renglones de reseta
+      Medicamento.hasMany(models.Renglon_reseta, { foreignKey: 'id_medicamento', as: 'renglonesReseta' });
     }
   }
 

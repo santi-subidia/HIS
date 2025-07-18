@@ -3,7 +3,12 @@ const { Model, DataTypes } = require('sequelize');
 module.exports = (sequelize) => {
   class Antecedente extends Model {
     static associate(models) {
-
+      // Un antecedente pertenece a un historial médico
+      Antecedente.belongsTo(models.Historial_medico, { foreignKey: 'id_historial', as: 'historialMedico' });
+      // Un antecedente pertenece a un tipo
+      Antecedente.belongsTo(models.Tipo, { foreignKey: 'id_tipo', as: 'tipo' });
+      // Un antecedente pertenece a una categoría
+      Antecedente.belongsTo(models.Categoria, { foreignKey: 'id_categoria', as: 'categoria' });
     }
   }
 

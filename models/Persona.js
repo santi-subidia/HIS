@@ -3,7 +3,12 @@ const { Model, DataTypes } = require('sequelize');
 module.exports = (sequelize) => {
   class Persona extends Model {
     static associate(models) {
-
+      // Una persona puede ser un paciente
+      Persona.hasOne(models.Paciente, { foreignKey: 'id_persona', as: 'paciente' });
+      // Una persona puede ser un empleado
+      Persona.hasOne(models.Empleado, { foreignKey: 'id_persona', as: 'empleado' });
+      // Una persona puede ser un contacto de emergencia (puede haber varios contactos de emergencia con la misma persona)
+      Persona.hasMany(models.ContactoEmergencia, { foreignKey: 'id_persona', as: 'contactosEmergencia' });
     }
   }
 
