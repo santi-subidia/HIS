@@ -1,4 +1,4 @@
-const { Paciente } = require('../models');
+const { Paciente, Persona } = require('../models');
 
 module.exports = {
   up: async () => {
@@ -105,9 +105,21 @@ module.exports = {
     ];
 
     for (const paciente of pacientes) {
+      // Buscar la persona por DNI
+      const persona = await Persona.findOne({ where: { DNI: paciente.DNI } });
+      if (!persona) continue; // Si no existe la persona, salta
+
+      // Crear el paciente vinculado a la persona
       await Paciente.findOrCreate({
-        where: { DNI: paciente.DNI }, // Cambia el campo según tu criterio de unicidad
-        defaults: paciente
+        where: { id_persona: persona.id },
+        defaults: {
+          id_persona: persona.id,
+          sexo: paciente.sexo,
+          fechaNacimiento: paciente.fechaNacimiento,
+          id_tipoSangre: paciente.id_tipoSangre,
+          domicilio: paciente.domicilio,
+          id_localidad: paciente.id_localidad
+        }
       });
     }
   },

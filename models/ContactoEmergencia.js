@@ -34,12 +34,6 @@ module.exports = (sequelize) => {
     modelName: 'ContactoEmergencia',
     tableName: 'contactosEmergencias',
     timestamps: false,
-    indexes: [
-      {
-        unique: true,
-        fields: ['DNI_contacto', 'id_parentesco']
-      }
-    ]
   });
 
   return ContactoEmergencia;

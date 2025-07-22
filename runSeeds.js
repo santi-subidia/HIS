@@ -10,6 +10,7 @@ const parentescoSeed = require('./seeds/parentescos_seed');
 const segurosSeed = require('./seeds/seguros_seed');
 const turnosSeed = require('./seeds/turnos_seed');
 const contactoEmergenciaSeed = require('./seeds/contacto_emergencia_seed');
+const personas = require('./seeds/personas_seed');
 
 async function runSeeds() {
   try {
@@ -24,6 +25,10 @@ async function runSeeds() {
     // Sembrar tipos de sangre
     await tipoSangreSeed.up();
     console.log('Seed de tipos de sangre ejecutado correctamente.');
+
+    // Sembrar personas
+    await personas.up();
+    console.log('Seed de personas ejecutado correctamente.');
 
     // Sembrar pacientes
     await pacientesSeed.up();

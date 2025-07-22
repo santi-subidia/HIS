@@ -1,22 +1,30 @@
-const { ContactoEmergencia } = require('../models');
+const { ContactoEmergencia, Persona } = require('../models');
 
 module.exports = {
   up: async () => {
-    const contacto = {
-      DNI_contacto: '00000000',
-      nombre: 'Desconocido',
-      apellido: 'Desconocido',
-      telefono: '0000000000',
-      id_parentesco: 1 
-    };
+    // Crear la persona 'Desconocido'
+    const personaDesconocida = await Persona.findOrCreate({
+      where: { DNI: '00000000' },
+      defaults: {
+        DNI: '00000000',
+        nombre: 'Desconocido',
+        apellido: 'Desconocido',
+        telefono: '0000000000'
+      }
+    });
 
+    // Vincular al contacto de emergencia
     await ContactoEmergencia.findOrCreate({
-      where: { DNI_contacto: contacto.DNI_contacto },
-      defaults: contacto
+      where: { id_persona: personaDesconocida[0].id },
+      defaults: {
+        id_persona: personaDesconocida[0].id,
+        id_parentesco: 1
+      }
     });
   },
 
   down: async (queryInterface, Sequelize) => {
-    await queryInterface.bulkDelete('contactosEmergencias', { DNI_contacto: '00000000' }, {});
+    await queryInterface.bulkDelete('contactosEmergencias', null, {});
+    await queryInterface.bulkDelete('personas', { DNI: '00000000' }, {});
   }
 };
