@@ -9,8 +9,8 @@ const infraestructuraSeed = require('./seeds/infraestructura_seed');
 const parentescoSeed = require('./seeds/parentescos_seed');
 const segurosSeed = require('./seeds/seguros_seed');
 const turnosSeed = require('./seeds/turnos_seed');
-const contactoEmergenciaSeed = require('./seeds/contacto_emergencia_seed');
 const personas = require('./seeds/personas_seed');
+const anonimosSeed = require('./seeds/anonimo_seed');
 
 async function runSeeds() {
   try {
@@ -21,10 +21,22 @@ async function runSeeds() {
     // Sembrar localidades
     await localidadesSeed.up();
     console.log('Seed de localidades ejecutado correctamente.');
-
+    
     // Sembrar tipos de sangre
     await tipoSangreSeed.up();
     console.log('Seed de tipos de sangre ejecutado correctamente.');
+    
+    // Sembrar parentescos
+    await parentescoSeed.up();
+    console.log('Seed de parentescos ejecutado correctamente.');
+
+    // Sembrar seguros
+    await segurosSeed.up();
+    console.log('Seed de seguros ejecutado correctamente.');
+
+    // Sembrar anónimos
+    await anonimosSeed.up();
+    console.log('Seed de anónimos ejecutado correctamente.');
 
     // Sembrar personas
     await personas.up();
@@ -42,21 +54,10 @@ async function runSeeds() {
     await infraestructuraSeed.up();
     console.log('Seed de infraestructura ejecutado correctamente.');
 
-    // Sembrar parentescos
-    await parentescoSeed.up();
-    console.log('Seed de parentescos ejecutado correctamente.');
-
-    // Sembrar seguros
-    await segurosSeed.up();
-    console.log('Seed de seguros ejecutado correctamente.');
-
     // Sembrar turnos
     await turnosSeed.up();
     console.log('Seed de turnos ejecutado correctamente.');
 
-    // Sembrar contactos de emergencia
-    await contactoEmergenciaSeed.up();
-    console.log('Seed de contactos de emergencia ejecutado correctamente.');
 
   } catch (error) {
     console.error('Error al ejecutar las seeds:', error);

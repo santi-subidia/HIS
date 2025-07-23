@@ -1,6 +1,7 @@
-const { Paciente, Sector, Ala, Parentesco, Seguro, Motivo, Cama, Habitacion, Turno, Internacion, PacienteSeguro, ContactoEmergencia } = require('../models');
+const { Paciente, Sector, Ala, Parentesco, Seguro, Motivo, Cama, Habitacion, Turno, Internacion, PacienteSeguro, ContactoEmergencia, Persona } = require('../models');
 const { contactoEmergenciaSchema } = require('../schemas/contactoEmergencia_schema');
 const { pacienteSeguroSchema } = require('../schemas/pacienteSeguro_schema');
+const { personaSchema } = require('../schemas/persona_schema');
 const { internacionSchema } = require('../schemas/internacion_schema');
 const { Op } = require('sequelize');
 
@@ -12,7 +13,7 @@ async function generarIdPacienteDesconocido() {
 
 // Utilidad: genera un DNI anónimo pequeño y único
 async function generarDNIAnonimoPequeno() {
-  const maxDNI = await Paciente.max('DNI', { where: { DNI: { [Op.lt]: '1000000' } } });
+  const maxDNI = await Persona.max('DNI', { where: { DNI: { [Op.lt]: '1000000' } } });
   let nuevoDNI = 1;
   if (maxDNI && !isNaN(Number(maxDNI))) {
     nuevoDNI = Number(maxDNI) + 1;
@@ -30,7 +31,13 @@ module.exports = {
         include: [
           {
             model: PacienteSeguro,
-            include: [{ model: Paciente, as: 'paciente' }]
+            include: [
+              { 
+                model: Paciente, as: 'paciente',
+                include: [
+                  { model: Persona, as: 'persona' }
+                ]
+              }]
           },
           {
             model: Cama,
@@ -72,7 +79,10 @@ module.exports = {
   // Busca paciente por DNI y verifica si ya tiene internación activa
   buscarPacientePorDNI: async (req, res) => {
     const { dni } = req.body;
-    const paciente = await Paciente.findOne({ where: { DNI: dni } });
+    const paciente = await Paciente.findOne({
+      include: [{ model: Persona, as: 'persona' }],
+      where: { '$persona.DNI$': dni }
+    });
 
     if (!paciente) {
       return res.render('internacion-paciente', {
@@ -99,7 +109,7 @@ module.exports = {
       const alaObj = habitacionObj ? await Ala.findByPk(habitacionObj.id_ala) : null;
       const sectorObj = alaObj ? await Sector.findByPk(alaObj.id_sector) : null;
 
-      const mensaje = `${paciente.nombre} ${paciente.apellido} ya tiene una internación activa.
+      const mensaje = `${paciente.persona.nombre} ${paciente.persona.apellido} ya tiene una internación activa.
       Sector: ${sectorObj ? sectorObj.nombre : '-'},
       Ala: ${alaObj ? alaObj.ubicacion : '-'},
       Habitación: ${habitacionObj ? habitacionObj.codigo : '-'},
@@ -168,52 +178,30 @@ module.exports = {
       }
 
       // 1. Parsear y crear/actualizar contacto de emergencia
-      const contactoData = contactoEmergenciaSchema.parse({
-        DNI_contacto: req.body.dniContacto,
+      const personaData = personaSchema.parse({
+        DNI: req.body.dniContacto,
         nombre: req.body.nombreContacto,
         apellido: req.body.apellidoContacto,
-        telefono: req.body.telefonoContacto,
-        id_parentesco: req.body.parentescoContacto
+        telefono: req.body.telefonoContacto
       });
-      
-      // // Verificar que el teléfono de contacto de emergencia no exista en Paciente
-      // const telefonoEnPaciente = await Paciente.findOne({ where: { nro_Telefono: contactoData.telefono } });
-      // if (telefonoEnPaciente && telefonoEnPaciente.DNI !== req.body.dniContacto) {
-      //   const sectores = await Sector.findAll();
-      //   const parentescos = await Parentesco.findAll();
-      //   const seguros = await Seguro.findAll();
-      //   const motivos = await Motivo.findAll();
-      //   const paciente = await Paciente.findByPk(pacienteId);
-      //   return res.render('internacion-paciente', {
-      //     mensaje: 'Numero de telefono ya asociado a otro DNI',
-      //     paciente,
-      //     sectores,
-      //     parentescos,
-      //     seguros,
-      //     motivos
-      //   });
-      // }
+
+      const [persona] = await Persona.findOrCreate({
+        where: { DNI: personaData.DNI },
+        defaults: personaData
+      });
+
+      await persona.update(personaData);
 
       const [contacto] = await ContactoEmergencia.findOrCreate({
-        where: { 
-          DNI_contacto: contactoData.DNI_contacto,
-          id_parentesco: contactoData.id_parentesco
+        where: {
+          id_persona: persona.id,
+          id_parentesco: req.body.parentescoContacto
         },
-        defaults: contactoData
+        defaults: {
+          id_persona: persona.id,
+          id_parentesco: req.body.parentescoContacto
+        }
       });
-      await contacto.update(contactoData);
-
-      const paciente = await Paciente.findOne({
-        where: { DNI: req.body.dniContacto }
-      });
-      if (paciente) {
-        await paciente.update({
-          nombre: req.body.nombreContacto,
-          apellido: req.body.apellidoContacto,
-          nro_Telefono: req.body.telefonoContacto
-        });
-      }
-
 
       // 2. Parsear y crear/actualizar pacienteSeguro
       const pacienteSeguroData = pacienteSeguroSchema.parse({
@@ -335,49 +323,10 @@ module.exports = {
   internarEmergencia: async (req, res) => {
     try {
       const { sexo, habitacion, cama } = req.body;
-      // 1. Generar id negativo y DNI anónimo pequeño
-      const nuevoId = await generarIdPacienteDesconocido();
-      const anonDNI = await generarDNIAnonimoPequeno();
-
-      console.log(`Sexo del paciente: ${sexo}`);
-      
-
-      // 2. Crear paciente anónimo
-      const [paciente] = await Paciente.findOrCreate({
-        where: { DNI: anonDNI },
-        defaults: {
-          id: nuevoId,
-          nombre: 'Desconocido',
-          apellido: Number(sexo) === 1 ? 'Masculino' : 'Femenino',
-          sexo,
-          fechaNacimiento: new Date('1900-01-01'),
-          id_tipoSangre: 1,
-          domicilio: '',
-          nro_Telefono: anonDNI,
-          id_localidad: 1
-        }
-      });
-
-      // 3. Crear o buscar PacienteSeguro anónimo
-      const [pacienteSeguro] = await PacienteSeguro.findOrCreate({
-        where: {
-          id_paciente: paciente.id,
-          id_seguro: 1,
-          codigo_afiliado: paciente.DNI
-        },
-        defaults: {
-          id: nuevoId,
-          id_paciente: paciente.id,
-          id_seguro: 1,
-          codigo_afiliado: paciente.DNI,
-          fecha_desde: new Date(),
-          estado: 'activo'
-        }
-      });
 
       // 4. Crear la internación usando el id de PacienteSeguro
       await Internacion.create({
-        id_paciente_seguro: pacienteSeguro.id,
+        id_paciente_seguro: sexo, // 1(Masculino) o 2(femenino) dependiendo del sexo
         id_cama: cama,
         fechaInternacion: new Date(),
         estado: 'activa',

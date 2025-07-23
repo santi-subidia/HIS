@@ -6,7 +6,7 @@ router.get('/alas', apiController.mostrarAlas);
 router.get('/habitaciones', apiController.mostrarHabitaciones);
 
 router.get('/persona/:dni', apiController.buscarPersona);
-router.get('/contactoEmergencia/:dni', apiController.buscarContactoEmergencia);
+router.get('/contactoEmergencia/:id', apiController.buscarContactoEmergencia);
 router.get('/paciente/:id', apiController.buscarPaciente);
 
 module.exports = router;

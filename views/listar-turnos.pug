@@ -34,14 +34,14 @@ block content
               td= turno.id
               td= turno.fecha ? turno.fecha.toISOString().slice(0,10) : '-'
               td= turno.fecha ? turno.fecha.toISOString().slice(11,16) : '-'
-              td= turno.Paciente ? turno.Paciente.nombre + ' ' + turno.Paciente.apellido : '-'
-              td= turno.Paciente ? turno.Paciente.DNI : '-'
-              td= turno.Paciente ? turno.Paciente.nro_Telefono : '-'
+              td= turno.Paciente ? turno.Paciente.persona.nombre + ' ' + turno.Paciente.persona.apellido : '-'
+              td= turno.Paciente ? turno.Paciente.persona.DNI : '-'
+              td= turno.Paciente ? turno.Paciente.persona.telefono : '-'
               td= turno.estado
               td
                 if turno.Paciente && turno.estado !== 'cancelado'
                   form(action="/internacion/registro/buscar" method="POST" style="display:inline;")
-                    input(type="hidden" name="dni" value=turno.Paciente.DNI)
+                    input(type="hidden" name="dni" value=turno.Paciente.persona.DNI)
                     button.btn.btn-success(type="submit" title="Internar paciente")
                       i.fas.fa-bed.me-1
                       | Internar
