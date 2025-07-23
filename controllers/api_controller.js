@@ -1,4 +1,4 @@
-const { Ala, Habitacion, Cama, Internacion, PacienteSeguro, Paciente, ContactoEmergencia } = require('../models');
+const { Ala, Habitacion, Cama, Internacion, PacienteSeguro, Paciente, ContactoEmergencia, Persona } = require('../models');
 
 
 module.exports = {
@@ -63,24 +63,43 @@ module.exports = {
     }
   },
 
-  buscarPaciente: async (req, res ) => {
-    const { dni } = req.params;
+  buscarPersona: async (req, res) => {
+    const dni = req.params.dni.replace(/\D/g, ''); // Eliminar caracteres no numéricos
+    if (!/^\d{7,9}$/.test(dni)) {
+      return res.status(400).json({ error: 'DNI inválido' });
+    }
+
     try {
-      const paciente = await Paciente.findOne({ where: { DNI: dni } });
+      const persona = await Persona.findOne({ where: { DNI: dni } });
+      if (!persona) {
+        return res.json({ existe: false });
+      }
+      res.json({
+        existe: true,
+        id_persona: persona.id,
+        nombre: persona.nombre,
+        apellido: persona.apellido,
+        telefono: persona.telefono,
+      });
+    } catch (error) {
+      console.error('Error al buscar persona:', error);
+      res.status(500).json({ error: 'Error al buscar persona' });
+    }
+  },
+
+  buscarPaciente: async (req, res ) => {
+    const id_persona = req.params.id;
+    try {
+      const paciente = await Paciente.findOne({ where: { id: id_persona } });
       if (!paciente) {
         return res.json({ existe: false });
       }
       res.json({
         existe: true,
-        nombre: paciente.nombre,
-        apellido: paciente.apellido,
-        sexo: paciente.sexo,
         fechaNacimiento: paciente.fechaNacimiento,
         tipoSangre: paciente.tipoSangre,
         domicilio: paciente.domicilio,
-        localidad: paciente.id_localidad,
-        nro_Telefono: paciente.nro_Telefono,
-
+        localidad: paciente.id_localidad
       });
     } catch (error) {
       console.error('Error al verificar paciente:', error);

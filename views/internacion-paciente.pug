@@ -46,10 +46,10 @@ block content
         .row
           .col-md-6.mb-2
             strong Nombre completo:
-            |  #{paciente.nombre} #{paciente.apellido}
+            |  #{paciente.persona.nombre} #{paciente.persona.apellido}
           .col-md-6.mb-2
             strong DNI:
-            |  #{paciente.DNI}
+            |  #{paciente.persona.DNI}
 
     form(action=`/internacion/registro/${paciente.id}` method="POST")
       .card.mt-4.shadow
@@ -185,7 +185,7 @@ block content
             .col-12
                 .alert.alert-warning.mt-2(style="display:none" id="alertaContacto")
                   i.fas.fa-exclamation-triangle.me-2
-                  | Este contacto ya existe como paciente. Si modificas algún dato, se actualizarán los datos del paciente.
+                  | DNI ya registrado si modificas algún dato, se actualizarán los datos.
 
           .row
             .col-12

@@ -5,44 +5,19 @@ module.exports = (sequelize) => {
     static associate(models) {
       Paciente.belongsTo(models.Localidad, { foreignKey: 'id_localidad', as: 'localidad' });
       Paciente.belongsTo(models.TipoSangre, { foreignKey: 'id_tipoSangre', as: 'tipoSangre' });
+      Paciente.belongsTo(models.Persona, { foreignKey: 'id_persona', as: 'persona' });
       Paciente.hasMany(models.Turno, { foreignKey: 'id_paciente', as: 'turnos' });
       Paciente.hasMany(models.PacienteSeguro, { foreignKey: 'id_paciente', as: 'seguros' });
     }
   }
 
   Paciente.init({
-    DNI: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      unique: true,
-      validate: {
-        notEmpty: { msg: "El DNI no puede estar vacío" },
-        is: {
-          args: /^[0-9]{7,9}$/,
-          msg: "El DNI debe contener entre 7 y 9 dígitos numéricos"
-        }
-      }
-    },
-    nombre: {
-      type: DataTypes.STRING,
+    id_persona: {
+      type: DataTypes.INTEGER,
       allowNull: false,
       validate: {
-        notEmpty: { msg: "El nombre no puede estar vacío" },
-        len: {
-          args: [2, 50],
-          msg: "El nombre debe tener entre 2 y 50 caracteres"
-        }
-      }
-    },
-    apellido: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      validate: {
-        notEmpty: { msg: "El apellido no puede estar vacío" },
-        len: {
-          args: [2, 50],
-          msg: "El apellido debe tener entre 2 y 50 caracteres"
-        }
+        isInt: { msg: "Debe ser un número entero" },
+        min: 1
       }
     },
     sexo: {
@@ -71,17 +46,6 @@ module.exports = (sequelize) => {
       validate: {
         isInt: { msg: "Debe ser un número entero" },
         min: -1
-      }
-    },
-    nro_Telefono: {
-      type: DataTypes.STRING,
-      allowNull: true,
-      validate: {
-        isNumeric: { msg: "El número de teléfono solo debe contener números" },
-        len: {
-          args: [7, 15],
-          msg: "El teléfono debe tener entre 7 y 15 dígitos"
-        }
       }
     },
     id_tipoSangre: {

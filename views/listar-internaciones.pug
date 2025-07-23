@@ -21,8 +21,8 @@ block content
       tbody
         each internacion in internaciones
           tr
-            td= internacion.PacienteSeguro && internacion.PacienteSeguro.paciente ? internacion.PacienteSeguro.paciente.nombre + ' ' + internacion.PacienteSeguro.paciente.apellido : '-'
-            td= internacion.PacienteSeguro && internacion.PacienteSeguro.paciente ? internacion.PacienteSeguro.paciente.DNI : '-'
+            td= internacion.PacienteSeguro && internacion.PacienteSeguro.paciente ? internacion.PacienteSeguro.paciente.persona.nombre + ' ' + internacion.PacienteSeguro.paciente.persona.apellido : '-'
+            td= internacion.PacienteSeguro && internacion.PacienteSeguro.paciente ? internacion.PacienteSeguro.paciente.persona.DNI : '-'
             td= internacion.fechaInternacion ? new Date(internacion.fechaInternacion).toLocaleDateString('es-AR') : '-'
             td= internacion.estado
             td= internacion.Cama && internacion.Cama.Habitacion && internacion.Cama.Habitacion.Ala && internacion.Cama.Habitacion.Ala.Sector ? internacion.Cama.Habitacion.Ala.Sector.nombre : '-'

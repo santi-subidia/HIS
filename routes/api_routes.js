@@ -5,8 +5,9 @@ const apiController = require('../controllers/api_controller');
 router.get('/alas', apiController.mostrarAlas);
 router.get('/habitaciones', apiController.mostrarHabitaciones);
 
-router.get('/contactoEmergencia/:dni', apiController.buscarContactoEmergencia);
-router.get('/paciente/:dni', apiController.buscarPaciente);
+router.get('/persona/:dni', apiController.buscarPersona);
+router.get('/contactoEmergencia/:id', apiController.buscarContactoEmergencia);
+router.get('/paciente/:id', apiController.buscarPaciente);
 
 module.exports = router;
 

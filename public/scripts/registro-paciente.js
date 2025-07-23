@@ -1,30 +1,29 @@
 console.log("Script cargado");
 
-// Objeto para agrupar funciones de búsqueda
 const Buscar = {
-  // Busca un paciente por DNI y devuelve sus datos si existe
-  PacienteDNI: async (dni) => {
+  Persona: async (dni) => {
     try {
-      const response = await fetch(`/api/paciente/${dni}`);
+      const response = await fetch(`/api/persona/${dni}`);
+      console.log("Respuesta de buscar persona:", response);
       if (!response.ok) return null;
       return await response.json();
     } catch (error) {
-      console.error("Error al buscar paciente por DNI:", error);
+      console.error("Error al buscar persona: ", error);
       return null;
     }
   },
 
-  // Busca un contacto de emergencia por DNI y devuelve sus datos si existe
-  ContactoEmergenciaPorDNI: async (dni) => {
+  Paciente: async (id) => {
     try {
-      const response = await fetch(`/api/contactoEmergencia/${dni}`);
+      const response = await fetch(`/api/paciente/${id}`);
+      console.log("Respuesta de buscar paciente:", response);
       if (!response.ok) return null;
       return await response.json();
     } catch (error) {
-      console.error("Error al buscar contacto de emergencia por DNI:", error);
+      console.error("Error al buscar paciente: ", error);
       return null;
     }
-  },
+  }
 };
 
 document.getElementById("buscarDNI").addEventListener("click", function () {
@@ -44,7 +43,7 @@ document.getElementById("buscarDNI").addEventListener("click", function () {
   const fechaNacimiento = document.getElementById("fechaNacimiento");
   const tipoSangre = document.getElementById("id_tipoSangre");
   const domicilio = document.getElementById("domicilio");
-  const nro_Telefono = document.getElementById("nro_Telefono");
+  const telefono = document.getElementById("telefono");
   const localidad = document.getElementById("id_localidad");
 
   const alerta = document.getElementById("alerta");
@@ -58,47 +57,57 @@ document.getElementById("buscarDNI").addEventListener("click", function () {
     return;
   }
 
-  let datosPromise = Buscar.PacienteDNI(dni);
+  let datosPromise_persona = Buscar.Persona(dni);
 
-  datosPromise.then((datos) => {
+  datosPromise_persona.then((datos) => {
     if (datos && datos.existe === true) {
         apellido.disabled = true;
         nombre.disabled = true;
         sexo.disabled = true;
-        fechaNacimiento.disabled = true;
-        tipoSangre.disabled = true;
-        domicilio.disabled = true;
-        nro_Telefono.disabled = true;
-        localidad.disabled = true;
+        telefono.disabled = true;
 
 
-      alerta_texto.innerText = `Paciente existente: ${datos.nombre} ${datos.apellido}`;
+      alerta_texto.innerText = `Persona existente con DNI ${dni}`;
       alerta.style.display = "block";
-      return;
+
+      // Buscar los datos del paciente
+      let datosPromise_paciente = Buscar.Paciente(datos.id_persona);
+      datosPromise_paciente.then((datosPaciente) => {
+        if (datosPaciente && datosPaciente.existe === true) {
+
+          alerta_texto.innerText += `, ya relacionado a un paciente.`;
+
+          sexo.disabled = true;
+          fechaNacimiento.disabled = true;
+          tipoSangre.disabled = true;
+          domicilio.disabled = true;
+          localidad.disabled = true;
+        } else {
+          alerta_texto.innerText += `, no relacionado a un paciente.`;
+
+          sexo.disabled = false;
+          fechaNacimiento.disabled = false;
+          tipoSangre.disabled = false;
+          domicilio.disabled = false;
+          localidad.disabled = false;
+        }
+      }).catch((error) => {
+        console.error("Error al buscar paciente:", error);
+        alerta_texto.innerText += `, no relacionado a un paciente.`;
+      });
+    }else {
+
+      apellido.disabled = false;
+      nombre.disabled = false;
+      sexo.disabled = false;
+      fechaNacimiento.disabled = false;
+      tipoSangre.disabled = false;
+      domicilio.disabled = false;
+      telefono.disabled = false;
+      localidad.disabled = false;
+
+      alerta_texto.innerText = `No se encontraron datos para el DNI ingresado. Puede completar los campos para registrar un nuevo paciente.`;
+      alerta.style.display = "block";
     }
-
-    apellido.disabled = false;
-    nombre.disabled = false;
-    sexo.disabled = false;
-    fechaNacimiento.disabled = false;
-    tipoSangre.disabled = false;
-    domicilio.disabled = false;
-    nro_Telefono.disabled = false;
-    localidad.disabled = false;
-
-    Buscar.ContactoEmergenciaPorDNI(dni).then((datos) => {
-      if (datos && datos.existe === true) {
-        nombre.value = datos.nombre;
-        apellido.value = datos.apellido;
-        nro_Telefono.value = datos.telefono;
-
-        alerta_texto.innerText = `Contacto de emergencia existente: ${datos.nombre} ${datos.apellido}, si modifica los datos, se actualizará el contacto de emergencia.`;
-        alerta.style.display = "block";
-        return;
-      }
-    });
   });
-
-  alerta_texto.innerText = `No se encontraron datos para el DNI ingresado. Puede completar los campos para registrar un nuevo paciente.`;
-  alerta.style.display = "block";
 });

@@ -1,26 +1,16 @@
-// Busca un paciente por DNI y devuelve sus datos si existe
-async function buscarPacienteDNI(dni) {
+const Buscar = {
+  Persona: async (dni) => {
     try {
-        const response = await fetch(`/api/paciente/${dni}`);
-        if (!response.ok) return null;
-        return await response.json();
+      const response = await fetch(`/api/persona/${dni}`);
+      console.log("Respuesta de buscar persona:", response);
+      if (!response.ok) return null;
+      return await response.json();
     } catch (error) {
-        console.error('Error al buscar paciente por DNI:', error);
-        return null;
+      console.error("Error al buscar persona: ", error);
+      return null;
     }
-}
-
-// Busca un contacto de emergencia por DNI y devuelve sus datos si existe
-async function buscarContactoEmergenciaPorDNI(dni) {
-    try {
-        const response = await fetch(`/api/contactoEmergencia/${dni}`);
-        if (!response.ok) return null;
-        return await response.json();
-    } catch (error) {
-        console.error('Error al buscar contacto de emergencia por DNI:', error);
-        return null;
-    }
-}
+  }
+};
 
 // Habilita o deshabilita los campos de contacto de emergencia
 function setCamposContactoEmergencia(disabled, datos = {}) {
@@ -34,17 +24,9 @@ function setCamposContactoEmergencia(disabled, datos = {}) {
     parentescoSelect.disabled = disabled;
     telefonoInput.disabled = disabled;
 
-    console.log(`Numero de telefono: ${datos.nro_Telefono || datos.telefono}`);
-    
-    
-
     if (datos.nombre) nombreInput.value = datos.nombre;
     if (datos.apellido) apellidoInput.value = datos.apellido;
-    if (datos.nro_Telefono || datos.telefono) telefonoInput.value = datos.nro_Telefono || datos.telefono;
-    if (datos.id_parentesco) parentescoSelect.value = datos.id_parentesco;
-
-    console.log(`telefono: ${telefonoInput.value}`);
-    
+    if (datos.telefono) telefonoInput.value = datos.telefono;
 }
 
 // Evento para el botón de buscar contacto
@@ -53,25 +35,27 @@ document.addEventListener('DOMContentLoaded', function() {
     const dniInput = document.getElementById('dniContacto');
     const alertaContacto = document.getElementById('alertaContacto');
     
-
+    dniInput.addEventListener('input', function() {
+        alertaContacto.style.display = 'none';
+        setCamposContactoEmergencia(true);
+        document.getElementById('nombreContacto').value = '';
+        document.getElementById('apellidoContacto').value = '';
+        document.getElementById('telefonoContacto').value = '';
+        document.getElementById('parentescoContacto').value = '';
+    });
+    
     // Desactivar campos al cargar
     setCamposContactoEmergencia(true);
 
     btnBuscar.addEventListener('click', async function() {
+        alertaContacto.style.display = 'none';
         const dni = dniInput.value.trim();
         if (!dni || dni.length < 7) {
             alert('Ingrese un DNI válido para buscar.');
             return;
         }
         setCamposContactoEmergencia(true);
-        let datos = await buscarContactoEmergenciaPorDNI(dni);
-        if (datos.existe === true) {
-            setCamposContactoEmergencia(false, datos);
-            alertaContacto.style.display = 'block';
-            return;
-        }
-
-        datos = await buscarPacienteDNI(dni);
+        let datos = await Buscar.Persona(dni);
         if (datos.existe === true) {
             setCamposContactoEmergencia(false, datos);
             alertaContacto.style.display = 'block';
@@ -85,4 +69,5 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('parentescoContacto').value = '';
 
     });
+
 });

@@ -1,5 +1,5 @@
-const { pacienteSchema } = require('../schemas/paciente_schema');
-const { Paciente, TipoSangre, Localidad, Provincia, ContactoEmergencia } = require('../models');
+const { pacienteSchema } = require('../schemas/paciente_schema'), { personaSchema } = require('../schemas/persona_schema');
+const { Paciente, TipoSangre, Localidad, Provincia, ContactoEmergencia, Persona } = require('../models');
 
 
 module.exports = {
@@ -10,6 +10,7 @@ module.exports = {
       const pacientes = await Paciente.findAll({
         where: { id: { [require('sequelize').Op.gt]: 0 } },
         include: [
+          { model: Persona, as: 'persona'},
           { model: TipoSangre, as: 'tipoSangre' },
           { model: Localidad, as: 'localidad', include: [{ model: Provincia, as: 'provincia' }] }
         ]
@@ -36,10 +37,32 @@ module.exports = {
   // Registra un nuevo paciente
   registrarPaciente: async (req, res) => {
     try {
-      const data = pacienteSchema.parse(req.body);
+      // Separar datos de persona y paciente desde req.body
+      const personaData = {
+        DNI: req.body.DNI,
+        nombre: req.body.nombre,
+        apellido: req.body.apellido,
+        telefono: req.body.telefono
+      };
+      const pacienteData = {
+        sexo: req.body.sexo,
+        fechaNacimiento: req.body.fechaNacimiento,
+        id_tipoSangre: req.body.id_tipoSangre,
+        domicilio: req.body.domicilio,
+        id_localidad: req.body.id_localidad,
+        id_persona: undefined // se asigna luego
+      };
 
-      // Verificar si el DNI ya existe
-      const pacienteExistente = await Paciente.findOne({ where: { DNI: data.DNI } });
+      // Validar datos de persona y paciente por separado
+      const personaValida = personaSchema.parse(personaData);
+      const pacienteValido = pacienteSchema.omit({ id_persona: true }).parse(pacienteData);
+
+      // Verificar si la persona ya existe
+      const personaExistente = await Persona.findOne({ where: { DNI: personaValida.DNI } });
+      const persona = personaExistente || await Persona.create(personaValida);
+
+      // Verificar si el paciente ya existe para esa persona
+      const pacienteExistente = await Paciente.findOne({ where: { id_persona: persona.id } });
       if (pacienteExistente) {
         const tiposSangre = await TipoSangre.findAll();
         const localidades = await Localidad.findAll({ include: [{ model: Provincia, as: 'provincia' }] });
@@ -52,44 +75,8 @@ module.exports = {
         });
       }
 
-      const contacto = await ContactoEmergencia.findOne({ where: { DNI_contacto: data.DNI } });
-
-      if (contacto) {
-        await contacto.update({
-          nombre: data.nombre,
-          apellido: data.apellido,
-          telefono: data.nro_Telefono
-        });
-      }
-
-      // // Verificar que el teléfono no exista en ContactoEmergencia
-      // const telefonoEnContacto = await ContactoEmergencia.findOne({ where: { telefono: data.nro_Telefono } });
-      // if (telefonoEnContacto && telefonoEnContacto.DNI_contacto !== data.DNI) {
-      //   const tiposSangre = await TipoSangre.findAll();
-      //   const localidades = await Localidad.findAll({ include: [{ model: Provincia, as: 'provincia' }] });
-      //   return res.status(400).render('registro-paciente', {
-      //     tiposSangre,
-      //     localidades,
-      //     valores: req.body,
-      //     error: [{ message: 'El número de teléfono ya está registrado como contacto de emergencia.' }],
-      //     exito: null
-      //   });
-      // }
-
-      // const telefonoEnPaciente = await Paciente.findOne({ where: { nro_Telefono: data.nro_Telefono } });
-      // if (telefonoEnPaciente) {
-      //   const tiposSangre = await TipoSangre.findAll();
-      //   const localidades = await Localidad.findAll({ include: [{ model: Provincia, as: 'provincia' }] });
-      //   return res.status(400).render('registro-paciente', {
-      //     tiposSangre,
-      //     localidades,
-      //     valores: req.body,
-      //     error: [{ message: 'El número de teléfono ya está registrado para otro paciente.' }],
-      //     exito: null
-      //   });
-      // }
-
-      await Paciente.create(data);
+      // Crear el paciente vinculado a la persona
+      await Paciente.create({ ...pacienteValido, id_persona: persona.id });
 
       const tiposSangre = await TipoSangre.findAll();
       const localidades = await Localidad.findAll({ include: [{ model: Provincia, as: 'provincia' }] });
@@ -141,10 +128,21 @@ module.exports = {
   // Busca un paciente por DNI y muestra el formulario de actualización
   buscarPacientePorDNI: async (req, res) => {
     try {
-      const dni = req.body.dni;
-      const paciente = await Paciente.findOne({ where: { DNI: dni } });
+      let dni = req.body.dni.trim();
+
+      const persona = await Persona.findOne({ where: { DNI: dni } });
+      if (!persona) {
+        return res.render('actualizar-paciente', { paciente: null, mensaje: 'No se encontró una persona con ese DNI.' });
+      }
+      const paciente = await Paciente.findOne({
+        where: { id_persona: persona.id },
+        include: [
+          { model: Persona, as: 'persona' },
+        ]
+
+      });
       if (!paciente) {
-        return res.render('actualizar-paciente', { paciente: null, mensaje: 'No se encontró un paciente con ese DNI.' });
+        return res.render('actualizar-paciente', { paciente: null, mensaje: 'No se encontró un paciente asociado a esa persona.' });
       }
 
       const tiposSangre = await TipoSangre.findAll();
@@ -169,26 +167,35 @@ module.exports = {
   actualizarPaciente: async (req, res) => {
     try {
       const id = req.params.id;
-      const data = pacienteSchema.parse(req.body);
 
+      // Separar datos de persona y paciente desde req.body
+      const personaData = {
+        nombre: req.body.nombre,
+        apellido: req.body.apellido,
+        telefono: req.body.telefono
+      };
+      const pacienteData = {
+        sexo: req.body.sexo,
+        fechaNacimiento: req.body.fechaNacimiento,
+        id_tipoSangre: req.body.id_tipoSangre,
+        domicilio: req.body.domicilio,
+        id_localidad: req.body.id_localidad,
+      };
 
-      // // Verificar que el teléfono no exista en ContactoEmergencia (excepto si es el mismo paciente)
-      // const telefonoEnContacto = await ContactoEmergencia.findOne({ where: { telefono: data.nro_Telefono } });
-      // if (telefonoEnContacto && telefonoEnContacto.DNI_contacto !== data.DNI) {
-      //   const tiposSangre = await TipoSangre.findAll();
-      //   const localidades = await Localidad.findAll({ include: [{ model: Provincia, as: 'provincia' }] });
-      //   return res.render('actualizar-paciente', {
-      //     paciente: { ...req.body, id },
-      //     tiposSangre,
-      //     localidades,
-      //     mensaje: 'El número de teléfono ya está registrado como contacto de emergencia.'
-      //   });
-      // }
+      // Validar datos de persona y paciente por separado
+      const personaValida = personaSchema.omit({ DNI: true }).parse(personaData);
+      const pacienteValido = pacienteSchema.omit({ id_persona: true }).parse(pacienteData);
 
-      await Paciente.update(data, { where: { id } });
+      await Paciente.update(pacienteValido, { where: { id } });
+      let paciente = await Paciente.findByPk(id);
+      await Persona.update(personaValida, { where: { id: paciente.id_persona } });
 
-      // Traer selects para volver a mostrar el formulario actualizado
-      const paciente = await Paciente.findByPk(id);
+      paciente = await Paciente.findOne({
+        where: { id },
+        include: [
+          { model: Persona, as: 'persona' }
+        ]
+      });
       const tiposSangre = await TipoSangre.findAll();
       const localidades = await Localidad.findAll({ include: [{ model: Provincia, as: 'provincia' }] });
 
@@ -204,30 +211,33 @@ module.exports = {
       });
     } catch (error) {
       // Si hay error de validación, vuelve a mostrar el formulario con los datos ingresados
+      const id = req.params.id;
+      const paciente = await Paciente.findOne({
+        where: { id },
+        include: [
+          { model: Persona, as: 'persona' }
+        ]
+      });
+
+      let fecha = new Date(paciente.fechaNacimiento);
+      fecha = fecha.toISOString().split('T')[0]; // Formatear a YYYY-MM-DD
+
       const tiposSangre = await TipoSangre.findAll();
       const localidades = await Localidad.findAll({ include: [{ model: Provincia, as: 'provincia' }] });
 
       let mensaje = 'Error al actualizar paciente.';
       if (error.issues) { // Zod
         mensaje += ' ' + error.issues.map(e => `${e.path}: ${e.message}`).join(' ');
-      } else if (error.errors) {
-        // Personalizar mensaje de unicidad
-        mensaje += ' ' + error.errors.map(e => {
-          if (e.message && e.message.includes('must be unique')) {
-            return 'El número de teléfono ya está registrado para otro paciente.';
-          }
-          return e.message;
-        }).join(' ');
       }
 
       res.render('actualizar-paciente', {
-        paciente: { ...req.body, id: req.params.id },
+        paciente,
         tiposSangre,
         localidades,
+        fecha,
         mensaje
       });
     }
   }
-
 };
 

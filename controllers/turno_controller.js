@@ -1,5 +1,5 @@
 const { Op } = require('sequelize');
-const { Paciente, Motivo, Turno } = require("../models");
+const { Paciente, Motivo, Turno, Persona } = require("../models");
 
 module.exports = {
   // Lista todos los turnos, actualiza los vencidos a cancelado
@@ -34,22 +34,26 @@ module.exports = {
         };
       }
 
-      if (dni) {
-        wherePaciente.DNI = dni;
-      }
 
+      // Filtros por campos de Persona (DNI y nombre)
+      if (dni) {
+        wherePaciente['$Paciente.persona.DNI$'] = dni;
+      }
       if (nombre) {
-        wherePaciente.nombre = { [Op.like]: `%${nombre}%` };
+        wherePaciente['$Paciente.persona.nombre$'] = { [Op.like]: `%${nombre}%` };
       }
 
       // Obtiene turnos actualizados con sus relaciones y filtros
+
       const turnos = await Turno.findAll({
         where: whereTurno,
         include: [
           {
             model: Paciente,
             as: 'Paciente',
-            where: Object.keys(wherePaciente).length ? wherePaciente : undefined
+            include: [{ model: Persona, as: 'persona' }],
+            where: Object.keys(wherePaciente).length ? wherePaciente : undefined,
+            required: true
           },
           { model: Motivo }
         ],
@@ -113,7 +117,10 @@ module.exports = {
         });
       }
       // Buscar paciente por DNI
-      const paciente = await Paciente.findOne({ where: { DNI: dni } });
+      const paciente = await Paciente.findOne({
+        include: [{ model: Persona, as: 'persona' }],
+        where: { '$persona.DNI$': dni }
+      });
       if (!paciente) {
         return res.render("crear-turno", {
           motivos,
@@ -153,7 +160,10 @@ module.exports = {
         }
       }
 
-      const paciente = await Paciente.findOne({ where: { DNI: dni } });
+      const paciente = await Paciente.findOne({
+        include: [{ model: Persona, as: 'persona' }],
+        where: { '$persona.DNI$': dni }
+      });
       if (!paciente) {
         return res.render("crear-turno", {
           motivos,

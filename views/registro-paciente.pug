@@ -111,14 +111,14 @@ block content
 
               .col-md-6.mb-3
                 label.form-label(for="nro_Telefono") Teléfono
-                input#nro_Telefono.form-control(
+                input#telefono.form-control(
                   type="tel"
-                  name="nro_Telefono"
+                  name="telefono"
                   required
                   minlength="7"
                   maxlength="15"
                   placeholder="Ingrese el teléfono"
-                  value=(valores && valores.nro_Telefono) || ""
+                  value=(valores && valores.telefono) || ""
                   disabled
                 )
                 small.form-text.text-muted Solo números, entre 7 y 15 dígitos.
