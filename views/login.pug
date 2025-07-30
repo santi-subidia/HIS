@@ -1,0 +1,73 @@
+extends layout
+
+block content
+  .row.justify-content-center.mt-5
+    .col-md-6
+      .card.shadow
+        .card-header.bg-primary.text-white
+          if registrar
+            h4.mb-0
+              i.fas.fa-user-plus.me-2
+              | Registrar Usuario
+          else
+            h4.mb-0
+              i.fas.fa-sign-in-alt.me-2
+              | Iniciar Sesión
+        .card-body
+          if error
+            .alert.alert-danger.mb-3 #{error}
+          if mensaje
+            .alert.alert-warning.mb-3 #{mensaje}
+          if registrar
+            form(action="/login/nuevo" method="POST")
+              .mb-3
+                label.form-label(for="usuario") Usuario
+                input#usuario.form-control(type="text" name="user" required autofocus placeholder="Ingrese su usuario")
+              .mb-3
+                label.form-label(for="password") Contraseña
+                input#password.form-control(type="password" name="password" required placeholder="Ingrese su contraseña")
+              .mb-3
+                label.form-label(for="rol") Rol
+                select#rol.form-select(name="rol" required)
+                  option(value="") Seleccione un rol
+                  if roles && roles.length
+                    each r in roles
+                      option(value=r.id)= r.nombre
+                  else
+                    option(value="") No hay roles disponibles
+              .mb-3
+                label.form-label(for="dni") DNI
+                input#dni.form-control(type="text" name="dni" required placeholder="Ingrese el DNI")
+              .mb-3
+                label.form-label(for="nombre") Nombre
+                input#nombre.form-control(type="text" name="nombre" required placeholder="Ingrese el nombre")
+              .mb-3
+                label.form-label(for="apellido") Apellido
+                input#apellido.form-control(type="text" name="apellido" required placeholder="Ingrese el apellido")
+              .mb-3
+                label.form-label(for="telefono") Teléfono
+                input#telefono.form-control(type="text" name="telefono" required placeholder="Ingrese el teléfono")
+              .d-flex.justify-content-end
+                button.btn.btn-primary(type="submit")
+                  i.fas.fa-user-plus.me-1
+                  | Registrar
+            .mt-3.text-center
+              a.btn.btn-outline-secondary(href="/login")
+                i.fas.fa-sign-in-alt.me-1
+                | Volver a iniciar sesión
+          else
+            form(action="/login" method="POST")
+              .mb-3
+                label.form-label(for="usuario") Usuario
+                input#usuario.form-control(type="text" name="user" required autofocus placeholder="Ingrese su usuario")
+              .mb-3
+                label.form-label(for="password") Contraseña
+                input#password.form-control(type="password" name="password" required placeholder="Ingrese su contraseña")
+              .d-flex.justify-content-end
+                button.btn.btn-success(type="submit")
+                  i.fas.fa-sign-in-alt.me-1
+                  | Ingresar
+            .mt-3.text-center
+              a.btn.btn-outline-primary(href="/login/nuevo")    
+                i.fas.fa-user-plus.me-1
+                | Registrar nuevo usuario

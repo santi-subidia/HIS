@@ -56,6 +56,24 @@ module.exports = {
         nombre: 'Federico',
         apellido: 'Molina',
         telefono: '2664000009'
+      },
+      {
+        DNI: '192456744',
+        nombre: 'Sofía',
+        apellido: 'Gómez',
+        telefono: '2664000010'
+      },
+      {
+        DNI: '194267897',
+        nombre: 'Juan',
+        apellido: 'Quiroga',
+        telefono: '2664001009'
+      },
+      {
+        DNI: '198456123',
+        nombre: 'Nahuel',
+        apellido: 'Calderón',
+        telefono: '2664102009'
       }
     ];
 

@@ -1,7 +1,13 @@
 const { Model, DataTypes } = require('sequelize');
+const bcrypt = require('bcrypt');
 
 module.exports = (sequelize) => {
   class Usuario extends Model {
+
+    async validarPassword(password) {
+      return await bcrypt.compare(password, this.password);
+    }
+
     static associate(models) {
       // Un usuario puede estar asociado a un empleado
       Usuario.hasOne(models.Empleado, { foreignKey: 'id_usuario', as: 'empleado' });
@@ -42,17 +48,33 @@ module.exports = (sequelize) => {
         min: -1
       }
     },
-    activo: {
-      type: DataTypes.BOOLEAN,
+    fecha_creacion: {
+      type: DataTypes.DATE,
       allowNull: false,
+      defaultValue: DataTypes.NOW,
       validate: {
+        isDate: { msg: "Debe ser una fecha válida" }
       }
-    }
+    },
   }, {
     sequelize,
     modelName: 'Usuario',
     tableName: 'usuarios',
-    timestamps: false
+    timestamps: false,
+    hooks: {
+      beforeCreate: async (usuario) => {
+        if(usuario.password) {
+          const salt = await bcrypt.genSalt(10);
+          usuario.password = await bcrypt.hash(usuario.password, salt);
+        }
+      },
+      beforeUpdate: async (usuario) => {
+        if (usuario.changed('password')) {
+          const salt = await bcrypt.genSalt(10);
+          usuario.password = await bcrypt.hash(usuario.password, salt);
+        }
+      }
+    }
   });
 
   return Usuario;

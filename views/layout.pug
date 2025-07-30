@@ -31,44 +31,72 @@ html(lang="es")
         button.navbar-toggler(type="button", data-bs-toggle="collapse", data-bs-target="#navbarNav")
           span.navbar-toggler-icon
         .collapse.navbar-collapse#navbarNav
-          ul.navbar-nav.me-auto
-            li.nav-item.dropdown
-              a.nav-link.dropdown-toggle(href="#" role="button" data-bs-toggle="dropdown") Admisión y Recepción
-              ul.dropdown-menu
-                // Pacientes
-                li.dropdown-submenu
-                  a.dropdown-item.dropdown-toggle(href="#") Pacientes
-                  ul.dropdown-menu
+          .d-flex.w-100.justify-content-between.align-items-center
+            ul.navbar-nav.me-auto
+              li.nav-item.dropdown
+                a.nav-link.dropdown-toggle(href="#" role="button" data-bs-toggle="dropdown") Admisión y Recepción
+                ul.dropdown-menu
+                  // Pacientes
+                  li.dropdown-submenu
+                    a.dropdown-item.dropdown-toggle(href="#") Pacientes
+                    ul.dropdown-menu
+                      li
+                        a.dropdown-item(href="/pacientes") Lista de Pacientes
+                      li
+                        a.dropdown-item(href="/pacientes/registro") Registrar nuevo Paciente
+                      li
+                        a.dropdown-item(href="/pacientes/actualizar") Actualizar Paciente
+                  // Internación
+                  li.dropdown-submenu
+                    a.dropdown-item.dropdown-toggle(href="#") Internación
+                    ul.dropdown-menu
+                      li
+                        a.dropdown-item(href="/internacion") Lista de Internaciones
+                      li
+                        a.dropdown-item(href="/internacion/registro") Internacion de Paciente
+                  // Turnos
+                  li.dropdown-submenu
+                    a.dropdown-item.dropdown-toggle(href="#") Turnos
+                    ul.dropdown-menu
+                      li
+                        a.dropdown-item(href="/turnos/listar") Listar turnos
+                      li
+                        a.dropdown-item(href="/turnos/registrar") Crear turno
+                  // Habitaciones
+                  li.dropdown-submenu
+                    a.dropdown-item.dropdown-toggle(href="#") Habitaciones
+                    ul.dropdown-menu
+                      li
+                        a.dropdown-item(href="/habitacion/listar") Gestión de Habitaciones
+                  li
+                    a.dropdown-item.bg-danger.text-white(href="/internacion/emergencias") Emergencia
+            ul.navbar-nav.ms-auto
+              if currentUser
+                li.nav-item.dropdown
+                  a.nav-link.dropdown-toggle.text-light(href="#" role="button" data-bs-toggle="dropdown")
+                    i.fas.fa-user.me-1
+                    | #{currentUser.persona.nombre} #{currentUser.persona.apellido}
+                    span.badge.bg-info.ms-2 #{currentUser.usuario.rol.nombre}
+                  ul.dropdown-menu.dropdown-menu-end
                     li
-                      a.dropdown-item(href="/pacientes") Lista de Pacientes
+                      span.dropdown-item.disabled
+                        i.fas.fa-id-card.me-1
+                        | Usuario: #{currentUser.usuario.usuario}
                     li
-                      a.dropdown-item(href="/pacientes/registro") Registrar nuevo Paciente
+                      span.dropdown-item.disabled
+                        i.fas.fa-user-tag.me-1
+                        | Rol: #{currentUser.usuario.rol.nombre}
                     li
-                      a.dropdown-item(href="/pacientes/actualizar") Actualizar Paciente
-                // Internación
-                li.dropdown-submenu
-                  a.dropdown-item.dropdown-toggle(href="#") Internación
-                  ul.dropdown-menu
+                      hr.dropdown-divider
                     li
-                      a.dropdown-item(href="/internacion") Lista de Internaciones
-                    li
-                      a.dropdown-item(href="/internacion/registro") Internacion de Paciente
-                // Turnos
-                li.dropdown-submenu
-                  a.dropdown-item.dropdown-toggle(href="#") Turnos
-                  ul.dropdown-menu
-                    li
-                      a.dropdown-item(href="/turnos/listar") Listar turnos
-                    li
-                      a.dropdown-item(href="/turnos/registrar") Crear turno
-                // Habitaciones
-                li.dropdown-submenu
-                  a.dropdown-item.dropdown-toggle(href="#") Habitaciones
-                  ul.dropdown-menu
-                    li
-                      a.dropdown-item(href="/habitacion/listar") Gestión de Habitaciones
-                li
-                  a.dropdown-item.bg-danger.text-white(href="/internacion/emergencias") Emergencia
+                      a.dropdown-item.text-danger(href="/logout")
+                        i.fas.fa-sign-out-alt.me-1
+                        | Cerrar sesión
+              else
+                li.nav-item
+                  a.btn.btn-outline-light.ms-2(href="/login")
+                    i.fas.fa-sign-in-alt.me-1
+                    | Iniciar sesión
 
     .container
       block content

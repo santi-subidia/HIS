@@ -4,6 +4,10 @@ const express = require('express');
 const path = require('path');
 const { sequelize } = require('./models');
 
+// Sessiones y autenticación
+const { getCurrentUser } = require('./middleware/auth');
+const session = require('express-session');
+
 const app = express();
 
 // Configuración de Express
@@ -12,8 +16,21 @@ app.use(express.static('public'));
 app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, 'views'));
 
+// Configuración de sesiones
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'biblioteca-secret-key',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: false, // Cambiar a true en producción con HTTPS
+    maxAge: 24 * 60 * 60 * 1000 // 24 horas
+  }
+}));
+
+app.use(getCurrentUser); // Middleware para obtener el usuario actual
+
 // Rutas principales
-app.get('/', (req, res) => res.render('index'));
+app.use('/', require('./routes/index_routes'));
 app.use('/pacientes', require('./routes/paciente_routes'));
 app.use('/internacion', require('./routes/internacion_routes'));
 app.use('/turnos', require('./routes/turno_routes'));
