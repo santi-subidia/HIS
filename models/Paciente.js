@@ -21,12 +21,12 @@ module.exports = (sequelize) => {
       }
     },
     sexo: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.ENUM('Masculino', 'Femenino'),
       allowNull: false,
       validate: {
         isIn: {
-          args: [[1, 2]],
-          msg: "El sexo debe ser 1 (masculino) o 2 (femenino)"
+          args: [['Masculino', 'Femenino']],
+          msg: "El sexo debe ser 'Masculino' o 'Femenino'"
         }
       }
     },
@@ -56,7 +56,7 @@ module.exports = (sequelize) => {
         min: -1
       }
     },
-    fechaNacimiento: {
+    fecha_nacimiento: {
       type: DataTypes.DATE,
       allowNull: false,
       validate: {
@@ -66,6 +66,10 @@ module.exports = (sequelize) => {
           msg: "La fecha de nacimiento debe ser anterior a hoy"
         }
       }
+    },
+    fecha_eliminacion: {
+      type: DataTypes.DATE,
+      allowNull: true,
     }
   }, {
     sequelize,

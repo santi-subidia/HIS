@@ -33,23 +33,6 @@ module.exports = (sequelize) => {
           msg: "El código de afiliado debe tener entre 4 y 50 caracteres"
         }
       }
-    },
-    fecha_desde: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      validate: {
-        isDate: { msg: "Debe ser una fecha válida" }
-      }
-    },
-    estado: {
-      type: DataTypes.ENUM('activo', 'inactivo'),
-      allowNull: false,
-      validate: {
-        isIn: {
-          args: [['activo', 'inactivo']],
-          msg: "El estado debe ser 'activo' o 'inactivo'"
-        }
-      }
     }
   }, {
     sequelize,

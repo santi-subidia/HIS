@@ -5,8 +5,8 @@ module.exports = (sequelize) => {
     static associate(models) {
       // Un registro de signos vitales pertenece a una internación
       Registro_sv.belongsTo(models.Internacion, { foreignKey: 'id_internacion', as: 'internacion' });
-      // Un registro de signos vitales es realizado por un empleado
-      Registro_sv.belongsTo(models.Empleado, { foreignKey: 'id_empleado', as: 'empleado' });
+      // Un registro de signos vitales es realizado por un enfermero
+      Registro_sv.belongsTo(models.Enfermero, { foreignKey: 'id_enfermero', as: 'enfermero' });
     }
   }
 
@@ -19,7 +19,7 @@ module.exports = (sequelize) => {
         min: -1
       }
     },
-    id_empleado: {
+    id_enfermero: {
       type: DataTypes.INTEGER,
         allowNull: false,
         validate: {
@@ -27,7 +27,7 @@ module.exports = (sequelize) => {
           min: -1
         }
     },
-    p_arterial_sistolica: {
+    presion_arterial_sistolica: {
       type: DataTypes.FLOAT,
         allowNull: true,
         validate: {
@@ -35,7 +35,7 @@ module.exports = (sequelize) => {
           min: 0
         }
     },
-    p_arterial_diastolica: {
+    presion_arterial_diastolica: {
       type: DataTypes.FLOAT,
         allowNull: true,
         validate: {
@@ -43,7 +43,7 @@ module.exports = (sequelize) => {
           min: 0
         }
     },
-    f_cardiaca: {
+    frecuencia_cardiaca: {
       type: DataTypes.FLOAT,
         allowNull: true,
         validate: {
@@ -51,7 +51,7 @@ module.exports = (sequelize) => {
           min: 0
         }
     },
-    f_respiratoria: {
+    frecuencia_respiratoria: {
       type: DataTypes.FLOAT,
         allowNull: true,
         validate: {

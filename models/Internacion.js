@@ -1,4 +1,5 @@
 const { Model, DataTypes } = require('sequelize');
+const { tr } = require('zod/v4/locales');
 
 module.exports = (sequelize) => {
   class Internacion extends Model {
@@ -13,7 +14,7 @@ module.exports = (sequelize) => {
   Internacion.init({
     id_paciente_seguro: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: true,
     },
     id_cama: {
       type: DataTypes.INTEGER,
@@ -33,7 +34,7 @@ module.exports = (sequelize) => {
     },
     detalle_motivo: {
       type: DataTypes.TEXT,
-      allowNull: true,
+      allowNull: false,
       validate: {
         len: {
           args: [0, 1000],
@@ -49,7 +50,7 @@ module.exports = (sequelize) => {
         min: 1
       }
     },
-    fechaInternacion: {
+    fecha_internacion: {
       type: DataTypes.DATE,
       allowNull: false,
       validate: {
@@ -63,6 +64,26 @@ module.exports = (sequelize) => {
         isIn: {
           args: [['activa', 'alta', 'traslado']],
           msg: "El estado debe ser 'activa', 'alta' o 'traslado'"
+        }
+      }
+    },
+    prioridad: {
+      type: DataTypes.ENUM('baja', 'media', 'alta'),
+      allowNull: true,
+      validate: {
+        isIn: {
+          args: [['baja', 'media', 'alta']],
+          msg: "La prioridad debe ser 'baja', 'media' o 'alta'"
+        }
+      }
+    },
+    sintomas_principales:{
+      type: DataTypes.STRING,
+      allowNull: true,
+      validate: {
+        len: {
+          args: [0, 255],
+          msg: "Los síntomas principales no deben superar los 255 caracteres"
         }
       }
     }

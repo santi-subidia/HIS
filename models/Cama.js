@@ -17,7 +17,7 @@ module.exports = (sequelize) => {
         min: 1
       }
     },
-    nroCama: {
+    numero_cama: {
       type: DataTypes.INTEGER,
       allowNull: false,
       validate: {
@@ -25,13 +25,8 @@ module.exports = (sequelize) => {
         min: 1
       }
     },
-    limpia: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false,
-      defaultValue: true
-    },
     estado: {
-      type: DataTypes.ENUM('ocupada', 'disponible'),
+      type: DataTypes.ENUM('ocupada', 'disponible', 'mantenimiento'),
       allowNull: false,
       defaultValue: 'disponible'
     }

@@ -3,14 +3,22 @@ const { Model, DataTypes } = require('sequelize');
 module.exports = (sequelize) => {
   class Usuario extends Model {
     static associate(models) {
-      // Un usuario puede estar asociado a un empleado
-      Usuario.hasOne(models.Empleado, { foreignKey: 'id_usuario', as: 'empleado' });
+      // Un usuario puede estar asociado a una persona
+      Usuario.hasOne(models.Persona, { foreignKey: 'id_persona', as: 'persona' });
       // Un usuario tiene un rol
       Usuario.belongsTo(models.Rol, { foreignKey: 'id_rol', as: 'rol' });
     }
   }
 
   Usuario.init({
+    id_persona: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      validate: {
+        isInt: { msg: "Debe ser un número entero" },
+        min: -1
+      }
+    },
     usuario: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -40,12 +48,6 @@ module.exports = (sequelize) => {
       validate: {
         isInt: { msg: "Debe ser un número entero" },
         min: -1
-      }
-    },
-    activo: {
-      type: DataTypes.BOOLEAN,
-      allowNull: false,
-      validate: {
       }
     }
   }, {

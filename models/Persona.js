@@ -5,8 +5,12 @@ module.exports = (sequelize) => {
     static associate(models) {
       // Una persona puede ser un paciente
       Persona.hasOne(models.Paciente, { foreignKey: 'id_persona', as: 'paciente' });
-      // Una persona puede ser un empleado
-      Persona.hasOne(models.Empleado, { foreignKey: 'id_persona', as: 'empleado' });
+      // Una persona puede ser un medico
+      Persona.hasOne(models.Medico, { foreignKey: 'id_persona', as: 'medico' });
+      // Una persona puede ser un enfermero
+      Persona.hasOne(models.Enfermero,{ foreignKey: 'id_persona', as: 'enfermero' });
+      // Una persona puede ser un usuario
+      Persona.hasOne(models.Usuario, { foreignKey: 'id_persona', as: 'usuario' });
       // Una persona puede ser un contacto de emergencia (puede haber varios contactos de emergencia con la misma persona)
       Persona.hasMany(models.ContactoEmergencia, { foreignKey: 'id_persona', as: 'contactosEmergencia' });
     }

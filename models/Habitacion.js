@@ -37,15 +37,6 @@ module.exports = (sequelize) => {
         min: 1,
         max: 2
       }
-    },
-    camas_disponibles: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      defaultValue: 1,
-      validate: {
-        isInt: { msg: "El campo camas_disponibles debe ser un número entero" },
-        min: 0
-      }
     }
   }, {
     sequelize,

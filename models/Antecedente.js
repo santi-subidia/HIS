@@ -7,8 +7,6 @@ module.exports = (sequelize) => {
       Antecedente.belongsTo(models.Historial_medico, { foreignKey: 'id_historial', as: 'historialMedico' });
       // Un antecedente pertenece a un tipo
       Antecedente.belongsTo(models.Tipo, { foreignKey: 'id_tipo', as: 'tipo' });
-      // Un antecedente pertenece a una categoría
-      Antecedente.belongsTo(models.Categoria, { foreignKey: 'id_categoria', as: 'categoria' });
     }
   }
 
@@ -22,14 +20,6 @@ module.exports = (sequelize) => {
       }
     },
     id_tipo: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      validate: {
-        isInt: true,
-        min: -1
-      }
-    },
-    id_categoria: {
       type: DataTypes.INTEGER,
       allowNull: false,
       validate: {

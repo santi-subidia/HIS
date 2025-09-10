@@ -43,15 +43,9 @@ module.exports = (sequelize) => {
         }
       }
     },
-    direccion: {
-      type: DataTypes.STRING,
+    fecha_eliminacion: {
+      type: DataTypes.DATE,
       allowNull: true,
-      validate: {
-        len: {
-          args: [0, 255],
-          msg: "La dirección no debe superar los 255 caracteres"
-        }
-      }
     }
   }, {
     sequelize,
