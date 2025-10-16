@@ -4,7 +4,7 @@ const pacienteSchema = z.object({
   id_persona: z.string()
     .regex(/^\d+$/, { message: 'ID de persona inválido' })
     .transform(Number),
-  fechaNacimiento: z.string()
+  fecha_nacimiento: z.string()
     .refine(
       (val) => !isNaN(Date.parse(val)),
       { message: 'Fecha inválida' }
@@ -31,8 +31,7 @@ const pacienteSchema = z.object({
   id_localidad: z.string()
     .regex(/^\d+$/, { message: 'Localidad inválida' })
     .transform(Number),
-  sexo: z.string()
-    .transform(Number)
+  sexo: z.enum(['Masculino', 'Femenino'], { message: "El sexo debe ser 'Masculino' o 'Femenino'" })
 });
 
 module.exports = { pacienteSchema };

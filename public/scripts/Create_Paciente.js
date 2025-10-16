@@ -1,5 +1,3 @@
-console.log("Script cargado");
-
 const Buscar = {
   Persona: async (dni) => {
     try {
@@ -40,7 +38,7 @@ document.getElementById("buscarDNI").addEventListener("click", function () {
   const apellido = document.getElementById("apellido");
   const nombre = document.getElementById("nombre");
   const sexo = document.getElementById("sexo");
-  const fechaNacimiento = document.getElementById("fechaNacimiento");
+  const fecha_nacimiento = document.getElementById("fecha_nacimiento");
   const tipoSangre = document.getElementById("id_tipoSangre");
   const domicilio = document.getElementById("domicilio");
   const telefono = document.getElementById("telefono");
@@ -78,7 +76,7 @@ document.getElementById("buscarDNI").addEventListener("click", function () {
           alerta_texto.innerText += `, ya relacionado a un paciente.`;
 
           sexo.disabled = true;
-          fechaNacimiento.disabled = true;
+          fecha_nacimiento.disabled = true;
           tipoSangre.disabled = true;
           domicilio.disabled = true;
           localidad.disabled = true;
@@ -86,7 +84,7 @@ document.getElementById("buscarDNI").addEventListener("click", function () {
           alerta_texto.innerText += `, no relacionado a un paciente.`;
 
           sexo.disabled = false;
-          fechaNacimiento.disabled = false;
+          fecha_nacimiento.disabled = false;
           tipoSangre.disabled = false;
           domicilio.disabled = false;
           localidad.disabled = false;
@@ -100,7 +98,7 @@ document.getElementById("buscarDNI").addEventListener("click", function () {
       apellido.disabled = false;
       nombre.disabled = false;
       sexo.disabled = false;
-      fechaNacimiento.disabled = false;
+      fecha_nacimiento.disabled = false;
       tipoSangre.disabled = false;
       domicilio.disabled = false;
       telefono.disabled = false;

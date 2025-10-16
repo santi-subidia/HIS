@@ -1,4 +1,4 @@
-extends layout
+extends ../layout
 
 block content
   .row
@@ -70,16 +70,16 @@ block content
                 label.form-label(for="sexo") Sexo
                 select#sexo.form-select(name="sexo" required disabled)
                   option(value="") Seleccione...
-                  option(value="1" selected=(valores && valores.sexo === '1')) Masculino
-                  option(value="2" selected=(valores && valores.sexo === '2')) Femenino
+                  option(value="Masculino" selected=(valores && valores.sexo === 'Masculino')) Masculino
+                  option(value="Femenino" selected=(valores && valores.sexo === 'Femenino')) Femenino
 
               .col-md-4.mb-3
                 label.form-label(for="fechaNacimiento") Fecha de Nacimiento
-                input#fechaNacimiento.form-control(
+                input#fecha_nacimiento.form-control(
                   type="date"
-                  name="fechaNacimiento"
+                  name="fecha_nacimiento"
                   required
-                  value=(valores && valores.fechaNacimiento) || ""
+                  value=(valores && valores.fecha_nacimiento) || ""
                   disabled
                 )
                 small.form-text.text-muted No puede ser una fecha futura, ni mayor a 126 años atrás.
@@ -144,4 +144,4 @@ block content
                     i.fas.fa-save.me-1
                     | Guardar Paciente
 
-      script(src="/scripts/registro-paciente.js")
+      script(src="/scripts/Create_Paciente.js")

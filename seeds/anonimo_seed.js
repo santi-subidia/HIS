@@ -30,8 +30,8 @@ module.exports = {
       defaults: {
         id: 1,
         id_persona: personaDesconocido[0].id,
-        sexo: 1, // Masculino
-        fechaNacimiento: new Date('1900-01-01'),
+        sexo: 'Masculino',
+        fecha_nacimiento: new Date('1900-01-01'),
         id_tipoSangre: 1,
         domicilio: '',
         id_localidad: 1
@@ -43,8 +43,8 @@ module.exports = {
       defaults: {
         id: 2,
         id_persona: personaDesconocida[0].id,
-        sexo: 2, // Femenino
-        fechaNacimiento: new Date('1900-01-01'),
+        sexo: 'Femenino',
+        fecha_nacimiento: new Date('1900-01-01'),
         id_tipoSangre: 1,
         domicilio: '',
         id_localidad: 1
@@ -61,9 +61,7 @@ module.exports = {
           id: 1,
           id_paciente: pacienteDesconocido[0].id,
           id_seguro: 1,
-          codigo_afiliado: personaDesconocido[0].DNI,
-          fecha_desde: new Date(),
-          estado: 'activo'
+          codigo_afiliado: personaDesconocido[0].DNI
         }
       });
 
@@ -77,9 +75,7 @@ module.exports = {
             id: 2,
             id_paciente: pacienteDesconocida[0].id,
             id_seguro: 1,
-            codigo_afiliado: personaDesconocida[0].DNI,
-            fecha_desde: new Date(),
-            estado: 'activo'
+            codigo_afiliado: personaDesconocida[0].DNI
           }
         });
 

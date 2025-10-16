@@ -20,16 +20,6 @@ module.exports = (sequelize) => {
           msg: "El nombre debe tener entre 3 y 100 caracteres"
         }
       }
-    },
-    descripcion: {
-      type: DataTypes.TEXT,
-      allowNull: true,
-      validate: {
-        len: {
-          args: [0, 1000],
-          msg: "La descripción no debe superar los 1000 caracteres"
-        }
-      }
     }
   }, {
     sequelize,

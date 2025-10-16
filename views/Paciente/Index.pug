@@ -1,4 +1,4 @@
-extends layout
+extends ../layout
 
 block content
   h2 Lista de Pacientes
@@ -24,14 +24,12 @@ block content
             td= paciente.persona.DNI
             td= paciente.persona.apellido
             td= paciente.persona.nombre
-            td= paciente.sexo == '1' ? 'Masculino' : (paciente.sexo == '2' ? 'Femenino' : 'Otro')
-            td= paciente.fechaNacimiento ? new Date(paciente.fechaNacimiento).toLocaleDateString('es-AR') : '-'
+            td= paciente.sexo
+            td= paciente.fecha_nacimiento ? new Date(paciente.fecha_nacimiento).toLocaleDateString('es-AR') : '-'
             td= paciente.persona.telefono
             td= paciente.localidad.nombre || '-'
             td
-              form(action="/pacientes/actualizar" method="POST" style="display:inline")
-                input(type="hidden" name="dni" value=paciente.persona.DNI)
-                button.btn.btn-warning.btn-sm(type="submit") Actualizar
+              a.btn.btn-warning.btn-sm(href=`/pacientes/actualizar/${paciente.id}`) Actualizar
               form(action="/internacion/registro/buscar" method="POST" style="display:inline")
                 input(type="hidden" name="dni" value=paciente.persona.DNI)
                 button.btn.btn-success.btn-sm.ms-2(type="submit") Internar

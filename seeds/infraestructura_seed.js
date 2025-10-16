@@ -70,11 +70,11 @@ module.exports = {
     for (const habitacion of habitacionesDB) {
       for (let n = 1; n <= habitacion.capacidad; n++) {
         await Cama.findOrCreate({
-          where: { id_habitacion: habitacion.id, nroCama: n },
+          where: { id_habitacion: habitacion.id, numero_cama: n },
           defaults: {
             id_habitacion: habitacion.id,
-            nroCama: n,
-            limpia: true
+            numero_cama: n,
+            estado: 'disponible'
           }
         });
       }

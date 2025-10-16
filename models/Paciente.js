@@ -57,7 +57,7 @@ module.exports = (sequelize) => {
       }
     },
     fecha_nacimiento: {
-      type: DataTypes.DATE,
+      type: DataTypes.DATEONLY,
       allowNull: false,
       validate: {
         isDate: { msg: "Debe ser una fecha válida" },
