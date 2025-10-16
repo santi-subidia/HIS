@@ -1,9 +1,10 @@
-const { Op } = require('sequelize');
+const { Op, IndexHints } = require('sequelize');
 const { Paciente, Motivo, Turno, Persona } = require("../models");
+const { Create_GET } = require('./paciente_controller');
 
 module.exports = {
   // Lista todos los turnos, actualiza los vencidos a cancelado
-  listarTurnos: async (req, res) => {
+  Index: async (req, res) => {
     try {
       // Actualiza turnos pendientes con fecha pasada a cancelado
       const hoy = new Date();
@@ -24,7 +25,6 @@ module.exports = {
       const nombre = req.query.nombre ? req.query.nombre.trim() : undefined;
       const fecha = req.query.fecha ? req.query.fecha.trim() : undefined;
       const whereTurno = {};
-      const wherePaciente = {};
 
       if (fecha) {
         // Filtra por fecha exacta (solo día)
@@ -35,39 +35,44 @@ module.exports = {
       }
 
 
-      // Filtros por campos de Persona (DNI y nombre)
+      // Construir filtros anidados correctamente
+      let wherePersona = {};
       if (dni) {
-        wherePaciente['$Paciente.persona.DNI$'] = dni;
+        wherePersona.DNI = dni;
       }
       if (nombre) {
-        wherePaciente['$Paciente.persona.nombre$'] = { [Op.like]: `%${nombre}%` };
+        wherePersona.nombre = { [Op.like]: `%${nombre}%` };
       }
 
       // Obtiene turnos actualizados con sus relaciones y filtros
+      const includeOptions = [
+        {
+          model: Paciente,
+          as: 'Paciente',
+          include: [{ 
+            model: Persona, 
+            as: 'persona',
+            where: Object.keys(wherePersona).length ? wherePersona : undefined
+          }],
+          required: true
+        },
+        { model: Motivo }
+      ];
 
       const turnos = await Turno.findAll({
         where: whereTurno,
-        include: [
-          {
-            model: Paciente,
-            as: 'Paciente',
-            include: [{ model: Persona, as: 'persona' }],
-            where: Object.keys(wherePaciente).length ? wherePaciente : undefined,
-            required: true
-          },
-          { model: Motivo }
-        ],
+        include: includeOptions,
         order: [['fecha', 'DESC']]
       });
 
-      res.render("listar-turnos", {
+      res.render("turno/index", {
         turnos,
         filters: req.query,
         mensaje: null
       });
     } catch (error) {
-      console.error(error);
-      res.render("listar-turnos", {
+      console.error("Error al cargar los turnos:", error);
+      res.render("turno/index", {
         turnos: [],
         filters: req.query,
         mensaje: "Error al cargar los turnos.",
@@ -76,10 +81,10 @@ module.exports = {
   },
 
   // Muestra el formulario para crear un turno
-  mostrarFormularioCrearTurno: async (req, res) => {
+  Create_GET: async (req, res) => {
     try {
       const motivos = await Motivo.findAll();
-      res.render("crear-turno", {
+      res.render("turno/create", {
         motivos,
         valores: {},
         mensaje: null,
@@ -87,7 +92,8 @@ module.exports = {
         sugerirCrearPaciente: false
       });
     } catch (error) {
-      res.render("crear-turno", {
+      console.error("Error al cargar el formulario:", error);
+      res.render("turno/create", {
         motivos: [],
         valores: {},
         mensaje: "Error al cargar el formulario.",
@@ -98,7 +104,7 @@ module.exports = {
   },
 
   // Lógica para buscar paciente y crear turno
-  crearTurno: async (req, res) => {
+  Create_POST: async (req, res) => {
     const { dni, motivo, fecha, buscar, crear } = req.body;
     const motivos = await Motivo.findAll();
     const valores = { dni, motivo, fecha };
@@ -107,7 +113,7 @@ module.exports = {
     if (buscar) {
       // Validación de DNI
       if (!dni || !/^\d{7,9}$/.test(dni)) {
-        return res.render("crear-turno", {
+        return res.render("turno/create", {
           motivos,
           valores,
           mensaje: "DNI inválido.",
@@ -122,7 +128,7 @@ module.exports = {
         where: { '$persona.DNI$': dni }
       });
       if (!paciente) {
-        return res.render("crear-turno", {
+        return res.render("turno/create", {
           motivos,
           valores,
           mensaje: null,
@@ -132,7 +138,7 @@ module.exports = {
         });
       }
       // Paciente encontrado, mostrar campos para crear turno
-      return res.render("crear-turno", {
+      return res.render("turno/create", {
         motivos,
         valores,
         mensaje: null,
@@ -142,7 +148,7 @@ module.exports = {
       });
     }
 
-    // Si se presionó "Crear Turno"
+    // Si se presionó "Crear turno"
     if (crear) {
       const errors = [];
       // Validaciones
@@ -165,7 +171,7 @@ module.exports = {
         where: { '$persona.DNI$': dni }
       });
       if (!paciente) {
-        return res.render("crear-turno", {
+        return res.render("turno/create", {
           motivos,
           valores,
           mensaje: null,
@@ -176,7 +182,7 @@ module.exports = {
       }
 
       if (errors.length > 0) {
-        return res.render("crear-turno", {
+        return res.render("turno/create", {
           motivos,
           valores,
           mensaje: errors.join(" "),
@@ -194,7 +200,7 @@ module.exports = {
         estado: "pendiente"
       });
 
-      return res.render("crear-turno", {
+      return res.render("turno/create", {
         motivos,
         valores: {},
         mensaje: null,
@@ -205,7 +211,7 @@ module.exports = {
     }
 
     // Render por defecto si no se presionó ningún botón
-    res.render("crear-turno", {
+    res.render("turno/create", {
       motivos,
       valores: {},
       mensaje: null,

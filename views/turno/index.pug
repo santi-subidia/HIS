@@ -1,11 +1,11 @@
-extends layout
+extends ../layout
 
 block content
   .container
     h2.mb-4 Internación por Turno
 
     // Filtros
-    form.mb-3.d-flex.gap-3(method="GET", action="/turnos/listar")
+    form.mb-3.d-flex.gap-3(method="GET", action="/Turno/")
       input.form-control(type="text", name="dni", placeholder="Buscar por DNI" value=(filters && filters.dni) || '')
       input.form-control(type="text", name="nombre", placeholder="Buscar por Nombre" value=(filters && filters.nombre) || '')
       input.form-control(type="date", name="fecha", placeholder="Fecha" value=(filters && filters.fecha) || '')

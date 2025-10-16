@@ -14,9 +14,9 @@ app.set('views', path.join(__dirname, 'views'));
 
 // Rutas principales
 app.get('/', (req, res) => res.render('index'));
-app.use('/pacientes', require('./routes/paciente_routes'));
+app.use('/paciente', require('./routes/paciente_routes'));
 app.use('/internacion', require('./routes/internacion_routes'));
-app.use('/turnos', require('./routes/turno_routes'));
+app.use('/turno', require('./routes/turno_routes'));
 app.use('/habitacion', require('./routes/habitacion_routes'));
 app.use('/api', require('./routes/api_routes'));
 

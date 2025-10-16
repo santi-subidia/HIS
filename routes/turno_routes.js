@@ -2,8 +2,9 @@ const express = require('express');
 const router = express.Router();
 const turnoController = require('../controllers/turno_controller');
 
-router.get('/listar', turnoController.listarTurnos);
-router.get('/registrar', turnoController.mostrarFormularioCrearTurno);
-router.post('/crear', turnoController.crearTurno);
+router.get('/', turnoController.Index);
+
+router.get('/create', turnoController.Create_GET);
+router.post('/create', turnoController.Create_POST);
 
 module.exports = router;

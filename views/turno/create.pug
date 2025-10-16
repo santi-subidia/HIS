@@ -1,4 +1,4 @@
-extends layout
+extends ../layout
 
 block content
   .container
@@ -9,7 +9,7 @@ block content
     if exito
       div.alert.alert-success= exito
 
-    form(action="/turnos/crear" method="POST")
+    form(action="/turno/create" method="POST")
       .row.mb-3
         .col-md-6.mb-3
           label.form-label(for="dni") DNI del Paciente
@@ -53,6 +53,7 @@ block content
             input#fecha.form-control(
               type="datetime-local"
               name="fecha"
+              min= new Date().toISOString().slice(0, 16)
               required
               value=(valores && valores.fecha) || ""
             )
@@ -63,4 +64,4 @@ block content
       div.mt-4
         div.alert.alert-warning
           | No se encontró un paciente con ese DNI.
-          a.btn.btn-sm.btn-success.ms-2(href="/pacientes/registro") Registrar nuevo paciente
+          a.btn.btn-sm.btn-success.ms-2(href="/paciente/registro") Registrar nuevo paciente
