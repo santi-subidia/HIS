@@ -32,7 +32,7 @@ module.exports = (sequelize) => {
   }, {
     sequelize,
     modelName: 'ContactoEmergencia',
-    tableName: 'contactosEmergencias',
+    tableName: 'contactosemergencias',
     timestamps: false,
   });
 

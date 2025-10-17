@@ -7,7 +7,7 @@ module.exports = (sequelize) => {
       Internacion.belongsTo(models.PacienteSeguro, { foreignKey: 'id_paciente_seguro' });
       Internacion.belongsTo(models.Cama, { foreignKey: 'id_cama' });
       Internacion.belongsTo(models.Motivo, { foreignKey: 'id_motivo' });
-      Internacion.belongsTo(models.ContactoEmergencia, { foreignKey: 'id_contactoEmergencia' });
+      Internacion.belongsTo(models.ContactoEmergencia, { foreignKey: 'id_contactoEmergencia', as: 'ContactoEmergencia' });
     }
   }
 

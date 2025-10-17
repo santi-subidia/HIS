@@ -62,6 +62,32 @@ html(lang="es")
                 li
                   a.dropdown-item.bg-danger.text-white(href="/internacion/create/emergencia") Emergencia
 
+            li.nav-item.dropdown
+              a.nav-link.dropdown-toggle(href="#" role="button" data-bs-toggle="dropdown") Enfermería
+              ul.dropdown-menu
+                // Internaciones
+                li.dropdown-submenu
+                  a.dropdown-item.dropdown-toggle(href="/internacion") Internaciones
+                  ul.dropdown-menu
+                    li
+                      a.dropdown-item(href="/internacion") Ver Internaciones Activas
+                // Signos Vitales
+                li.dropdown-submenu
+                  a.dropdown-item.dropdown-toggle(href="/enfermeria/signos-vitales") Signos Vitales
+                  ul.dropdown-menu
+                    li
+                      a.dropdown-item(href="/enfermeria/signos-vitales/registrar") Registrar Signos Vitales
+                    li
+                      a.dropdown-item(href="/enfermeria/signos-vitales") Historial de Signos Vitales
+                // Planes de Cuidado
+                li.dropdown-submenu
+                  a.dropdown-item.dropdown-toggle(href="/enfermeria/planes-cuidado") Planes de Cuidado
+                  ul.dropdown-menu
+                    li
+                      a.dropdown-item(href="/enfermeria/planes-cuidado/crear") Crear Plan de Cuidado
+                    li
+                      a.dropdown-item(href="/enfermeria/planes-cuidado") Ver Planes de Cuidado
+
     .container
       block content
 

@@ -371,5 +371,59 @@ module.exports = {
         mensaje: 'Error al internar paciente de emergencia.'
       });
     }
+  },
+
+  // Muestra los detalles completos de una internación
+  Details_GET: async (req, res) => {
+    try {
+      const { id } = req.params;
+      
+      const internacion = await Internacion.findByPk(id, {
+        include: [
+          {
+            model: PacienteSeguro,
+            include: [
+              { 
+                model: Paciente, as: 'paciente',
+                include: [{ model: Persona, as: 'persona' }]
+              },
+              { model: Seguro, as: 'seguro' }
+            ]
+          },
+          {
+            model: Cama,
+            include: [
+              {
+                model: Habitacion,
+                include: [
+                  {
+                    model: Ala,
+                    include: [{ model: Sector }]
+                  }
+                ]
+              }
+            ]
+          },
+          { model: Motivo },
+          { 
+            model: ContactoEmergencia,
+            as: 'ContactoEmergencia',
+            include: [
+              { model: Persona, as: 'persona' },
+              { model: Parentesco }
+            ]
+          }
+        ]
+      });
+
+      if (!internacion) {
+        return res.status(404).send('Internación no encontrada');
+      }
+      
+      res.render('internacion/details', { internacion });
+    } catch (error) {
+      console.error('Error en Details_GET:', error);
+      res.status(500).send('Error interno del servidor');
+    }
   }
 };
