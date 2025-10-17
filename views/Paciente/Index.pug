@@ -29,9 +29,16 @@ block content
             td= paciente.persona.telefono
             td= paciente.localidad.nombre || '-'
             td
-              a.btn.btn-warning.btn-sm(href=`/paciente/update/${paciente.id}`) Actualizar
+              a.btn.btn-warning.btn-sm(href=`/paciente/update/${paciente.id}`)
+                i.fas.fa-edit.me-1
+                | Editar
               form(action="/internacion/create/buscar" method="POST" style="display:inline")
                 input(type="hidden" name="dni" value=paciente.persona.DNI)
-                button.btn.btn-success.btn-sm.ms-2(type="submit") Internar
+                button.btn.btn-success.btn-sm.ms-2(type="submit")
+                  i.fas.fa-bed.me-1
+                  | Internar
+              a.btn.btn-danger.btn-sm.ms-2(href=`/paciente/delete/${paciente.id}`)
+                i.fas.fa-user-times.me-1
+                | Baja
   else
     div.alert.alert-info No hay pacientes registrados.

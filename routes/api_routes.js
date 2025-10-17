@@ -7,6 +7,7 @@ router.get('/habitaciones', apiController.mostrarHabitaciones);
 
 router.get('/persona/:dni', apiController.buscarPersona);
 router.get('/contactoEmergencia/:id', apiController.buscarContactoEmergencia);
+router.post('/paciente/reactivar/:id', apiController.reactivarPaciente);
 router.get('/paciente/:id', apiController.buscarPaciente);
 
 module.exports = router;

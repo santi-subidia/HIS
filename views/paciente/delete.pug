@@ -1,0 +1,64 @@
+extends ../layout
+
+block content
+  .row
+    .col-lg-12.mb-4
+      h3.text-danger.mb-4
+        i.fas.fa-user-times.me-2
+        | Dar de Baja Paciente
+
+  .alert.alert-warning.mt-4
+    i.fas.fa-exclamation-triangle.me-2
+    strong ¡Atención! 
+    | Esta acción dará de baja al paciente del sistema. El paciente no será eliminado permanentemente, pero dejará de aparecer en el listado activo.
+
+  if paciente
+    .card.mt-4.shadow.border-danger
+      .card-header.bg-danger.text-white
+        h5.mb-0
+          i.fas.fa-user.me-2
+          | Datos del Paciente a Dar de Baja
+
+      .card-body
+        .row.mb-3
+          .col-md-6
+            p.mb-2
+              strong.text-muted DNI:
+              span.ms-2 #{paciente.persona.DNI}
+          .col-md-6
+            p.mb-2
+              strong.text-muted Nombre Completo:
+              span.ms-2 #{paciente.persona.nombre} #{paciente.persona.apellido}
+
+        .row.mb-3
+          .col-md-6
+            p.mb-2
+              strong.text-muted Sexo:
+              span.ms-2 #{paciente.sexo}
+          .col-md-6
+            p.mb-2
+              strong.text-muted Fecha de Nacimiento:
+              span.ms-2 #{paciente.fecha_nacimiento ? new Date(paciente.fecha_nacimiento).toLocaleDateString('es-AR') : '-'}
+
+        .row.mb-3
+          .col-md-6
+            p.mb-2
+              strong.text-muted Teléfono:
+              span.ms-2 #{paciente.persona.telefono || '-'}
+          .col-md-6
+            p.mb-2
+              strong.text-muted Domicilio:
+              span.ms-2 #{paciente.domicilio || '-'}
+
+      .card-footer.bg-light
+        .d-flex.justify-content-between.align-items-center
+          a.btn.btn-secondary(href="/paciente")
+            i.fas.fa-arrow-left.me-2
+            | Cancelar
+          form(action=`/paciente/delete/${paciente.id}` method="POST" style="display:inline" onsubmit="return confirm('¿Está seguro que desea dar de baja este paciente?')")
+            button.btn.btn-danger(type="submit")
+              i.fas.fa-user-times.me-2
+              | Confirmar Baja
+
+  else
+    .alert.alert-warning.mt-4 Paciente no encontrado.

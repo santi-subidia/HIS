@@ -21,11 +21,24 @@ const Buscar = {
       console.error("Error al buscar paciente: ", error);
       return null;
     }
+  },
+
+  ReactivarPaciente: async (id) => {
+    try {
+      const response = await fetch(`/api/paciente/reactivar/${id}`, {
+        method: 'POST'
+      });
+      console.log("Respuesta de reactivar paciente:", response);
+      if (!response.ok) return null;
+      return await response.json();
+    } catch (error) {
+      console.error("Error al reactivar paciente: ", error);
+      return null;
+    }
   }
 };
 
 document.getElementById("buscarDNI").addEventListener("click", function () {
-  console.log("Entro al evento de buscar por DNI");
   const dni = document.getElementById("DNI").value.trim();
 
   if (dni) {
@@ -44,6 +57,15 @@ document.getElementById("buscarDNI").addEventListener("click", function () {
   const telefono = document.getElementById("telefono");
   const localidad = document.getElementById("id_localidad");
 
+  apellido.value = "";
+  nombre.value = "";
+  sexo.value = "";
+  fecha_nacimiento.value = "";
+  tipoSangre.value = "";
+  domicilio.value = "";
+  telefono.value = "";
+  localidad.value = "";
+
   const alerta = document.getElementById("alerta");
   const alerta_texto = document.getElementById("alerta-texto");
 
@@ -59,9 +81,12 @@ document.getElementById("buscarDNI").addEventListener("click", function () {
 
   datosPromise_persona.then((datos) => {
     if (datos && datos.existe === true) {
+        apellido.value = datos.apellido;
+        nombre.value = datos.nombre;
+        telefono.value = datos.telefono || '';
+
         apellido.disabled = true;
         nombre.disabled = true;
-        sexo.disabled = true;
         telefono.disabled = true;
 
 
@@ -73,13 +98,32 @@ document.getElementById("buscarDNI").addEventListener("click", function () {
       datosPromise_paciente.then((datosPaciente) => {
         if (datosPaciente && datosPaciente.existe === true) {
 
-          alerta_texto.innerText += `, ya relacionado a un paciente.`;
+          if(datosPaciente.fecha_eliminacion !== null){
+            Buscar.ReactivarPaciente(datosPaciente.id).then((resultado) => {
+              if (resultado && resultado.exito === true) {
+                alerta_texto.innerText += `, paciente estaba de baja pero ya fue reactivado.`;
+                alerta.style.display = "block";
+              } else {
+                alerta_texto.innerText += `, paciente estaba de baja pero no se pudo reactivar el paciente.`;
+                alerta.style.display = "block";
+              }
+            });
+          }else{
+            alerta_texto.innerText += `, ya relacionado a un paciente.`;
+  
+            sexo.value = datosPaciente.sexo;
+            fecha_nacimiento.value = datosPaciente.fecha_nacimiento;
+            tipoSangre.value = datosPaciente.tipoSangre;
+            domicilio.value = datosPaciente.domicilio;
+            localidad.value = datosPaciente.localidad;
+  
+            sexo.disabled = true;
+            fecha_nacimiento.disabled = true;
+            tipoSangre.disabled = true;
+            domicilio.disabled = true;
+            localidad.disabled = true;
+          }
 
-          sexo.disabled = true;
-          fecha_nacimiento.disabled = true;
-          tipoSangre.disabled = true;
-          domicilio.disabled = true;
-          localidad.disabled = true;
         } else {
           alerta_texto.innerText += `, no relacionado a un paciente.`;
 

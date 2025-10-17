@@ -96,6 +96,18 @@ module.exports = {
       });
     }
 
+    if (paciente.fecha_eliminacion) {
+      return res.render('internacion/create', {
+        mensaje: 'Paciente eliminado.',
+        paciente: null,
+        sectores: null,
+        alas: null,
+        parentescos: null,
+        seguros: null,
+        motivos: null
+      });
+    }
+
     // Verifica internación activa
     const internacionActiva = await Internacion.findOne({
       include: [{ model: PacienteSeguro, where: { id_paciente: paciente.id } }],

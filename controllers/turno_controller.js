@@ -130,10 +130,21 @@ module.exports = {
         return res.render("turno/create", {
           motivos,
           valores,
-          mensaje: null,
+          mensaje: "Paciente no encontrado.",
           exito: null,
           paciente: null,
           sugerirCrearPaciente: true
+        });
+      }
+
+      if (paciente.fecha_eliminacion) {
+        return res.render("turno/create", {
+          motivos,
+          valores,
+          mensaje: "Paciente eliminado.",
+          exito: null,
+          paciente: null,
+          sugerirCrearPaciente: false
         });
       }
       // Paciente encontrado, mostrar campos para crear turno

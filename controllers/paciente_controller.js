@@ -7,7 +7,10 @@ module.exports = {
   index: async (req, res) => {
     try {
       const pacientes = await Paciente.findAll({
-        where: { id: { [require('sequelize').Op.gt]: 0 } },
+        where: { 
+          id: { [require('sequelize').Op.gt]: 0 },
+          fecha_eliminacion: null  // Solo mostrar pacientes no eliminados
+        },
         include: [
           { model: Persona, as: 'persona'},
           { model: TipoSangre, as: 'tipoSangre' },
@@ -259,6 +262,40 @@ module.exports = {
         mensaje
       });
     }
-  }
-};
+  },
 
+  // Elimina un paciente
+  Delete_GET: async (req, res) => {
+    const id = req.params.id;
+    try {
+      const paciente = await Paciente.findOne({ 
+        where: { id },
+        include: [
+          { model: Persona, as: 'persona' }
+        ]
+      });
+      if (!paciente) {
+        return res.status(404).send('Paciente no encontrado');
+      }
+      res.render('Paciente/Delete', { paciente });
+    } catch (error) {
+      console.error('Error en Delete_GET:', error);
+      res.status(500).send('Error interno del servidor');
+    }
+  },
+  Delete_POST: async (req, res) => {
+    const id = req.params.id;  
+    try {
+      const paciente = await Paciente.findOne({ where: { id } });
+      if (!paciente) {
+        return res.status(404).send('Paciente no encontrado');
+      }
+      // Soft delete: actualizar fecha_eliminacion en lugar de eliminar físicamente
+      await paciente.update({ fecha_eliminacion: new Date() });
+      res.redirect('/paciente');
+    } catch (error) {
+      console.error('Error en Delete_POST:', error);
+      res.status(500).send('Error interno del servidor');
+    }
+  }
+}

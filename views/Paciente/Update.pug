@@ -11,7 +11,7 @@ block content
     .alert.alert-warning.mt-4 #{mensaje}
 
   if paciente
-    form(action=`/pacientes/update/${paciente.id}` method="POST")
+    form(action=`/paciente/update/${paciente.id}` method="POST")
       .card.mt-4.shadow
         .card-header.bg-info.text-white
           h5.mb-0

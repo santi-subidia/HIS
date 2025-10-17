@@ -109,14 +109,36 @@ module.exports = {
       }
       res.json({
         existe: true,
-        fechaNacimiento: paciente.fechaNacimiento,
+        id: paciente.id,
+        fecha_nacimiento: paciente.fecha_nacimiento,
+        sexo: paciente.sexo,
         tipoSangre: paciente.tipoSangre,
         domicilio: paciente.domicilio,
-        localidad: paciente.id_localidad
+        localidad: paciente.id_localidad,
+        fecha_eliminacion: paciente.fecha_eliminacion
       });
     } catch (error) {
       console.error('Error al verificar paciente:', error);
       res.status(500).json({ error: 'Error al verificar paciente' });
+    }
+  },
+
+  reactivarPaciente: async (req, res) => {
+    const id = req.params.id;
+    try {
+      const paciente = await Paciente.findOne({ where: { id } });
+      if (!paciente) {
+        return res.json({ existe: false });
+      }
+
+      // Reactivar paciente
+      paciente.fecha_eliminacion = null;
+      await paciente.save();
+
+      res.json({ existe: true, exito: true });
+    } catch (error) {
+      console.error('Error al reactivar paciente:', error);
+      res.status(500).json({ error: 'Error al reactivar paciente' });
     }
   },
 
