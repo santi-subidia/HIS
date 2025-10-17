@@ -1,4 +1,4 @@
-extends layout
+extends ../layout
 
 block content
   .container
@@ -15,14 +15,14 @@ block content
 
     .card.shadow.mb-5
       .card-body
-        form(method="POST", action="/internacion/emergencias")
+        form(method="POST", action="/internacion/create/emergencia")
           .row.mb-3
             .col-md-4
               label.form-label(for="sexoPaciente") Sexo del paciente
               select#sexoPaciente.form-select(name="sexo" required)
                 option(value="") Seleccione...
-                option(value="1") Masculino
-                option(value="2") Femenino
+                option(value="Masculino") Masculino
+                option(value="Femenino") Femenino
 
           hr
 

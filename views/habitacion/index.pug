@@ -1,4 +1,4 @@
-extends layout
+extends ../layout
 
 block content
   h2.mb-4 Gestión de Habitaciones
@@ -22,7 +22,7 @@ block content
               td= habitacion.Ala && habitacion.Ala.Sector ? habitacion.Ala.Sector.nombre : '-'
               td= habitacion.Ala ? habitacion.Ala.ubicacion : '-'
               td= habitacion.codigo
-              td= cama.nroCama
+              td= cama.numero_cama
               td
                 if cama.estado === 'disponible'
                   span.badge.bg-success Disponible

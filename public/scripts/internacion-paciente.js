@@ -65,11 +65,12 @@ function cargarCamas() {
     return;
   }
 
-  const camas = JSON.parse(selected.dataset.camas).filter(c => c.estado === 'disponible');
+  const camas = JSON.parse(selected.dataset.camas).filter(c => c.estado === 'disponible');  
   camas.forEach(c => {
     const opt = document.createElement('option');
     opt.value = c.id;
-    opt.textContent = c.nroCama ? 'Cama ' + c.nroCama : 'Cama ' + c.id;
+    const numeroCama = c.numero_cama || c.id;
+    opt.textContent = 'Cama ' + numeroCama;
     camaSelect.appendChild(opt);
   });
 

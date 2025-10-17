@@ -37,36 +37,30 @@ html(lang="es")
               ul.dropdown-menu
                 // Pacientes
                 li.dropdown-submenu
-                  a.dropdown-item.dropdown-toggle(href="#") Pacientes
+                  a.dropdown-item.dropdown-toggle(href="/paciente") Pacientes
                   ul.dropdown-menu
-                    li
-                      a.dropdown-item(href="/paciente") Lista de Pacientes
                     li
                       a.dropdown-item(href="/paciente/create") Registrar nuevo Paciente
                 // Internación
                 li.dropdown-submenu
-                  a.dropdown-item.dropdown-toggle(href="#") Internación
+                  a.dropdown-item.dropdown-toggle(href="/internacion") Internación
                   ul.dropdown-menu
                     li
-                      a.dropdown-item(href="/internacion") Lista de Internaciones
-                    li
-                      a.dropdown-item(href="/internacion/registro") Internacion de Paciente
+                      a.dropdown-item(href="/internacion/create") Internacion de Paciente
                 // Turnos
                 li.dropdown-submenu
-                  a.dropdown-item.dropdown-toggle(href="#") Turnos
+                  a.dropdown-item.dropdown-toggle(href="/turno") Turnos
                   ul.dropdown-menu
                     li
-                      a.dropdown-item(href="/turno/") Listar turnos
-                    li
-                      a.dropdown-item(href="/turno/Create") Crear turno
+                      a.dropdown-item(href="/turno/create") Crear turno
                 // Habitaciones
                 li.dropdown-submenu
-                  a.dropdown-item.dropdown-toggle(href="#") Habitaciones
+                  a.dropdown-item.dropdown-toggle(href="/habitacion") Habitaciones
                   ul.dropdown-menu
                     li
-                      a.dropdown-item(href="/habitacion/listar") Gestión de Habitaciones
+                      a.dropdown-item(href="/habitacion/") Gestión de Habitaciones
                 li
-                  a.dropdown-item.bg-danger.text-white(href="/internacion/emergencias") Emergencia
+                  a.dropdown-item.bg-danger.text-white(href="/internacion/create/emergencia") Emergencia
 
     .container
       block content

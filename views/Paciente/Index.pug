@@ -29,8 +29,8 @@ block content
             td= paciente.persona.telefono
             td= paciente.localidad.nombre || '-'
             td
-              a.btn.btn-warning.btn-sm(href=`/pacientes/update/${paciente.id}`) Actualizar
-              form(action="/internacion/registro/buscar" method="POST" style="display:inline")
+              a.btn.btn-warning.btn-sm(href=`/paciente/update/${paciente.id}`) Actualizar
+              form(action="/internacion/create/buscar" method="POST" style="display:inline")
                 input(type="hidden" name="dni" value=paciente.persona.DNI)
                 button.btn.btn-success.btn-sm.ms-2(type="submit") Internar
   else

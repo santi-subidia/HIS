@@ -2,7 +2,7 @@ const { Habitacion, Ala, Sector, Cama } = require('../models');
 
 module.exports = {
   // Lista todas las habitaciones con sus alas, sectores y camas
-  listarHabitaciones: async (req, res) => {
+  Index: async (req, res) => {
     try {
       const habitaciones = await Habitacion.findAll({
         include: [
@@ -15,10 +15,10 @@ module.exports = {
           }
         ]
       });
-      res.render('listar-habitaciones', { habitaciones, mensaje: null });
+      res.render('habitacion/index', { habitaciones, mensaje: null });
     } catch (error) {
       console.error('Error al listar habitaciones:', error);
-      res.render('listar-habitaciones', { habitaciones: [], mensaje: 'Error al listar habitaciones' });
+      res.render('habitacion/index', { habitaciones: [], mensaje: 'Error al listar habitaciones' });
     }
   }
 };

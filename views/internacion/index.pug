@@ -1,4 +1,4 @@
-extends layout
+extends ../layout
 
 block content
   h2.mb-4 Lista de Internaciones
@@ -23,11 +23,11 @@ block content
           tr
             td= internacion.PacienteSeguro && internacion.PacienteSeguro.paciente ? internacion.PacienteSeguro.paciente.persona.nombre + ' ' + internacion.PacienteSeguro.paciente.persona.apellido : '-'
             td= internacion.PacienteSeguro && internacion.PacienteSeguro.paciente ? internacion.PacienteSeguro.paciente.persona.DNI : '-'
-            td= internacion.fechaInternacion ? new Date(internacion.fechaInternacion).toLocaleDateString('es-AR') : '-'
+            td= internacion.fecha_internacion ? new Date(internacion.fecha_internacion).toLocaleDateString('es-AR') : '-'
             td= internacion.estado
             td= internacion.Cama && internacion.Cama.Habitacion && internacion.Cama.Habitacion.Ala && internacion.Cama.Habitacion.Ala.Sector ? internacion.Cama.Habitacion.Ala.Sector.nombre : '-'
             td= internacion.Cama && internacion.Cama.Habitacion && internacion.Cama.Habitacion.Ala ? internacion.Cama.Habitacion.Ala.ubicacion : '-'
             td= internacion.Cama && internacion.Cama.Habitacion ? internacion.Cama.Habitacion.codigo : '-'
-            td= internacion.Cama ? internacion.Cama.nroCama : '-'
+            td= internacion.Cama ? internacion.Cama.numero_cama : '-'
   else
     div.alert.alert-info No hay internaciones registradas.

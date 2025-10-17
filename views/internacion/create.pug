@@ -1,4 +1,4 @@
-extends layout
+extends ../layout
 
 block content
   .row
@@ -7,7 +7,7 @@ block content
         i.fas.fa-procedures.me-2
         | Internación de Paciente
 
-  form(action="/internacion/registro/buscar" method="POST")
+  form(action="/internacion/create/buscar" method="POST")
     .card.shadow
       .card-header.bg-white
         h5.mb-0
@@ -51,7 +51,7 @@ block content
             strong DNI:
             |  #{paciente.persona.DNI}
 
-    form(action=`/internacion/registro/${paciente.id}` method="POST")
+    form(action=`/internacion/create/${paciente.id}` method="POST")
       .card.mt-4.shadow
         .card-header.bg-success.text-white
           h5.mb-0

@@ -1,6 +1,5 @@
 const { Op, IndexHints } = require('sequelize');
 const { Paciente, Motivo, Turno, Persona } = require("../models");
-const { Create_GET } = require('./paciente_controller');
 
 module.exports = {
   // Lista todos los turnos, actualiza los vencidos a cancelado

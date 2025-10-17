@@ -25,7 +25,7 @@ async function generarDNIAnonimoPequeno() {
 module.exports = {
 
   // Lista todas las internaciones activas con sus relaciones
-  listarInternaciones: async (req, res) => {
+  Index: async (req, res) => {
     try {
       const internaciones = await Internacion.findAll({
         include: [
@@ -56,16 +56,16 @@ module.exports = {
         ],
         where: { estado: 'activa' }
       });
-      res.render('listar-internaciones', { internaciones, mensaje: null });
+      res.render('internacion/index', { internaciones, mensaje: null });
     } catch (error) {
       console.error('Error al listar internaciones:', error);
-      res.render('listar-internaciones', { internaciones: [], mensaje: 'Error al listar internaciones.' });
+      res.render('internacion/index', { internaciones: [], mensaje: 'Error al listar internaciones.' });
     }
   },
 
   // Muestra el formulario de registro de internación
-  mostrarFormularioRegistro: async (req, res) => {
-    res.render('internacion-paciente', {
+  Create_GET: async (req, res) => {
+    res.render('internacion/create', {
       mensaje: null,
       paciente: null,
       sectores: null,
@@ -85,7 +85,7 @@ module.exports = {
     });
 
     if (!paciente) {
-      return res.render('internacion-paciente', {
+      return res.render('internacion/create', {
         mensaje: 'Paciente no encontrado.',
         paciente: null,
         sectores: null,
@@ -115,7 +115,7 @@ module.exports = {
       Habitación: ${habitacionObj ? habitacionObj.codigo : '-'},
       Cama: ${camaObj ? camaObj.nroCama : '-'}`;
 
-      return res.render('internacion-paciente', {
+      return res.render('internacion/create', {
         mensaje,
         paciente: null,
         sectores: null,
@@ -132,7 +132,7 @@ module.exports = {
     const seguros = await Seguro.findAll();
     const motivos = await Motivo.findAll();
 
-    res.render('internacion-paciente', {
+    res.render('internacion/create', {
       mensaje: null,
       paciente,
       sectores,
@@ -143,7 +143,7 @@ module.exports = {
   },
 
   // Crea una nueva internación
-  crearInternacion: async (req, res) => {
+  Create_POST: async (req, res) => {
     try {
       const pacienteId = Number(req.params.id);
 
@@ -166,7 +166,7 @@ module.exports = {
         Habitación: ${habitacionObj ? habitacionObj.codigo : '-'},
         Cama: ${camaObj ? camaObj.nroCama : '-'}`;
 
-        return res.render('internacion-paciente', {
+        return res.render('internacion/create', {
           mensaje,
           paciente: null,
           sectores: null,
@@ -231,7 +231,7 @@ module.exports = {
         id_motivo: Number(req.body.motivo),
         detalle_motivo: req.body.detalle || undefined,
         id_contactoEmergencia: contacto.id,
-        fechaInternacion: new Date().toISOString(),
+        fecha_internacion: new Date().toISOString(),
         estado: 'activa'
       });
       const nuevaInternacion = await Internacion.create(internacionData);
@@ -266,9 +266,9 @@ module.exports = {
         Sector: ${sectorObj ? sectorObj.nombre : '-'}, 
         Ala: ${alaObj ? alaObj.ubicacion : '-'}, 
         Habitación: ${habitacionObj ? habitacionObj.codigo : '-'}, 
-        Cama: ${camaObj ? camaObj.nroCama : '-'}`;
+        Cama: ${camaObj ? camaObj.numero_cama : '-'}`;
 
-      res.render('internacion-paciente', {
+      res.render('internacion/create', {
         mensaje,
         paciente: null,
         sectores: null,
@@ -277,7 +277,7 @@ module.exports = {
         motivos: null,
       });
     } catch (error) {
-      console.error(error);
+      console.error("Error al crear internación: " + error);
       let mensaje = 'Error al crear internación.';
 
       // Mensaje personalizado para código de afiliado duplicado
@@ -296,9 +296,11 @@ module.exports = {
       const parentescos = await Parentesco.findAll();
       const seguros = await Seguro.findAll();
       const motivos = await Motivo.findAll();
-      const paciente = await Paciente.findByPk(req.params.id);
+      const paciente = await Paciente.findByPk(req.params.id, {
+        include: [{ model: Persona, as: 'persona' }]
+      });
 
-      res.render('internacion-paciente', {
+      res.render('internacion/create', {
         mensaje,
         paciente,
         sectores,
@@ -310,47 +312,49 @@ module.exports = {
   },
 
   // Muestra el formulario de internación por emergencia
-  mostrarFormularioEmergencia: async (req, res) => {
+  Create_emergencia_GET: async (req, res) => {
     try {
       const sectores = await Sector.findAll();
-      res.render('internacion-emergencia', { sectores, mensaje: null });
+      res.render('internacion/create_emergencia', { sectores, mensaje: null });
     } catch (error) {
-      res.render('internacion-emergencia', { sectores: [], mensaje: 'Error al cargar sectores.' });
+      res.render('internacion/create_emergencia', { sectores: [], mensaje: 'Error al cargar sectores.' });
     }
   },
 
   // Interna un paciente de emergencia (anónimo)
-  internarEmergencia: async (req, res) => {
+  Create_emergencia_POST: async (req, res) => {
     try {
       const { sexo, habitacion, cama } = req.body;
 
       // 4. Crear la internación usando el id de PacienteSeguro
+      let paciente_seguro = 2; // mujer por defecto
+      if(sexo === "Masculino"){
+        paciente_seguro = 1;
+      }
+
       await Internacion.create({
-        id_paciente_seguro: sexo, // 1(Masculino) o 2(femenino) dependiendo del sexo
+        id_paciente_seguro: paciente_seguro,
         id_cama: cama,
-        fechaInternacion: new Date(),
+        fecha_internacion: new Date(),
         estado: 'activa',
         id_motivo: 1,
+        detalle_motivo: 'Internación de emergencia',
         id_contactoEmergencia: 1
       });
 
       // 5. Cambiar estado de la cama y restar 1 a camas_disponibles
       const camaObj = await Cama.findByPk(cama);
       if (camaObj) await camaObj.update({ estado: 'ocupada' });
-      const habitacionObj = await Habitacion.findByPk(habitacion);
-      if (habitacionObj && habitacionObj.camas_disponibles > 0) {
-        await habitacionObj.update({ camas_disponibles: habitacionObj.camas_disponibles - 1 });
-      }
 
       const sectores = await Sector.findAll();
-      res.render('internacion-emergencia', {
+      res.render('internacion/create_emergencia', {
         sectores,
         mensaje: '¡Paciente internado de emergencia exitosamente!'
       });
     } catch (error) {
       console.error(error);
       const sectores = await Sector.findAll();
-      res.render('internacion-emergencia', {
+      res.render('internacion/create_emergencia', {
         sectores,
         mensaje: 'Error al internar paciente de emergencia.'
       });

@@ -2,13 +2,13 @@ const express = require('express');
 const router = express.Router();
 const internacionController = require('../controllers/internacion_controller');
 
-router.get('/', internacionController.listarInternaciones);
+router.get('/', internacionController.Index);
 
-router.get('/registro', internacionController.mostrarFormularioRegistro);
-router.post('/registro/buscar', internacionController.buscarPacientePorDNI);
-router.post('/registro/:id', internacionController.crearInternacion);
+router.get('/create/emergencia', internacionController.Create_emergencia_GET);
+router.post('/create/emergencia', internacionController.Create_emergencia_POST);
 
-router.get('/emergencias', internacionController.mostrarFormularioEmergencia);
-router.post('/emergencias', internacionController.internarEmergencia);
+router.get('/create', internacionController.Create_GET);
+router.post('/create/buscar', internacionController.buscarPacientePorDNI);
+router.post('/create/:id', internacionController.Create_POST);
 
 module.exports = router;

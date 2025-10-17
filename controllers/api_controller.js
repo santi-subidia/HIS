@@ -19,42 +19,55 @@ module.exports = {
   mostrarHabitaciones: async (req, res) => {
     const { ala, sexo } = req.query;
     try {
-      // 1. Buscar habitaciones dobles con una sola cama disponible
-      const habitacionesFiltradas = await Habitacion.findAll({
-        where: { id_ala: ala, capacidad: 2, camas_disponibles: 1 },
-        include: [{ model: Cama, required: true }]
-      });
-
-      // 2. Identificar habitaciones donde la cama ocupada tiene un paciente de sexo distinto
-      const habitacionesNoVanIds = [];
-      for (const habitacion of habitacionesFiltradas) {
-        const camaOcupada = habitacion.Camas.find(c => c.estado === 'ocupada');
-        if (!camaOcupada) continue;
-
-        const internacion = await Internacion.findOne({
-          where: { id_cama: camaOcupada.id, estado: 'activa' },
-          include: [{
-            model: PacienteSeguro,
-            include: [{ model: Paciente, as: 'paciente' }]
-          }]
-        });
-
-        const paciente = internacion?.PacienteSeguro?.paciente;
-        if (paciente && String(paciente.sexo) !== String(sexo)) {
-          habitacionesNoVanIds.push(habitacion.id);
-        }
-      }
-
-      // 3. Obtener todas las habitaciones del ala con sus camas
+      // 1. Obtener todas las habitaciones del ala con sus camas
       const todasHabitaciones = await Habitacion.findAll({
         where: { id_ala: ala },
         include: [{ model: Cama }]
       });
 
-      // 4. Filtrar habitaciones que sí van y tengan al menos una cama disponible
-      const habitacionesDisponibles = todasHabitaciones.filter(
-        h => !habitacionesNoVanIds.includes(h.id) && h.camas_disponibles > 0
-      );
+      const habitacionesDisponibles = [];
+
+      // 2. Evaluar cada habitación
+      for (const habitacion of todasHabitaciones) {
+        const camasDisponibles = habitacion.Camas.filter(c => c.estado === 'disponible');
+        const camasOcupadas = habitacion.Camas.filter(c => c.estado === 'ocupada');
+
+        // Si no hay camas disponibles, saltar esta habitación
+        if (camasDisponibles.length === 0) continue;
+
+        // Si todas las camas están disponibles, la habitación está libre
+        if (camasOcupadas.length === 0) {
+          habitacionesDisponibles.push(habitacion);
+          continue;
+        }
+
+        // Si hay camas ocupadas, verificar compatibilidad de sexo
+        let sexoCompatible = true;
+        for (const camaOcupada of camasOcupadas) {
+          const internacion = await Internacion.findOne({
+            where: { id_cama: camaOcupada.id, estado: 'activa' },
+            include: [{
+              model: PacienteSeguro,
+              include: [{ 
+                model: Paciente, 
+                as: 'paciente'
+              }]
+            }]
+          });
+
+          const paciente = internacion?.PacienteSeguro?.paciente;
+          // Si el sexo del paciente internado es diferente al nuevo paciente, no es compatible
+          if (paciente && String(paciente.sexo) !== String(sexo)) {
+            sexoCompatible = false;
+            break;
+          }
+        }
+
+        // Solo agregar si hay compatibilidad de sexo
+        if (sexoCompatible) {
+          habitacionesDisponibles.push(habitacion);
+        }
+      }
 
       res.json({ habitacionesDisponibles });
     } catch (error) {
