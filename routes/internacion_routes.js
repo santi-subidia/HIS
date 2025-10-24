@@ -6,6 +6,8 @@ router.get('/', internacionController.Index);
 
 router.get('/details/:id', internacionController.Details_GET);
 
+router.post('/cambiar-prioridad/:id', internacionController.CambiarPrioridad_POST);
+
 router.get('/create/emergencia', internacionController.Create_emergencia_GET);
 router.post('/create/emergencia', internacionController.Create_emergencia_POST);
 

@@ -71,13 +71,16 @@ block content
             p.mb-2
               strong.text-muted Prioridad:
               if internacion.prioridad === 'alta'
-                span.badge.bg-danger.ms-2= internacion.prioridad || 'No especificada'
+                span.badge.bg-danger.ms-2= internacion.prioridad
               else if internacion.prioridad === 'media'
-                span.badge.bg-warning.ms-2= internacion.prioridad || 'No especificada'
+                span.badge.bg-warning.ms-2= internacion.prioridad
               else if internacion.prioridad === 'baja'
-                span.badge.bg-info.ms-2= internacion.prioridad || 'No especificada'
+                span.badge.bg-info.ms-2= internacion.prioridad
               else
-                span.ms-2 No especificada
+                span.badge.bg-secondary.ms-2 Sin asignar
+              button.btn.btn-sm.btn-outline-primary.ms-2(type="button" data-bs-toggle="modal" data-bs-target="#modalPrioridad")
+                i.fas.fa-edit.me-1
+                | Cambiar
         .row.mb-3
           .col-md-12
             p.mb-2
@@ -193,6 +196,37 @@ block content
         a.btn.btn-secondary(href="/internacion")
           i.fas.fa-arrow-left.me-2
           | Volver a la Lista
+
+    // Modal para cambiar prioridad
+    .modal.fade#modalPrioridad(tabindex="-1" aria-labelledby="modalPrioridadLabel" aria-hidden="true")
+      .modal-dialog
+        .modal-content
+          .modal-header
+            h5.modal-title#modalPrioridadLabel
+              i.fas.fa-exclamation-triangle.me-2
+              | Cambiar Prioridad de Internación
+            button.btn-close(type="button" data-bs-dismiss="modal" aria-label="Close")
+          form(action=`/internacion/cambiar-prioridad/${internacion.id}` method="POST")
+            .modal-body
+              .mb-3
+                label.form-label(for="prioridad") Seleccione la nueva prioridad:
+                select#prioridad.form-select(name="prioridad" required)
+                  option(value="" disabled selected) Seleccione una opción
+                  option(value="baja" selected=internacion.prioridad === 'baja') 🟢 Baja
+                  option(value="media" selected=internacion.prioridad === 'media') 🟡 Media
+                  option(value="alta" selected=internacion.prioridad === 'alta') 🔴 Alta
+              .alert.alert-info.mb-0
+                i.fas.fa-info-circle.me-2
+                strong Niveles de Prioridad:
+                ul.mb-0.mt-2
+                  li 🟢 <strong>Baja:</strong> Paciente estable, sin urgencias
+                  li 🟡 <strong>Media:</strong> Requiere atención regular
+                  li 🔴 <strong>Alta:</strong> Requiere atención inmediata
+            .modal-footer
+              button.btn.btn-secondary(type="button" data-bs-dismiss="modal") Cancelar
+              button.btn.btn-primary(type="submit")
+                i.fas.fa-save.me-1
+                | Guardar Cambios
 
   else
     .alert.alert-warning.mt-4 Internación no encontrada.

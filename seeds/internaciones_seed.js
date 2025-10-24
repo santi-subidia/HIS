@@ -95,7 +95,7 @@ module.exports = {
               id_contactoEmergencia: contacto1.id,
               fecha_internacion: new Date('2025-10-15 08:30:00'),
               estado: 'activa',
-              prioridad: 'alta',
+              prioridad: null, // Sin prioridad asignada inicialmente
               sintomas_principales: 'Dolor torácico leve, presión arterial elevada'
             }
           });
@@ -139,7 +139,7 @@ module.exports = {
               id_contactoEmergencia: contacto2.id,
               fecha_internacion: new Date('2025-10-16 14:00:00'),
               estado: 'activa',
-              prioridad: 'media',
+              prioridad: null, // Sin prioridad asignada inicialmente
               sintomas_principales: 'Hipertensión gestacional, edema en extremidades'
             }
           });
@@ -183,7 +183,7 @@ module.exports = {
               id_contactoEmergencia: contacto3.id,
               fecha_internacion: new Date('2025-10-14 20:15:00'),
               estado: 'activa',
-              prioridad: 'media',
+              prioridad: null, // Sin prioridad asignada inicialmente
               sintomas_principales: 'Dolor intenso en pierna izquierda, limitación de movimiento'
             }
           });

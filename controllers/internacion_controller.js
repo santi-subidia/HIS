@@ -425,5 +425,33 @@ module.exports = {
       console.error('Error en Details_GET:', error);
       res.status(500).send('Error interno del servidor');
     }
+  },
+
+  // Cambiar prioridad de una internación
+  CambiarPrioridad_POST: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { prioridad } = req.body;
+
+      // Validar que la prioridad sea válida
+      if (!['baja', 'media', 'alta'].includes(prioridad)) {
+        return res.status(400).send('Prioridad no válida');
+      }
+
+      const internacion = await Internacion.findByPk(id);
+
+      if (!internacion) {
+        return res.status(404).send('Internación no encontrada');
+      }
+
+      // Actualizar la prioridad
+      await internacion.update({ prioridad });
+
+      // Redirigir de vuelta a los detalles
+      res.redirect(`/internacion/details/${id}`);
+    } catch (error) {
+      console.error('Error al cambiar prioridad:', error);
+      res.status(500).send('Error al cambiar la prioridad');
+    }
   }
 };
