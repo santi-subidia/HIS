@@ -8,6 +8,7 @@ module.exports = (sequelize) => {
       Paciente.belongsTo(models.Persona, { foreignKey: 'id_persona', as: 'persona' });
       Paciente.hasMany(models.Turno, { foreignKey: 'id_paciente', as: 'turnos' });
       Paciente.hasMany(models.PacienteSeguro, { foreignKey: 'id_paciente', as: 'seguros' });
+      Paciente.hasOne(models.Historial_medico, { foreignKey: 'id_paciente', as: 'historialMedico' });
     }
   }
 

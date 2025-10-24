@@ -11,6 +11,8 @@ const segurosSeed = require('./seeds/seguros_seed');
 const turnosSeed = require('./seeds/turnos_seed');
 const personas = require('./seeds/personas_seed');
 const anonimosSeed = require('./seeds/anonimo_seed');
+const tiposAntecedentesSeed = require('./seeds/tipos_antecedentes_seed');
+const internacionesSeed = require('./seeds/internaciones_seed');
 
 async function runSeeds() {
   try {
@@ -57,6 +59,14 @@ async function runSeeds() {
     // Sembrar turnos
     await turnosSeed.up();
     console.log('Seed de turnos ejecutado correctamente.');
+
+    // Sembrar tipos de antecedentes
+    await tiposAntecedentesSeed.up();
+    console.log('Seed de tipos de antecedentes ejecutado correctamente.');
+
+    // Sembrar internaciones
+    await internacionesSeed.up();
+    console.log('Seed de internaciones ejecutado correctamente.');
 
 
   } catch (error) {

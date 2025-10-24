@@ -1,0 +1,145 @@
+extends ../layout
+
+block content
+  .row
+    .col-lg-12.mb-4
+      .d-flex.justify-content-between.align-items-center
+        h3.text-primary.mb-0
+          i.fas.fa-notes-medical.me-2
+          | Historial Médico
+        a.btn.btn-secondary(href="javascript:history.back()")
+          i.fas.fa-arrow-left.me-2
+          | Volver
+
+  if paciente
+    // Información del Paciente
+    .card.mt-4.shadow-sm
+      .card-header.bg-primary.text-white
+        h5.mb-0
+          i.fas.fa-user.me-2
+          | #{paciente.persona.nombre} #{paciente.persona.apellido}
+      .card-body
+        .row
+          .col-md-4
+            p.mb-2
+              strong.text-muted DNI:
+              span.ms-2= paciente.persona.DNI
+          .col-md-4
+            p.mb-2
+              strong.text-muted Sexo:
+              span.ms-2= paciente.sexo
+          .col-md-4
+            p.mb-2
+              strong.text-muted Fecha de Nacimiento:
+              span.ms-2= paciente.fecha_nacimiento ? new Date(paciente.fecha_nacimiento).toLocaleDateString('es-AR') : '-'
+
+    // Formulario para agregar antecedente
+    .card.mt-4.shadow-sm
+      .card-header.bg-success.text-white
+        h5.mb-0
+          i.fas.fa-plus-circle.me-2
+          | Agregar Nuevo Antecedente
+      .card-body
+        form(action="/historial-medico/agregar-antecedente" method="POST")
+          input(type="hidden" name="id_paciente" value=paciente.id)
+          .row
+            .col-md-4.mb-3
+              label.form-label(for="id_tipo") Tipo de Antecedente
+              select#id_tipo.form-select(name="id_tipo" required)
+                option(value="" disabled selected) Seleccione un tipo
+                each tipo in tipos
+                  option(value=tipo.id)= tipo.nombre
+            .col-md-6.mb-3
+              label.form-label(for="descripcion") Descripción
+              input#descripcion.form-control(type="text" name="descripcion" placeholder="Describa el antecedente..." required maxlength="255")
+            .col-md-2.mb-3.d-flex.align-items-end
+              button.btn.btn-success.w-100(type="submit")
+                i.fas.fa-plus.me-1
+                | Agregar
+
+    // Alergias
+    .card.mt-4.shadow-sm
+      .card-header.bg-danger.text-white
+        h5.mb-0
+          i.fas.fa-allergies.me-2
+          | Alergias
+      .card-body
+        if antecedentesPorTipo['Alergias'].length > 0
+          .list-group
+            each antecedente in antecedentesPorTipo['Alergias']
+              .list-group-item.d-flex.justify-content-between.align-items-center
+                div
+                  i.fas.fa-circle.text-danger.me-2(style="font-size: 0.5rem")
+                  span= antecedente.descripcion
+                form(action=`/historial-medico/eliminar-antecedente/${antecedente.id}` method="POST" style="display:inline" onsubmit="return confirm('¿Está seguro de eliminar este antecedente?')")
+                  input(type="hidden" name="id_paciente" value=paciente.id)
+                  button.btn.btn-sm.btn-outline-danger(type="submit")
+                    i.fas.fa-trash
+        else
+          p.text-muted.mb-0 Sin alergias registradas
+
+    // Cirugías
+    .card.mt-4.shadow-sm
+      .card-header.bg-warning.text-dark
+        h5.mb-0
+          i.fas.fa-cut.me-2
+          | Cirugías
+      .card-body
+        if antecedentesPorTipo['Cirugías'].length > 0
+          .list-group
+            each antecedente in antecedentesPorTipo['Cirugías']
+              .list-group-item.d-flex.justify-content-between.align-items-center
+                div
+                  i.fas.fa-circle.text-warning.me-2(style="font-size: 0.5rem")
+                  span= antecedente.descripcion
+                form(action=`/historial-medico/eliminar-antecedente/${antecedente.id}` method="POST" style="display:inline" onsubmit="return confirm('¿Está seguro de eliminar este antecedente?')")
+                  input(type="hidden" name="id_paciente" value=paciente.id)
+                  button.btn.btn-sm.btn-outline-danger(type="submit")
+                    i.fas.fa-trash
+        else
+          p.text-muted.mb-0 Sin cirugías registradas
+
+    // Enfermedades Previas
+    .card.mt-4.shadow-sm
+      .card-header.bg-info.text-white
+        h5.mb-0
+          i.fas.fa-disease.me-2
+          | Enfermedades Previas
+      .card-body
+        if antecedentesPorTipo['Enfermedades Previas'].length > 0
+          .list-group
+            each antecedente in antecedentesPorTipo['Enfermedades Previas']
+              .list-group-item.d-flex.justify-content-between.align-items-center
+                div
+                  i.fas.fa-circle.text-info.me-2(style="font-size: 0.5rem")
+                  span= antecedente.descripcion
+                form(action=`/historial-medico/eliminar-antecedente/${antecedente.id}` method="POST" style="display:inline" onsubmit="return confirm('¿Está seguro de eliminar este antecedente?')")
+                  input(type="hidden" name="id_paciente" value=paciente.id)
+                  button.btn.btn-sm.btn-outline-danger(type="submit")
+                    i.fas.fa-trash
+        else
+          p.text-muted.mb-0 Sin enfermedades previas registradas
+
+    // Antecedentes Familiares
+    .card.mt-4.shadow-sm.mb-4
+      .card-header.bg-secondary.text-white
+        h5.mb-0
+          i.fas.fa-users.me-2
+          | Antecedentes Familiares
+      .card-body
+        if antecedentesPorTipo['Antecedentes Familiares'].length > 0
+          .list-group
+            each antecedente in antecedentesPorTipo['Antecedentes Familiares']
+              .list-group-item.d-flex.justify-content-between.align-items-center
+                div
+                  i.fas.fa-circle.text-secondary.me-2(style="font-size: 0.5rem")
+                  span= antecedente.descripcion
+                form(action=`/historial-medico/eliminar-antecedente/${antecedente.id}` method="POST" style="display:inline" onsubmit="return confirm('¿Está seguro de eliminar este antecedente?')")
+                  input(type="hidden" name="id_paciente" value=paciente.id)
+                  button.btn.btn-sm.btn-outline-danger(type="submit")
+                    i.fas.fa-trash
+        else
+          p.text-muted.mb-0 Sin antecedentes familiares registrados
+
+  else
+    .alert.alert-warning.mt-4 Paciente no encontrado.

@@ -14,6 +14,9 @@ block content
         h5.mb-0
           i.fas.fa-user.me-2
           | Información del Paciente
+        a.btn.btn-light.btn-sm.float-end(href=`/historial-medico/${internacion.PacienteSeguro && internacion.PacienteSeguro.paciente ? internacion.PacienteSeguro.paciente.id : '#'}` style="position: absolute; right: 15px; top: 12px;")
+          i.fas.fa-notes-medical.me-1
+          | Ver Historial Médico
       .card-body
         .row.mb-3
           .col-md-6

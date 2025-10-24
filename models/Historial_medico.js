@@ -23,10 +23,10 @@ module.exports = (sequelize) => {
     },
     id_reseta: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: true,
       validate: {
         isInt: true,
-        min: -1
+        min: 1
       }
     }
   }, {
