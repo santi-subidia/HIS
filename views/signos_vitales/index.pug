@@ -1,0 +1,183 @@
+extends ../layout
+
+block content
+  .row
+    .col-lg-12.mb-4
+      h3.text-primary.mb-4
+        i.fas.fa-heartbeat.me-2
+        | Historial de Signos Vitales
+
+  if internacion
+    // Información del Paciente
+    .card.mb-4.shadow
+      .card-header.bg-primary.text-white
+        h5.mb-0
+          i.fas.fa-user.me-2
+          | Información del Paciente
+      .card-body
+        .row
+          .col-md-3
+            p.mb-2
+              strong.text-muted Nombre:
+              span.ms-2= internacion.PacienteSeguro && internacion.PacienteSeguro.paciente ? internacion.PacienteSeguro.paciente.persona.nombre + ' ' + internacion.PacienteSeguro.paciente.persona.apellido : '-'
+          .col-md-3
+            p.mb-2
+              strong.text-muted DNI:
+              span.ms-2= internacion.PacienteSeguro && internacion.PacienteSeguro.paciente ? internacion.PacienteSeguro.paciente.persona.DNI : '-'
+          .col-md-3
+            p.mb-2
+              strong.text-muted Habitación:
+              span.ms-2= internacion.Cama && internacion.Cama.Habitacion ? internacion.Cama.Habitacion.codigo : '-'
+          .col-md-3
+            p.mb-2
+              strong.text-muted Cama:
+              span.ms-2= internacion.Cama ? 'Cama ' + internacion.Cama.numero_cama : '-'
+
+    // Botón para registrar nuevos signos vitales
+    .row.mb-4
+      .col-12
+        a.btn.btn-primary(href=`/enfermeria/signos-vitales/registrar/${internacion.id}`)
+          i.fas.fa-plus.me-2
+          | Registrar Nuevos Signos Vitales
+
+    // Historial de Registros
+    .card.shadow
+      .card-header.bg-info.text-white
+        h5.mb-0
+          i.fas.fa-list.me-2
+          | Registros de Signos Vitales
+          span.badge.bg-light.text-dark.ms-2= registros.length
+      .card-body
+        if registros && registros.length > 0
+          .table-responsive
+            table.table.table-hover.table-striped
+              thead.table-light
+                tr
+                  th.text-center Fecha y Hora
+                  th.text-center Presión Arterial
+                  th.text-center FC
+                  th.text-center FR
+                  th.text-center Temp.
+                  th.text-center Color Piel
+                  th.text-center Respuesta
+                  th Observaciones
+                  th Enfermero
+              tbody
+                each registro in registros
+                  tr
+                    td.text-center
+                      small
+                        strong= new Date(registro.fecha).toLocaleDateString('es-AR')
+                        br
+                        = new Date(registro.fecha).toLocaleTimeString('es-AR')
+                    td.text-center
+                      if registro.presion_arterial_sistolica && registro.presion_arterial_diastolica
+                        span.badge.bg-primary= registro.presion_arterial_sistolica + '/' + registro.presion_arterial_diastolica
+                      else
+                        span.text-muted -
+                    td.text-center
+                      if registro.frecuencia_cardiaca
+                        = registro.frecuencia_cardiaca + ' lpm'
+                      else
+                        span.text-muted -
+                    td.text-center
+                      if registro.frecuencia_respiratoria
+                        = registro.frecuencia_respiratoria + ' rpm'
+                      else
+                        span.text-muted -
+                    td.text-center
+                      if registro.temperatura
+                        - const temp = parseFloat(registro.temperatura)
+                        if temp >= 38
+                          span.badge.bg-danger= temp + '°C'
+                        else if temp >= 37.5
+                          span.badge.bg-warning.text-dark= temp + '°C'
+                        else if temp < 36
+                          span.badge.bg-info= temp + '°C'
+                        else
+                          span.badge.bg-success= temp + '°C'
+                      else
+                        span.text-muted -
+                    td.text-center
+                      if registro.color_piel
+                        - const color = registro.color_piel.toLowerCase()
+                        if color === 'normal'
+                          span.badge.bg-success= registro.color_piel
+                        else if color === 'pálido' || color === 'palido'
+                          span.badge.bg-warning.text-dark= registro.color_piel
+                        else if color === 'cianótico' || color === 'cianotico'
+                          span.badge.bg-primary= registro.color_piel
+                        else
+                          span.badge.bg-secondary= registro.color_piel
+                      else
+                        span.text-muted -
+                    td.text-center
+                      if registro.respuesta_estimulos
+                        - const respuesta = registro.respuesta_estimulos.toLowerCase()
+                        if respuesta === 'alerta'
+                          span.badge.bg-success= registro.respuesta_estimulos
+                        else if respuesta === 'confuso'
+                          span.badge.bg-warning.text-dark= registro.respuesta_estimulos
+                        else if respuesta === 'no responde'
+                          span.badge.bg-danger= registro.respuesta_estimulos
+                        else
+                          span.badge.bg-info= registro.respuesta_estimulos
+                      else
+                        span.text-muted -
+                    td
+                      if registro.observaciones
+                        small= registro.observaciones
+                      else
+                        span.text-muted Sin observaciones
+                    td
+                      if registro.enfermero && registro.enfermero.persona
+                        small
+                          = registro.enfermero.persona.nombre + ' ' + registro.enfermero.persona.apellido
+                      else
+                        span.text-muted -
+        else
+          .alert.alert-info.mb-0
+            i.fas.fa-info-circle.me-2
+            | No hay registros de signos vitales para esta internación aún.
+
+    // Leyenda
+    .card.mt-4.shadow.border-info
+      .card-header.bg-light
+        h6.mb-0
+          i.fas.fa-info-circle.me-2
+          | Leyenda
+      .card-body
+        .row
+          .col-md-6
+            p.mb-2
+              strong FC:
+              span.ms-2 Frecuencia Cardíaca (latidos por minuto)
+            p.mb-2
+              strong FR:
+              span.ms-2 Frecuencia Respiratoria (respiraciones por minuto)
+            p.mb-2
+              strong Temp.:
+              span.ms-2 Temperatura corporal (°C)
+          .col-md-6
+            p.mb-2
+              strong.text-success Verde:
+              span.ms-2 Normal
+            p.mb-2
+              strong.text-warning Amarillo:
+              span.ms-2 Precaución
+            p.mb-2
+              strong.text-danger Rojo:
+              span.ms-2 Alerta
+
+    // Botones de acción
+    .row.mt-4.mb-4
+      .col-12
+        a.btn.btn-outline-primary.me-2(href=`/internacion/details/${internacion.id}`)
+          i.fas.fa-arrow-left.me-2
+          | Volver a Detalles
+        a.btn.btn-secondary(href="/internacion")
+          i.fas.fa-list.me-2
+          | Ver Todas las Internaciones
+
+  else
+    .alert.alert-warning.mt-4 Internación no encontrada.

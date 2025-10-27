@@ -13,6 +13,7 @@ const personas = require('./seeds/personas_seed');
 const anonimosSeed = require('./seeds/anonimo_seed');
 const tiposAntecedentesSeed = require('./seeds/tipos_antecedentes_seed');
 const internacionesSeed = require('./seeds/internaciones_seed');
+const enfermerosSeed = require('./seeds/enfermeros_seed');
 
 async function runSeeds() {
   try {
@@ -47,6 +48,10 @@ async function runSeeds() {
     // Sembrar pacientes
     await pacientesSeed.up();
     console.log('Seed de pacientes ejecutado correctamente.');
+
+    // Sembrar enfermeros
+    await enfermerosSeed.up();
+    console.log('Seed de enfermeros ejecutado correctamente.');
 
     // Sembrar motivos
     await motivosSeed.up();

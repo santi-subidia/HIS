@@ -18,6 +18,9 @@
 - Los alias suelen ser el nombre del modelo (ej: `PacienteSeguro`, no `pacienteSeguro`)
 - Siempre verificar las asociaciones definidas en `models/[Modelo].js`
 
+### require
+- Siempre traer lo que haga falta, no traer objetos de mas.
+
 ### Vistas Pug
 - Extender desde `../layout` cuando estén en subcarpetas
 - Rutas de vistas relativas (sin `/` inicial): `'internacion/create'`

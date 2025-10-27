@@ -19,6 +19,7 @@ app.use('/internacion', require('./routes/internacion_routes'));
 app.use('/turno', require('./routes/turno_routes'));
 app.use('/habitacion', require('./routes/habitacion_routes'));
 app.use('/historial-medico', require('./routes/historial_medico_routes'));
+app.use('/enfermeria/signos-vitales', require('./routes/signos_vitales_routes'));
 app.use('/api', require('./routes/api_routes'));
 
 const PORT = process.env.PORT || 3000;

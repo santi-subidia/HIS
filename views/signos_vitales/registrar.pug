@@ -1,0 +1,201 @@
+extends ../layout
+
+block content
+  .row
+    .col-lg-12.mb-4
+      h3.text-primary.mb-4
+        i.fas.fa-heartbeat.me-2
+        | Registrar Signos Vitales
+
+  if internacion
+    // Información del Paciente (mini card)
+    .card.mb-4.shadow-sm.border-info
+      .card-body
+        .row.align-items-center
+          .col-md-8
+            h5.mb-0
+              i.fas.fa-user.me-2.text-info
+              strong= internacion.PacienteSeguro && internacion.PacienteSeguro.paciente ? internacion.PacienteSeguro.paciente.persona.nombre + ' ' + internacion.PacienteSeguro.paciente.persona.apellido : '-'
+            p.text-muted.mb-0.mt-1
+              small
+                | DNI: 
+                strong= internacion.PacienteSeguro && internacion.PacienteSeguro.paciente ? internacion.PacienteSeguro.paciente.persona.DNI : '-'
+                |  | 
+                | Habitación: 
+                strong= internacion.Cama && internacion.Cama.Habitacion ? internacion.Cama.Habitacion.codigo : '-'
+                |  - Cama: 
+                strong= internacion.Cama ? internacion.Cama.numero_cama : '-'
+          .col-md-4.text-end
+            if internacion.prioridad === 'alta'
+              span.badge.bg-danger.fs-6 Prioridad Alta
+            else if internacion.prioridad === 'media'
+              span.badge.bg-warning.fs-6 Prioridad Media
+            else if internacion.prioridad === 'baja'
+              span.badge.bg-info.fs-6 Prioridad Baja
+            else
+              span.badge.bg-secondary.fs-6 Sin prioridad
+
+    // Formulario de Registro
+    .card.shadow
+      .card-header.bg-primary.text-white
+        h5.mb-0
+          i.fas.fa-clipboard-list.me-2
+          | Formulario de Registro
+      .card-body
+        form(action=`/enfermeria/signos-vitales/registrar/${internacion.id}` method="POST")
+          
+          // Sección: Presión Arterial
+          .row.mb-4
+            .col-12
+              h6.border-bottom.pb-2.mb-3
+                i.fas.fa-heartbeat.me-2.text-danger
+                | Presión Arterial
+            .col-md-6
+              .form-group
+                label.form-label(for="presion_arterial_sistolica")
+                  i.fas.fa-arrow-up.me-1.text-danger
+                  | Presión Sistólica (mmHg)
+                input#presion_arterial_sistolica.form-control(
+                  type="number" 
+                  name="presion_arterial_sistolica" 
+                  step="0.1"
+                  min="0"
+                  placeholder="Ej: 120"
+                )
+                small.form-text.text-muted Valor normal: 90-120 mmHg
+            .col-md-6
+              .form-group
+                label.form-label(for="presion_arterial_diastolica")
+                  i.fas.fa-arrow-down.me-1.text-info
+                  | Presión Diastólica (mmHg)
+                input#presion_arterial_diastolica.form-control(
+                  type="number" 
+                  name="presion_arterial_diastolica" 
+                  step="0.1"
+                  min="0"
+                  placeholder="Ej: 80"
+                )
+                small.form-text.text-muted Valor normal: 60-80 mmHg
+
+          // Sección: Frecuencias
+          .row.mb-4
+            .col-12
+              h6.border-bottom.pb-2.mb-3
+                i.fas.fa-heart.me-2.text-danger
+                | Frecuencias
+            .col-md-6
+              .form-group
+                label.form-label(for="frecuencia_cardiaca")
+                  i.fas.fa-heartbeat.me-1.text-danger
+                  | Frecuencia Cardíaca (bpm)
+                input#frecuencia_cardiaca.form-control(
+                  type="number" 
+                  name="frecuencia_cardiaca" 
+                  step="0.1"
+                  min="0"
+                  placeholder="Ej: 72"
+                )
+                small.form-text.text-muted Valor normal: 60-100 bpm
+            .col-md-6
+              .form-group
+                label.form-label(for="frecuencia_respiratoria")
+                  i.fas.fa-lungs.me-1.text-primary
+                  | Frecuencia Respiratoria (rpm)
+                input#frecuencia_respiratoria.form-control(
+                  type="number" 
+                  name="frecuencia_respiratoria" 
+                  step="0.1"
+                  min="0"
+                  placeholder="Ej: 16"
+                )
+                small.form-text.text-muted Valor normal: 12-20 rpm
+
+          // Sección: Temperatura
+          .row.mb-4
+            .col-12
+              h6.border-bottom.pb-2.mb-3
+                i.fas.fa-thermometer-half.me-2.text-warning
+                | Temperatura
+            .col-md-6
+              .form-group
+                label.form-label(for="temperatura")
+                  i.fas.fa-thermometer-half.me-1.text-warning
+                  | Temperatura (°C)
+                input#temperatura.form-control(
+                  type="number" 
+                  name="temperatura" 
+                  step="0.1"
+                  min="0"
+                  placeholder="Ej: 36.5"
+                )
+                small.form-text.text-muted Valor normal: 36-37.5°C
+
+          // Sección: Observaciones Físicas
+          .row.mb-4
+            .col-12
+              h6.border-bottom.pb-2.mb-3
+                i.fas.fa-eye.me-2.text-success
+                | Observaciones Físicas
+            .col-md-6
+              .form-group
+                label.form-label(for="color_piel")
+                  i.fas.fa-user.me-1.text-success
+                  | Color de Piel
+                select#color_piel.form-select(name="color_piel")
+                  option(value="" selected) Seleccione una opción
+                  option(value="Normal") Normal
+                  option(value="Pálida") Pálida
+                  option(value="Cianótica") Cianótica
+                  option(value="Ictérica") Ictérica
+                  option(value="Eritematosa") Eritematosa
+                small.form-text.text-muted Aspecto general de la piel
+            .col-md-6
+              .form-group
+                label.form-label(for="respuesta_estimulos")
+                  i.fas.fa-brain.me-1.text-info
+                  | Respuesta a Estímulos
+                select#respuesta_estimulos.form-select(name="respuesta_estimulos")
+                  option(value="" selected) Seleccione una opción
+                  option(value="Alerta") Alerta
+                  option(value="Somnoliento") Somnoliento
+                  option(value="Estuporoso") Estuporoso
+                  option(value="Inconsciente") Inconsciente
+                small.form-text.text-muted Estado de conciencia del paciente
+
+          // Sección: Observaciones Adicionales
+          .row.mb-4
+            .col-12
+              h6.border-bottom.pb-2.mb-3
+                i.fas.fa-comment-medical.me-2.text-secondary
+                | Observaciones Adicionales
+            .col-md-12
+              .form-group
+                label.form-label(for="observaciones")
+                  i.fas.fa-notes-medical.me-1.text-secondary
+                  | Observaciones
+                textarea#observaciones.form-control(
+                  name="observaciones" 
+                  rows="4"
+                  maxlength="255"
+                  placeholder="Ingrese cualquier observación relevante sobre el estado del paciente..."
+                )
+                small.form-text.text-muted Máximo 255 caracteres
+
+          // Enfermero (campo oculto por ahora - ajustar según tu sistema de autenticación)
+          input(type="hidden" name="id_enfermero" value="1")
+
+          // Botones de acción
+          .row.mt-4
+            .col-12
+              .d-flex.justify-content-between
+                a.btn.btn-secondary(href=`/internacion/details/${internacion.id}`)
+                  i.fas.fa-arrow-left.me-2
+                  | Cancelar
+                button.btn.btn-primary(type="submit")
+                  i.fas.fa-save.me-2
+                  | Guardar Registro
+
+  else
+    .alert.alert-danger.mt-4
+      i.fas.fa-exclamation-triangle.me-2
+      | Internación no encontrada.
