@@ -1,0 +1,322 @@
+extends ../layout
+
+block content
+  .row
+    .col-lg-12.mb-4
+      h3.text-primary.mb-4
+        i.fas.fa-prescription.me-2
+        | Crear Receta Médica
+
+  // Información del Paciente (si viene de internación)
+  if internacion
+    .card.mb-4.shadow
+      .card-header.bg-primary.text-white
+        h5.mb-0
+          i.fas.fa-user.me-2
+          | Información del Paciente
+      .card-body
+        .row
+          .col-md-4
+            p.mb-2
+              strong.text-muted Nombre:
+              span.ms-2= internacion.PacienteSeguro && internacion.PacienteSeguro.paciente ? internacion.PacienteSeguro.paciente.persona.nombre + ' ' + internacion.PacienteSeguro.paciente.persona.apellido : '-'
+          .col-md-4
+            p.mb-2
+              strong.text-muted DNI:
+              span.ms-2= internacion.PacienteSeguro && internacion.PacienteSeguro.paciente ? internacion.PacienteSeguro.paciente.persona.DNI : '-'
+          .col-md-4
+            p.mb-2
+              strong.text-muted Internación:
+              span.ms-2 ID ##{internacion.id}
+
+  // Formulario de Receta
+  .card.shadow
+    .card-header.bg-success.text-white
+      h5.mb-0
+        i.fas.fa-pills.me-2
+        | Prescripción de Medicamentos
+    .card-body
+      form#formReceta(action=`/recetas/crear${returnUrl ? '?return=' + returnUrl : ''}` method="POST")
+        // ID Historial
+        input(type="hidden" name="id_historial" value=(internacion && internacion.PacienteSeguro && internacion.PacienteSeguro.paciente.historialMedico ? internacion.PacienteSeguro.paciente.historialMedico.id : ''))
+
+        // Contenedor de medicamentos
+        #medicamentosContainer
+          .medicamento-row.mb-4.p-3.border.rounded.bg-light
+            .d-flex.justify-content-between.align-items-center.mb-3
+              h6.mb-0
+                i.fas.fa-capsules.me-2
+                | Medicamento #1
+              button.btn.btn-sm.btn-danger.btn-remove(type="button" style="display: none;")
+                i.fas.fa-times.me-1
+                | Eliminar
+
+            .row
+              // Medicamento con autocompletado
+              .col-md-6.mb-3
+                label.form-label
+                  i.fas.fa-pills.me-1
+                  | Medicamento
+                  span.text-danger *
+                .autocomplete-wrapper(style="position: relative;")
+                  input.form-control.medicamento-search(
+                    type="text"
+                    placeholder="Escriba al menos 3 letras para buscar..."
+                    autocomplete="off"
+                    required
+                  )
+                  input.medicamento-id(type="hidden" name="medicamentos" required)
+                  .autocomplete-results(style="display: none; position: absolute; z-index: 1000; width: 100%; max-height: 300px; overflow-y: auto; background: white; border: 1px solid #ddd; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);")
+                .form-text.medicamento-info(style="color: #28a745; font-weight: 500;")
+
+              // Dosis
+              .col-md-6.mb-3
+                label.form-label
+                  i.fas.fa-balance-scale.me-1
+                  | Dosis
+                  span.text-danger *
+                input.form-control(
+                  type="text"
+                  name="dosis"
+                  placeholder="Ej: 500mg cada 8 horas"
+                  required
+                )
+
+            .row
+              // Duración
+              .col-md-6.mb-3
+                label.form-label
+                  i.fas.fa-calendar-alt.me-1
+                  | Duración del Tratamiento
+                  span.text-danger *
+                input.form-control(
+                  type="text"
+                  name="duracion"
+                  placeholder="Ej: 7 días"
+                  required
+                )
+
+              // Indicaciones
+              .col-md-6.mb-3
+                label.form-label
+                  i.fas.fa-comment-medical.me-1
+                  | Indicaciones Especiales
+                textarea.form-control(
+                  name="indicaciones"
+                  rows="2"
+                  placeholder="Indicaciones adicionales (opcional)"
+                )
+
+        // Botón para agregar más medicamentos
+        .row.mb-4
+          .col-12
+            button#btnAgregarMedicamento.btn.btn-outline-success.w-100(type="button")
+              i.fas.fa-plus.me-2
+              | Agregar Otro Medicamento
+
+        // Información adicional
+        .alert.alert-info
+          i.fas.fa-info-circle.me-2
+          div
+            strong Instrucciones:
+            ul.mb-0.mt-2
+              li Complete la información de cada medicamento prescrito
+              li Puede agregar múltiples medicamentos a la misma receta
+              li La dosis debe incluir la cantidad y frecuencia
+              li La duración indica por cuánto tiempo debe tomarse el medicamento
+
+        // Botones
+        .row
+          .col-12.d-flex.justify-content-end.gap-2
+            if returnUrl
+              button.btn.btn-secondary(type="button" onclick="window.close()")
+                i.fas.fa-times.me-1
+                | Cancelar
+            else
+              a.btn.btn-secondary(href="/recetas")
+                i.fas.fa-times.me-1
+                | Cancelar
+            button.btn.btn-primary(type="submit")
+              i.fas.fa-save.me-1
+              | Guardar Receta
+
+  // Script para agregar/eliminar medicamentos dinámicamente y autocompletado
+  script.
+    let medicamentoCount = 1;
+    let timeoutId = null;
+
+    // Configurar autocompletado para medicamentos existentes
+    document.querySelectorAll('.medicamento-search').forEach(input => {
+      configurarAutocompletado(input);
+    });
+
+    // Función para configurar autocompletado en un input
+    function configurarAutocompletado(input) {
+      const wrapper = input.closest('.autocomplete-wrapper');
+      const resultsDiv = wrapper.querySelector('.autocomplete-results');
+      const hiddenInput = wrapper.querySelector('.medicamento-id');
+      const infoDiv = wrapper.closest('.col-md-6').querySelector('.medicamento-info');
+
+      input.addEventListener('input', function() {
+        const query = this.value.trim();
+        
+        // Limpiar timeout anterior
+        if (timeoutId) clearTimeout(timeoutId);
+        
+        // Limpiar selección previa
+        hiddenInput.value = '';
+        infoDiv.textContent = '';
+        
+        if (query.length < 3) {
+          resultsDiv.style.display = 'none';
+          resultsDiv.innerHTML = '';
+          return;
+        }
+        
+        // Esperar 300ms antes de hacer la búsqueda
+        timeoutId = setTimeout(async () => {
+          try {
+            const response = await fetch(`/api/medicamentos/buscar?q=${encodeURIComponent(query)}`);
+            const data = await response.json();
+            
+            if (data.medicamentos && data.medicamentos.length > 0) {
+              mostrarResultados(data.medicamentos, resultsDiv, input, hiddenInput, infoDiv);
+            } else {
+              resultsDiv.innerHTML = '<div style="padding: 10px; color: #999;">No se encontraron medicamentos</div>';
+              resultsDiv.style.display = 'block';
+            }
+          } catch (error) {
+            console.error('Error al buscar medicamentos:', error);
+            resultsDiv.innerHTML = '<div style="padding: 10px; color: #dc3545;">Error al buscar</div>';
+            resultsDiv.style.display = 'block';
+          }
+        }, 300);
+      });
+
+      // Cerrar resultados al hacer clic fuera
+      document.addEventListener('click', function(e) {
+        if (!wrapper.contains(e.target)) {
+          resultsDiv.style.display = 'none';
+        }
+      });
+    }
+
+    // Función para mostrar resultados
+    function mostrarResultados(medicamentos, resultsDiv, input, hiddenInput, infoDiv) {
+      resultsDiv.innerHTML = '';
+      
+      medicamentos.forEach(med => {
+        const item = document.createElement('div');
+        item.style.cssText = 'padding: 10px; cursor: pointer; border-bottom: 1px solid #eee;';
+        item.innerHTML = `
+          <strong>${med.marca_comercial}</strong><br>
+          <small style="color: #666;">${med.presentacion}</small><br>
+          <small style="color: #999;">Lab: ${med.laboratorio}</small>
+        `;
+        
+        item.addEventListener('mouseenter', function() {
+          this.style.backgroundColor = '#f8f9fa';
+        });
+        
+        item.addEventListener('mouseleave', function() {
+          this.style.backgroundColor = 'white';
+        });
+        
+        item.addEventListener('click', function() {
+          input.value = med.marca_comercial;
+          hiddenInput.value = med.id;
+          infoDiv.innerHTML = `<i class="fas fa-check-circle me-1"></i>${med.presentacion} - ${med.laboratorio}`;
+          resultsDiv.style.display = 'none';
+        });
+        
+        resultsDiv.appendChild(item);
+      });
+      
+      resultsDiv.style.display = 'block';
+    }
+
+    // Función para agregar un nuevo medicamento
+    document.getElementById('btnAgregarMedicamento').addEventListener('click', function() {
+      medicamentoCount++;
+      const container = document.getElementById('medicamentosContainer');
+      
+      // Clonar el primer medicamento-row
+      const firstRow = container.querySelector('.medicamento-row');
+      const newRow = firstRow.cloneNode(true);
+      
+      // Actualizar el número del medicamento
+      newRow.querySelector('h6').innerHTML = `<i class="fas fa-capsules me-2"></i>Medicamento #${medicamentoCount}`;
+      
+      // Limpiar los valores
+      newRow.querySelectorAll('input, textarea').forEach(el => {
+        el.value = '';
+      });
+      
+      // Limpiar info de medicamento
+      newRow.querySelector('.medicamento-info').textContent = '';
+      
+      // Ocultar resultados
+      newRow.querySelector('.autocomplete-results').style.display = 'none';
+      newRow.querySelector('.autocomplete-results').innerHTML = '';
+      
+      // Configurar autocompletado en el nuevo input
+      const newInput = newRow.querySelector('.medicamento-search');
+      configurarAutocompletado(newInput);
+      
+      // Mostrar botón eliminar
+      const btnRemove = newRow.querySelector('.btn-remove');
+      btnRemove.style.display = 'inline-block';
+      
+      // Agregar evento al botón eliminar
+      btnRemove.addEventListener('click', function() {
+        newRow.remove();
+        renumerarMedicamentos();
+      });
+      
+      container.appendChild(newRow);
+      actualizarBotonesEliminar();
+    });
+
+    // Función para renumerar medicamentos
+    function renumerarMedicamentos() {
+      const rows = document.querySelectorAll('.medicamento-row');
+      rows.forEach((row, index) => {
+        row.querySelector('h6').innerHTML = `<i class="fas fa-capsules me-2"></i>Medicamento #${index + 1}`;
+      });
+      medicamentoCount = rows.length;
+      actualizarBotonesEliminar();
+    }
+
+    // Función para mostrar/ocultar botones eliminar
+    function actualizarBotonesEliminar() {
+      const rows = document.querySelectorAll('.medicamento-row');
+      rows.forEach((row, index) => {
+        const btnRemove = row.querySelector('.btn-remove');
+        if (rows.length > 1) {
+          btnRemove.style.display = 'inline-block';
+          btnRemove.addEventListener('click', function() {
+            row.remove();
+            renumerarMedicamentos();
+          });
+        } else {
+          btnRemove.style.display = 'none';
+        }
+      });
+    }
+
+    // Validar que al menos haya un medicamento antes de enviar
+    document.getElementById('formReceta').addEventListener('submit', function(e) {
+      const medicamentos = document.querySelectorAll('input[name="medicamentos"]');
+      let hayMedicamentoSeleccionado = false;
+      
+      medicamentos.forEach(input => {
+        if (input.value) {
+          hayMedicamentoSeleccionado = true;
+        }
+      });
+      
+      if (!hayMedicamentoSeleccionado) {
+        e.preventDefault();
+        alert('Debe seleccionar al menos un medicamento');
+      }
+    });

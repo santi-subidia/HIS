@@ -377,6 +377,7 @@ module.exports = {
   Details_GET: async (req, res) => {
     try {
       const { id } = req.params;
+      const { SolicitudAtencion, Enfermero, Medico } = require('../models');
       
       const internacion = await Internacion.findByPk(id, {
         include: [
@@ -419,8 +420,26 @@ module.exports = {
       if (!internacion) {
         return res.status(404).send('Internación no encontrada');
       }
+
+      // Cargar solicitudes de atención
+      const solicitudes = await SolicitudAtencion.findAll({
+        where: { id_internacion: id },
+        include: [
+          {
+            model: Enfermero,
+            as: 'Enfermero',
+            include: [{ model: Persona, as: 'persona' }]
+          },
+          {
+            model: Medico,
+            as: 'Medico',
+            include: [{ model: Persona, as: 'persona' }]
+          }
+        ],
+        order: [['fecha_solicitud', 'DESC']]
+      });
       
-      res.render('internacion/details', { internacion });
+      res.render('internacion/details', { internacion, solicitudes });
     } catch (error) {
       console.error('Error en Details_GET:', error);
       res.status(500).send('Error interno del servidor');

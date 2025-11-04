@@ -1,0 +1,180 @@
+extends ../layout
+
+block content
+  .row
+    .col-lg-12.mb-4
+      h3.text-success.mb-4
+        i.fas.fa-clipboard-list.me-2
+        | Historial de Planes de Cuidado
+
+  if internacion
+    // Información del Paciente
+    .card.mb-4.shadow
+      .card-header.bg-primary.text-white
+        h5.mb-0
+          i.fas.fa-user.me-2
+          | Información del Paciente
+      .card-body
+        .row
+          .col-md-4
+            p.mb-2
+              strong.text-muted Nombre:
+              span.ms-2= internacion.PacienteSeguro && internacion.PacienteSeguro.paciente ? internacion.PacienteSeguro.paciente.persona.nombre + ' ' + internacion.PacienteSeguro.paciente.persona.apellido : '-'
+          .col-md-4
+            p.mb-2
+              strong.text-muted DNI:
+              span.ms-2= internacion.PacienteSeguro && internacion.PacienteSeguro.paciente ? internacion.PacienteSeguro.paciente.persona.DNI : '-'
+          .col-md-4
+            p.mb-2
+              strong.text-muted Fecha de Internación:
+              span.ms-2= internacion.fecha_internacion ? new Date(internacion.fecha_internacion).toLocaleDateString('es-AR') : '-'
+
+    // Tabla de Planes de Cuidado
+    .card.shadow
+      .card-header.bg-success.text-white.d-flex.justify-content-between.align-items-center
+        h5.mb-0
+          i.fas.fa-list.me-2
+          | Historial de Planes de Cuidado
+        a.btn.btn-light.btn-sm(href=`/enfermeria/planes-cuidado/crear/${internacion.id}`)
+          i.fas.fa-plus.me-1
+          | Nuevo Plan
+
+      .card-body
+        if planes && planes.length > 0
+          // Determinar el plan inicial (Transitorio con menor fecha)
+          - const planInicial = planes.filter(p => p.tipo && p.tipo.nombre === 'Transitorio').sort((a, b) => new Date(a.fecha) - new Date(b.fecha))[0];
+          
+          .table-responsive
+            table.table.table-hover.table-striped
+              thead.table-success
+                tr
+                  th.text-center
+                    i.fas.fa-calendar.me-1
+                    | Fecha
+                  th.text-center
+                    i.fas.fa-tag.me-1
+                    | Tipo
+                  th
+                    i.fas.fa-comment-medical.me-1
+                    | Descripción
+                  th.text-center
+                    i.fas.fa-user-nurse.me-1
+                    | Responsable
+                  th.text-center
+                    i.fas.fa-prescription.me-1
+                    | Receta
+                  th.text-center
+                    i.fas.fa-eye.me-1
+                    | Acciones
+
+              tbody
+                each plan in planes
+                  tr(class=planInicial && plan.id === planInicial.id ? 'table-warning' : '')
+                    td.text-center
+                      .d-flex.flex-column.align-items-center
+                        span.badge.bg-secondary.mb-1= new Date(plan.fecha).toLocaleDateString('es-AR')
+                        small.text-muted= new Date(plan.fecha).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })
+                    
+                    td.text-center
+                      if plan.tipo
+                        if plan.tipo.nombre === 'Transitorio'
+                          span.badge.bg-info
+                            i.fas.fa-clock.me-1
+                            | Transitorio
+                          if planInicial && plan.id === planInicial.id
+                            br
+                            span.badge.bg-warning.mt-1
+                              i.fas.fa-star.me-1
+                              | Plan Inicial
+                        else if plan.tipo.nombre === 'Final'
+                          span.badge.bg-success
+                            i.fas.fa-check-circle.me-1
+                            | Final
+                        else
+                          span.badge.bg-secondary= plan.tipo.nombre
+                      else
+                        span.text-muted -
+                    
+                    td
+                      p.mb-0= plan.devolucion
+                    
+                    td.text-center
+                      if plan.persona
+                        .d-flex.flex-column.align-items-center
+                          i.fas.fa-user-circle.text-success.mb-1
+                          span= `${plan.persona.nombre} ${plan.persona.apellido}`
+                      else
+                        span.text-muted -
+                    
+                    td.text-center
+                      if plan.id_reseta
+                        span.badge.bg-info
+                          i.fas.fa-prescription.me-1
+                          | Receta ##{plan.id_reseta}
+                      else
+                        span.text-muted N/A
+                    
+                    td.text-center
+                      a.btn.btn-sm.btn-primary(href=`/enfermeria/planes-cuidado/details/${plan.id}` title="Ver detalles del plan")
+                        i.fas.fa-eye.me-1
+                        | Ver Detalles
+
+          // Resumen
+          .row.mt-4
+            .col-12
+              .alert.alert-success.d-flex.align-items-center
+                i.fas.fa-check-circle.fa-2x.me-3
+                div
+                  strong Total de planes registrados:
+                  span.ms-2= planes.length
+
+        else
+          .alert.alert-info.text-center
+            i.fas.fa-info-circle.me-2
+            | No hay planes de cuidado registrados para esta internación.
+            br
+            a.btn.btn-success.btn-sm.mt-3(href=`/enfermeria/planes-cuidado/crear/${internacion.id}`)
+              i.fas.fa-plus.me-1
+              | Crear Primer Plan de Cuidado
+
+    // Leyenda de Tipos
+    .card.mt-4.shadow
+      .card-header.bg-light
+        h6.mb-0
+          i.fas.fa-info-circle.me-2
+          | Leyenda de Tipos de Planes
+      .card-body
+        .row
+          .col-md-4.mb-2
+            span.badge.bg-info.me-2
+              i.fas.fa-clock.me-1
+              | Transitorio
+            small.text-muted Plan temporal con duración limitada
+          .col-md-4.mb-2
+            span.badge.bg-success.me-2
+              i.fas.fa-check-circle.me-1
+              | Final
+            small.text-muted Plan definitivo para el alta
+          .col-md-4.mb-2
+            span.badge.bg-warning.me-2
+              i.fas.fa-star.me-1
+              | Plan Inicial
+            small.text-muted Primer plan transitorio (menor tiempo)
+        .row.mt-3
+          .col-12
+            .alert.alert-info.mb-0
+              i.fas.fa-lightbulb.me-2
+              | El <strong>Plan Inicial</strong> es el plan transitorio registrado con la fecha más antigua. Las filas con fondo amarillo indican el plan inicial.
+
+    // Botones de Navegación
+    .row.mt-4.mb-4
+      .col-12.d-flex.gap-2
+        a.btn.btn-secondary(href=`/internacion/details/${internacion.id}`)
+          i.fas.fa-arrow-left.me-2
+          | Volver a Detalles
+        a.btn.btn-outline-primary(href="/internacion")
+          i.fas.fa-list.me-2
+          | Ver Todas las Internaciones
+
+  else
+    .alert.alert-warning.mt-4 Internación no encontrada.

@@ -190,6 +190,66 @@ block content
                   i.fas.fa-ambulance.me-1
                   | Trasladar
 
+        .row.mt-3
+          .col-md-12.mb-3
+            .card.h-100.border-danger
+              .card-body.text-center
+                i.fas.fa-bell.fa-3x.text-danger.mb-3
+                h6.card-title Solicitar Atención Médica
+                p.card-text.text-muted Notificar al equipo médico sobre situaciones que requieren evaluación
+                a.btn.btn-danger.btn-sm(href=`/solicitudes-atencion/crear/${internacion.id}`)
+                  i.fas.fa-bell.me-1
+                  | Solicitar Atención
+
+    // Historial de Solicitudes de Atención
+    if solicitudes && solicitudes.length > 0
+      .card.mt-4.shadow
+        .card-header.bg-warning.text-dark
+          h5.mb-0
+            i.fas.fa-history.me-2
+            | Historial de Solicitudes de Atención
+            span.badge.bg-dark.ms-2 #{solicitudes.length}
+        .card-body
+          .table-responsive
+            table.table.table-hover.table-bordered
+              thead.table-warning
+                tr
+                  th Estado
+                  th Fecha Solicitud
+                  th Motivo
+                  th Enfermero
+                  th Médico
+                  th Respuesta
+              tbody
+                each solicitud in solicitudes
+                  tr
+                    td
+                      if solicitud.estado === 'Pendiente'
+                        span.badge.bg-warning Pendiente
+                      else if solicitud.estado === 'Atendida'
+                        span.badge.bg-success Atendida
+                      else if solicitud.estado === 'Rechazada'
+                        span.badge.bg-danger Rechazada
+                    td
+                      small= new Date(solicitud.fecha_solicitud).toLocaleString('es-AR')
+                    td
+                      strong= solicitud.motivo
+                      br
+                      small.text-muted= solicitud.descripcion.substring(0, 50) + '...'
+                    td= solicitud.Enfermero.persona.apellido + ', ' + solicitud.Enfermero.persona.nombre
+                    td
+                      if solicitud.Medico
+                        = solicitud.Medico.persona.apellido + ', ' + solicitud.Medico.persona.nombre
+                        br
+                        small.text-muted= new Date(solicitud.fecha_respuesta).toLocaleString('es-AR')
+                      else
+                        span.text-muted Sin asignar
+                    td
+                      if solicitud.respuesta
+                        = solicitud.respuesta
+                      else
+                        span.text-muted Pendiente de respuesta
+
     // Botón Volver
     .row.mt-4.mb-4
       .col-12

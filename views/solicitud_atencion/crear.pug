@@ -1,0 +1,68 @@
+extends ../layout
+
+block content
+    .container.mt-4
+        .row.justify-content-center
+            .col-md-8
+                .card.shadow
+                    .card-header.bg-warning.text-dark
+                        h4.mb-0
+                            i.fas.fa-bell.me-2
+                            | Solicitar Atención Médica
+
+                    .card-body
+                        // Información del paciente
+                        .alert.alert-info
+                            h5
+                                i.fas.fa-user-injured.me-2
+                                | Paciente: #{internacion.PacienteSeguro.paciente.persona.nombre} #{internacion.PacienteSeguro.paciente.persona.apellido}
+                            p.mb-1
+                                strong Ubicación: 
+                                | Habitación #{internacion.Cama.Habitacion.codigo} - Cama #{internacion.Cama.numero_cama}
+                            p.mb-0
+                                strong DNI: 
+                                | #{internacion.PacienteSeguro.paciente.persona.DNI}
+
+                        hr
+
+                        form(method='POST' action=`/solicitudes-atencion/crear/${internacion.id_internacion}`)
+                            .mb-3
+                                label.form-label(for='motivo') 
+                                    i.fas.fa-exclamation-circle.me-1
+                                    | Motivo de la Solicitud
+                                    span.text-danger *
+                                input.form-control(
+                                    type='text'
+                                    id='motivo'
+                                    name='motivo'
+                                    placeholder='Ej: Fiebre alta, Dolor intenso, Cambio en signos vitales'
+                                    maxlength='200'
+                                    required
+                                )
+                                .form-text Máximo 200 caracteres
+
+                            .mb-3
+                                label.form-label(for='descripcion')
+                                    i.fas.fa-file-medical-alt.me-1
+                                    | Descripción Detallada
+                                    span.text-danger *
+                                textarea.form-control(
+                                    id='descripcion'
+                                    name='descripcion'
+                                    rows='5'
+                                    placeholder='Describa la situación del paciente y por qué requiere atención médica inmediata...'
+                                    required
+                                )
+                                .form-text Mínimo 10 caracteres
+
+                            .alert.alert-warning.d-flex.align-items-center
+                                i.fas.fa-info-circle.me-2
+                                div Esta solicitud será enviada al equipo médico y aparecerá en su lista de pendientes.
+
+                            .d-flex.gap-2
+                                button.btn.btn-warning(type='submit')
+                                    i.fas.fa-paper-plane.me-2
+                                    | Enviar Solicitud
+                                a.btn.btn-secondary(href=`/internacion/details/${internacion.id}`)
+                                    i.fas.fa-arrow-left.me-2
+                                    | Cancelar

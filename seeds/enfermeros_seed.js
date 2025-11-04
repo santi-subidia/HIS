@@ -5,8 +5,8 @@ module.exports = {
     try {
       console.log('Iniciando seed de enfermeros...');
 
-      // Crear personas para los enfermeros
-      const personas = await Persona.bulkCreate([
+      // Datos de personas para enfermeros
+      const personasData = [
         {
           DNI: '30111222',
           nombre: 'Laura',
@@ -57,21 +57,33 @@ module.exports = {
           domicilio: 'Calle Independencia 456',
           id_localidad: 1
         }
-      ]);
+      ];
 
-      console.log(`${personas.length} personas creadas para enfermeros`);
+      // Crear o encontrar personas (evita duplicados)
+      const personas = [];
+      for (const personaData of personasData) {
+        const [persona, created] = await Persona.findOrCreate({
+          where: { DNI: personaData.DNI },
+          defaults: personaData
+        });
+        personas.push(persona);
+        console.log(`Persona ${persona.nombre} ${persona.apellido} ${created ? 'creada' : 'ya existía'}`);
+      }
 
-      // Crear enfermeros asociados a las personas
-      const enfermeros = await Enfermero.bulkCreate([
-        { id_persona: personas[0].id },
-        { id_persona: personas[1].id },
-        { id_persona: personas[2].id },
-        { id_persona: personas[3].id },
-        { id_persona: personas[4].id }
-      ]);
+      console.log(`${personas.length} personas procesadas para enfermeros`);
 
-      console.log(`${enfermeros.length} enfermeros creados exitosamente`);
-      console.log('Enfermeros:', enfermeros.map(e => ({ id: e.id, id_persona: e.id_persona })));
+      // Crear enfermeros asociados a las personas (evita duplicados)
+      const enfermeros = [];
+      for (const persona of personas) {
+        const [enfermero, created] = await Enfermero.findOrCreate({
+          where: { id_persona: persona.id },
+          defaults: { id_persona: persona.id }
+        });
+        enfermeros.push(enfermero);
+        console.log(`Enfermero para ${persona.nombre} ${persona.apellido} (ID: ${enfermero.id}) ${created ? 'creado' : 'ya existía'}`);
+      }
+
+      console.log(`${enfermeros.length} enfermeros procesados exitosamente`);
 
       return enfermeros;
     } catch (error) {

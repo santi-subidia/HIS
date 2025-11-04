@@ -159,5 +159,37 @@ module.exports = {
       console.error('Error al verificar contacto de emergencia:', error);
       res.status(500).json({ error: 'Error al verificar contacto de emergencia' });
     }
+  },
+
+  buscarMedicamentos: async (req, res) => {
+    const { Medicamento } = require('../models');
+    const { q } = req.query;
+
+    // Validar que se hayan enviado al menos 3 caracteres
+    if (!q || q.length < 3) {
+      return res.json({ medicamentos: [] });
+    }
+
+    try {
+      const { Op } = require('sequelize');
+      
+      // Buscar medicamentos que coincidan en marca comercial, presentación o laboratorio
+      const medicamentos = await Medicamento.findAll({
+        where: {
+          [Op.or]: [
+            { marca_comercial: { [Op.like]: `%${q}%` } },
+            { presentacion: { [Op.like]: `%${q}%` } },
+            { laboratorio: { [Op.like]: `%${q}%` } }
+          ]
+        },
+        limit: 20, // Limitar a 20 resultados
+        order: [['marca_comercial', 'ASC']]
+      });
+
+      res.json({ medicamentos });
+    } catch (error) {
+      console.error('Error al buscar medicamentos:', error);
+      res.status(500).json({ error: 'Error al buscar medicamentos' });
+    }
   }
 };

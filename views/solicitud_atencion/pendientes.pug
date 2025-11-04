@@ -1,0 +1,99 @@
+extends ../layout
+
+block content
+    .container.mt-4
+        .card.shadow
+            .card-header.bg-danger.text-white
+                h3.mb-0
+                    i.fas.fa-bell.me-2
+                    | Solicitudes de Atención Pendientes
+                    if solicitudes && solicitudes.length > 0
+                        span.badge.bg-light.text-danger.ms-2 #{solicitudes.length}
+
+            .card-body
+                if solicitudes && solicitudes.length > 0
+                    .alert.alert-danger
+                        i.fas.fa-exclamation-triangle.me-2
+                        strong Atención: 
+                        | Hay #{solicitudes.length} solicitud(es) esperando respuesta médica.
+
+                    .table-responsive
+                        table.table.table-hover.table-bordered
+                            thead.table-danger
+                                tr
+                                    th 
+                                        i.fas.fa-clock.me-1
+                                        | Fecha
+                                    th 
+                                        i.fas.fa-user-injured.me-1
+                                        | Paciente
+                                    th 
+                                        i.fas.fa-map-marker-alt.me-1
+                                        | Ubicación
+                                    th 
+                                        i.fas.fa-exclamation-circle.me-1
+                                        | Motivo
+                                    th 
+                                        i.fas.fa-user-nurse.me-1
+                                        | Enfermero
+                                    th 
+                                        i.fas.fa-cogs.me-1
+                                        | Acciones
+
+                            tbody
+                                each solicitud in solicitudes
+                                    tr
+                                        td
+                                            small= new Date(solicitud.fecha_solicitud).toLocaleString('es-AR')
+                                        td
+                                            strong= solicitud.Internacion.PacienteSeguro.paciente.persona.apellido + ', ' + solicitud.Internacion.PacienteSeguro.paciente.persona.nombre
+                                            br
+                                            small.text-muted DNI: #{solicitud.Internacion.PacienteSeguro.paciente.persona.dni}
+                                        td
+                                            span.badge.bg-info
+                                                | Hab. #{solicitud.Internacion.Cama.Habitacion.numero} - Cama #{solicitud.Internacion.Cama.numero}
+                                        td
+                                            strong= solicitud.motivo
+                                            br
+                                            small.text-muted= solicitud.descripcion.substring(0, 60) + '...'
+                                        td= solicitud.Enfermero.persona.apellido + ', ' + solicitud.Enfermero.persona.nombre
+                                        td
+                                            a.btn.btn-sm.btn-danger(href=`/solicitudes-atencion/atender/${solicitud.id_solicitud}`)
+                                                i.fas.fa-stethoscope.me-1
+                                                | Atender
+
+                else
+                    .alert.alert-success.text-center
+                        i.fas.fa-check-circle.me-2.fs-3
+                        h5 No hay solicitudes pendientes
+                        p.mb-0 Todas las solicitudes han sido atendidas.
+
+                hr
+
+                .d-flex.justify-content-between.align-items-center
+                    a.btn.btn-secondary(href='/')
+                        i.fas.fa-home.me-2
+                        | Volver al Inicio
+                    
+                    a.btn.btn-outline-secondary(href='/solicitudes-atencion/historial')
+                        i.fas.fa-history.me-2
+                        | Ver Historial Completo
+
+        if solicitudes && solicitudes.length > 0
+            .card.shadow.mt-4
+                .card-header.bg-secondary.text-white
+                    h5.mb-0
+                        i.fas.fa-info-circle.me-2
+                        | Leyenda
+                .card-body
+                    .row
+                        .col-md-6
+                            p
+                                i.fas.fa-stethoscope.me-2.text-danger
+                                strong Atender: 
+                                | Responder a la solicitud del enfermero
+                        .col-md-6
+                            p
+                                i.fas.fa-clock.me-2.text-warning
+                                strong Orden: 
+                                | Las más recientes aparecen primero

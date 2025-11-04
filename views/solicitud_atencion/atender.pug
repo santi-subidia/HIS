@@ -1,0 +1,131 @@
+extends ../layout
+
+block content
+    .container.mt-4
+        .row.justify-content-center
+            .col-md-10
+                .card.shadow
+                    .card-header.bg-primary.text-white
+                        h4.mb-0
+                            i.fas.fa-stethoscope.me-2
+                            | Atender Solicitud de Atención
+
+                    .card-body
+                        // Información del paciente
+                        .card.mb-3.border-info
+                            .card-header.bg-info.text-white
+                                h5.mb-0
+                                    i.fas.fa-user-injured.me-2
+                                    | Información del Paciente
+                            .card-body
+                                .row
+                                    .col-md-6
+                                        p.mb-2
+                                            strong Paciente: 
+                                            | #{solicitud.Internacion.PacienteSeguro.paciente.persona.apellido}, #{solicitud.Internacion.PacienteSeguro.paciente.persona.nombre}
+                                        p.mb-2
+                                            strong DNI: 
+                                            | #{solicitud.Internacion.PacienteSeguro.paciente.persona.dni}
+                                    .col-md-6
+                                        p.mb-2
+                                            strong Ubicación: 
+                                            span.badge.bg-info.ms-2 Habitación #{solicitud.Internacion.Cama.Habitacion.numero} - Cama #{solicitud.Internacion.Cama.numero}
+                                        p.mb-2
+                                            strong Internación: 
+                                            | ##{solicitud.id_internacion}
+
+                        // Detalles de la solicitud
+                        .card.mb-3.border-warning
+                            .card-header.bg-warning.text-dark
+                                h5.mb-0
+                                    i.fas.fa-bell.me-2
+                                    | Solicitud del Enfermero
+                            .card-body
+                                p.mb-2
+                                    strong Enfermero: 
+                                    | #{solicitud.Enfermero.persona.apellido}, #{solicitud.Enfermero.persona.nombre}
+                                p.mb-2
+                                    strong Fecha/Hora: 
+                                    | #{new Date(solicitud.fecha_solicitud).toLocaleString('es-AR')}
+                                
+                                hr
+
+                                .mb-3
+                                    h6
+                                        i.fas.fa-exclamation-circle.me-2
+                                        | Motivo:
+                                    .alert.alert-warning.mb-0
+                                        strong= solicitud.motivo
+
+                                .mb-0
+                                    h6
+                                        i.fas.fa-file-medical-alt.me-2
+                                        | Descripción:
+                                    .alert.alert-light.mb-0
+                                        p.mb-0= solicitud.descripcion
+
+                        hr
+
+                        // Formulario de respuesta
+                        form(method='POST' action=`/solicitudes-atencion/atender/${solicitud.id_solicitud}`)
+                            .card.border-primary
+                                .card-header.bg-primary.text-white
+                                    h5.mb-0
+                                        i.fas.fa-reply.me-2
+                                        | Su Respuesta
+
+                                .card-body
+                                    .mb-3
+                                        label.form-label
+                                            i.fas.fa-check-circle.me-1
+                                            | Acción
+                                            span.text-danger *
+
+                                        .form-check
+                                            input.form-check-input(
+                                                type='radio'
+                                                name='estado'
+                                                id='atendida'
+                                                value='Atendida'
+                                                checked
+                                            )
+                                            label.form-check-label(for='atendida')
+                                                i.fas.fa-check.me-1.text-success
+                                                | Atender - Paciente será evaluado
+
+                                        .form-check
+                                            input.form-check-input(
+                                                type='radio'
+                                                name='estado'
+                                                id='rechazada'
+                                                value='Rechazada'
+                                            )
+                                            label.form-check-label(for='rechazada')
+                                                i.fas.fa-times.me-1.text-danger
+                                                | Rechazar - No requiere atención inmediata
+
+                                    .mb-3
+                                        label.form-label(for='respuesta')
+                                            i.fas.fa-comment-medical.me-1
+                                            | Respuesta / Instrucciones
+                                            span.text-danger *
+                                        textarea.form-control(
+                                            id='respuesta'
+                                            name='respuesta'
+                                            rows='5'
+                                            placeholder='Escriba su evaluación, indicaciones para el enfermero o plan de acción...'
+                                            required
+                                        )
+                                        .form-text Mínimo 10 caracteres. Sea claro y específico en sus instrucciones.
+
+                                    .alert.alert-info
+                                        i.fas.fa-info-circle.me-2
+                                        | El enfermero recibirá su respuesta y podrá visualizarla en el historial de la internación.
+
+                            .d-flex.gap-2.mt-3
+                                button.btn.btn-primary.btn-lg(type='submit')
+                                    i.fas.fa-paper-plane.me-2
+                                    | Enviar Respuesta
+                                a.btn.btn-secondary.btn-lg(href='/solicitudes-atencion/pendientes')
+                                    i.fas.fa-arrow-left.me-2
+                                    | Volver a Pendientes
