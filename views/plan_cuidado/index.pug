@@ -84,7 +84,7 @@ block content
                     | Tipo
                   th
                     i.fas.fa-comment-medical.me-1
-                    | Descripción
+                    | Diagnóstico y Tratamiento
                   th.text-center
                     i.fas.fa-user-nurse.me-1
                     | Responsable
@@ -124,7 +124,10 @@ block content
                         span.text-muted -
                     
                     td
-                      p.mb-0= plan.devolucion
+                      strong Diagnóstico:
+                      p.mb-1= plan.diagnostico
+                      strong Tratamiento:
+                      p.mb-0= plan.tratamiento
                     
                     td.text-center
                       if plan.persona

@@ -48,21 +48,32 @@ module.exports = (sequelize) => {
           min: -1,
         },
       },
-      devolucion: {
+      diagnostico: {
         type: DataTypes.STRING,
         allowNull: false,
         validate: {
-          notEmpty: { msg: "La devolución no puede estar vacía" },
+          notEmpty: { msg: "El diagnóstico no puede estar vacío" },
           len: {
             args: [2, 100],
-            msg: "La devolución debe tener entre 2 y 100 caracteres",
-          },
-        },
+            msg: "El diagnóstico debe tener entre 2 y 100 caracteres",
+          }
+        }
+      },
+      tratamiento: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        validate: {
+          notEmpty: { msg: "El tratamiento no puede estar vacío" },
+          len: {
+            args: [2, 100],
+            msg: "El tratamiento debe tener entre 2 y 100 caracteres",
+          }
+        }
       },
       fecha: {
         type: DataTypes.DATE,
         allowNull: false,
-      },
+      }
     },
     {
       sequelize,

@@ -103,11 +103,16 @@ block content
               span.ms-2= plan.persona ? `${plan.persona.nombre} ${plan.persona.apellido}` : '-'
         
         .row
-          .col-md-12
+          .col-md-6
             p.mb-2
-              strong.text-muted Descripción del Plan:
+              strong.text-muted Diagnóstico:
             .alert.alert-light.mb-0
-              p.mb-0= plan.devolucion
+              p.mb-0= plan.diagnostico
+          .col-md-6
+            p.mb-2
+              strong.text-muted Tratamiento:
+            .alert.alert-light.mb-0
+              p.mb-0= plan.tratamiento
 
     // Receta Médica Asociada
     if plan.id_reseta && plan.reseta

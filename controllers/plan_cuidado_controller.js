@@ -79,7 +79,7 @@ module.exports = {
   Crear_POST: async (req, res) => {
     try {
       const { id } = req.params;
-      const { id_tipo, devolucion, id_reseta } = req.body;
+      const { id_tipo, diagnostico, tratamiento, id_reseta } = req.body;
 
       // Validar que la internación existe
       const internacion = await Internacion.findByPk(id);
@@ -96,7 +96,8 @@ module.exports = {
         id_persona,
         id_internacion: id,
         id_tipo,
-        devolucion,
+        diagnostico,
+        tratamiento,
         id_reseta: id_reseta || null,
         fecha: new Date()
       });

@@ -116,23 +116,41 @@ block content
                   i.fas.fa-check-circle.me-2
                   | Receta ##{id_receta} creada y vinculada correctamente
 
-          // Devolución/Descripción
+          // Diagnóstico y Tratamiento
           .row
             .col-md-12.mb-3
-              label.form-label(for="devolucion")
-                i.fas.fa-comment-medical.me-1
-                | Descripción del Plan
+              label.form-label(for="diagnostico")
+                i.fas.fa-stethoscope.me-1
+                | Diagnóstico
                 span.text-danger *
-              textarea#devolucion.form-control(
-                name="devolucion"
-                rows="4"
+              textarea#diagnostico.form-control(
+                name="diagnostico"
+                rows="3"
                 required
                 minlength="2"
                 maxlength="100"
-                placeholder="Describa el plan de cuidado (máximo 100 caracteres)"
+                placeholder="Describa el diagnóstico del paciente (máximo 100 caracteres)"
               )
               .form-text 
-                span#charCount 0
+                span#charCountDiag 0
+                |  / 100 caracteres
+          
+          .row
+            .col-md-12.mb-3
+              label.form-label(for="tratamiento")
+                i.fas.fa-notes-medical.me-1
+                | Tratamiento
+                span.text-danger *
+              textarea#tratamiento.form-control(
+                name="tratamiento"
+                rows="3"
+                required
+                minlength="2"
+                maxlength="100"
+                placeholder="Describa el tratamiento a seguir (máximo 100 caracteres)"
+              )
+              .form-text 
+                span#charCountTrat 0
                 |  / 100 caracteres
 
           // Información adicional
@@ -161,9 +179,28 @@ block content
 
   // Script para contador de caracteres y manejo de receta
   script.
-    document.getElementById('devolucion').addEventListener('input', function() {
+    // Contador para Diagnóstico
+    document.getElementById('diagnostico').addEventListener('input', function() {
       const charCount = this.value.length;
-      const counter = document.getElementById('charCount');
+      const counter = document.getElementById('charCountDiag');
+      counter.textContent = charCount;
+      
+      if (charCount > 100) {
+        counter.classList.add('text-danger');
+        counter.classList.remove('text-muted');
+      } else if (charCount > 80) {
+        counter.classList.add('text-warning');
+        counter.classList.remove('text-danger', 'text-muted');
+      } else {
+        counter.classList.add('text-muted');
+        counter.classList.remove('text-danger', 'text-warning');
+      }
+    });
+    
+    // Contador para Tratamiento
+    document.getElementById('tratamiento').addEventListener('input', function() {
+      const charCount = this.value.length;
+      const counter = document.getElementById('charCountTrat');
       counter.textContent = charCount;
       
       if (charCount > 100) {
