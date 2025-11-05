@@ -9,25 +9,53 @@ block content
 
   if internacion
     // Información del Paciente
-    .card.mb-4.shadow
-      .card-header.bg-primary.text-white
+    .card.mb-4.shadow(class=internacion.PacienteSeguro && internacion.PacienteSeguro.paciente ? '' : 'border-warning')
+      .card-header(class=internacion.PacienteSeguro && internacion.PacienteSeguro.paciente ? 'bg-primary text-white' : 'bg-warning text-dark')
         h5.mb-0
-          i.fas.fa-user.me-2
-          | Información del Paciente
+          if internacion.PacienteSeguro && internacion.PacienteSeguro.paciente
+            i.fas.fa-user.me-2
+            | Información del Paciente
+          else
+            i.fas.fa-user-injured.me-2
+            | Paciente de Emergencia (Desconocido)
       .card-body
-        .row
-          .col-md-4
-            p.mb-2
-              strong.text-muted Nombre:
-              span.ms-2= internacion.PacienteSeguro && internacion.PacienteSeguro.paciente ? internacion.PacienteSeguro.paciente.persona.nombre + ' ' + internacion.PacienteSeguro.paciente.persona.apellido : '-'
-          .col-md-4
-            p.mb-2
-              strong.text-muted DNI:
-              span.ms-2= internacion.PacienteSeguro && internacion.PacienteSeguro.paciente ? internacion.PacienteSeguro.paciente.persona.DNI : '-'
-          .col-md-4
-            p.mb-2
-              strong.text-muted Fecha de Internación:
-              span.ms-2= internacion.fecha_internacion ? new Date(internacion.fecha_internacion).toLocaleDateString('es-AR') : '-'
+        if internacion.PacienteSeguro && internacion.PacienteSeguro.paciente
+          .row
+            .col-md-4
+              p.mb-2
+                strong.text-muted Nombre:
+                span.ms-2= internacion.PacienteSeguro.paciente.persona.nombre + ' ' + internacion.PacienteSeguro.paciente.persona.apellido
+            .col-md-4
+              p.mb-2
+                strong.text-muted DNI:
+                span.ms-2= internacion.PacienteSeguro.paciente.persona.DNI
+            .col-md-4
+              p.mb-2
+                strong.text-muted Fecha de Internación:
+                span.ms-2= internacion.fecha_internacion ? new Date(internacion.fecha_internacion).toLocaleDateString('es-AR') : '-'
+        else
+          .alert.alert-warning.mb-3
+            i.fas.fa-exclamation-triangle.me-2
+            strong Paciente internado de emergencia
+            p.mb-0.mt-2 Los datos del paciente serán completados posteriormente.
+          .row
+            .col-md-4
+              p.mb-2
+                strong.text-muted Sexo:
+                if internacion.isDesconocido === true
+                  span.ms-2.badge.bg-info Masculino
+                else if internacion.isDesconocido === false
+                  span.ms-2.badge.bg-pink Femenino
+                else
+                  span.ms-2.text-muted No especificado
+            .col-md-4
+              p.mb-2
+                strong.text-muted Ubicación:
+                span.ms-2= internacion.Cama && internacion.Cama.Habitacion ? `Hab. ${internacion.Cama.Habitacion.codigo} - Cama ${internacion.Cama.numero_cama}` : '-'
+            .col-md-4
+              p.mb-2
+                strong.text-muted Fecha de Internación:
+                span.ms-2= internacion.fecha_internacion ? new Date(internacion.fecha_internacion).toLocaleDateString('es-AR') : '-'
 
     // Tabla de Planes de Cuidado
     .card.shadow

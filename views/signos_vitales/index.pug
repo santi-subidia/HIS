@@ -9,29 +9,57 @@ block content
 
   if internacion
     // Información del Paciente
-    .card.mb-4.shadow
-      .card-header.bg-primary.text-white
+    .card.mb-4.shadow(class=internacion.PacienteSeguro && internacion.PacienteSeguro.paciente ? '' : 'border-warning')
+      .card-header(class=internacion.PacienteSeguro && internacion.PacienteSeguro.paciente ? 'bg-primary text-white' : 'bg-warning text-dark')
         h5.mb-0
-          i.fas.fa-user.me-2
-          | Información del Paciente
+          if internacion.PacienteSeguro && internacion.PacienteSeguro.paciente
+            i.fas.fa-user.me-2
+            | Información del Paciente
+          else
+            i.fas.fa-user-injured.me-2
+            | Paciente de Emergencia (Desconocido)
       .card-body
-        .row
-          .col-md-3
-            p.mb-2
-              strong.text-muted Nombre:
-              span.ms-2= internacion.PacienteSeguro && internacion.PacienteSeguro.paciente ? internacion.PacienteSeguro.paciente.persona.nombre + ' ' + internacion.PacienteSeguro.paciente.persona.apellido : '-'
-          .col-md-3
-            p.mb-2
-              strong.text-muted DNI:
-              span.ms-2= internacion.PacienteSeguro && internacion.PacienteSeguro.paciente ? internacion.PacienteSeguro.paciente.persona.DNI : '-'
-          .col-md-3
-            p.mb-2
-              strong.text-muted Habitación:
-              span.ms-2= internacion.Cama && internacion.Cama.Habitacion ? internacion.Cama.Habitacion.codigo : '-'
-          .col-md-3
-            p.mb-2
-              strong.text-muted Cama:
-              span.ms-2= internacion.Cama ? 'Cama ' + internacion.Cama.numero_cama : '-'
+        if internacion.PacienteSeguro && internacion.PacienteSeguro.paciente
+          .row
+            .col-md-3
+              p.mb-2
+                strong.text-muted Nombre:
+                span.ms-2= internacion.PacienteSeguro.paciente.persona.nombre + ' ' + internacion.PacienteSeguro.paciente.persona.apellido
+            .col-md-3
+              p.mb-2
+                strong.text-muted DNI:
+                span.ms-2= internacion.PacienteSeguro.paciente.persona.DNI
+            .col-md-3
+              p.mb-2
+                strong.text-muted Habitación:
+                span.ms-2= internacion.Cama && internacion.Cama.Habitacion ? internacion.Cama.Habitacion.codigo : '-'
+            .col-md-3
+              p.mb-2
+                strong.text-muted Cama:
+                span.ms-2= internacion.Cama ? 'Cama ' + internacion.Cama.numero_cama : '-'
+        else
+          .alert.alert-warning.mb-3
+            i.fas.fa-exclamation-triangle.me-2
+            strong Paciente internado de emergencia
+            p.mb-0.mt-2 Los datos del paciente serán completados posteriormente.
+          .row
+            .col-md-4
+              p.mb-2
+                strong.text-muted Sexo:
+                if internacion.isDesconocido === true
+                  span.ms-2.badge.bg-info Masculino
+                else if internacion.isDesconocido === false
+                  span.ms-2.badge.bg-pink Femenino
+                else
+                  span.ms-2.text-muted No especificado
+            .col-md-4
+              p.mb-2
+                strong.text-muted Habitación:
+                span.ms-2= internacion.Cama && internacion.Cama.Habitacion ? internacion.Cama.Habitacion.codigo : '-'
+            .col-md-4
+              p.mb-2
+                strong.text-muted Cama:
+                span.ms-2= internacion.Cama ? 'Cama ' + internacion.Cama.numero_cama : '-'
 
     // Botón para registrar nuevos signos vitales
     .row.mb-4

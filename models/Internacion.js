@@ -44,7 +44,7 @@ module.exports = (sequelize) => {
     },
     id_contactoEmergencia: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: true,
       validate: {
         isInt: { msg: "Debe ser un número entero" },
         min: 1
@@ -86,6 +86,11 @@ module.exports = (sequelize) => {
           msg: "Los síntomas principales no deben superar los 255 caracteres"
         }
       }
+    },
+    isDesconocido: { // True Masculino, False Femenino, Null sexo en paciente
+      type: DataTypes.BOOLEAN,
+      allowNull: true,
+      defaultValue: null
     }
   }, {
     sequelize,

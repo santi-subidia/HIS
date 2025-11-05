@@ -9,22 +9,41 @@ block content
 
   if internacion
     // Información del Paciente (mini card)
-    .card.mb-4.shadow-sm.border-info
+    .card.mb-4.shadow-sm(class=internacion.PacienteSeguro && internacion.PacienteSeguro.paciente ? 'border-info' : 'border-warning')
       .card-body
         .row.align-items-center
           .col-md-8
-            h5.mb-0
-              i.fas.fa-user.me-2.text-info
-              strong= internacion.PacienteSeguro && internacion.PacienteSeguro.paciente ? internacion.PacienteSeguro.paciente.persona.nombre + ' ' + internacion.PacienteSeguro.paciente.persona.apellido : '-'
-            p.text-muted.mb-0.mt-1
-              small
-                | DNI: 
-                strong= internacion.PacienteSeguro && internacion.PacienteSeguro.paciente ? internacion.PacienteSeguro.paciente.persona.DNI : '-'
-                |  | 
-                | Habitación: 
-                strong= internacion.Cama && internacion.Cama.Habitacion ? internacion.Cama.Habitacion.codigo : '-'
-                |  - Cama: 
-                strong= internacion.Cama ? internacion.Cama.numero_cama : '-'
+            if internacion.PacienteSeguro && internacion.PacienteSeguro.paciente
+              h5.mb-0
+                i.fas.fa-user.me-2.text-info
+                strong= internacion.PacienteSeguro.paciente.persona.nombre + ' ' + internacion.PacienteSeguro.paciente.persona.apellido
+              p.text-muted.mb-0.mt-1
+                small
+                  | DNI: 
+                  strong= internacion.PacienteSeguro.paciente.persona.DNI
+                  |  | 
+                  | Habitación: 
+                  strong= internacion.Cama && internacion.Cama.Habitacion ? internacion.Cama.Habitacion.codigo : '-'
+                  |  - Cama: 
+                  strong= internacion.Cama ? internacion.Cama.numero_cama : '-'
+            else
+              h5.mb-0
+                i.fas.fa-user-injured.me-2.text-warning
+                strong Paciente de Emergencia (Desconocido)
+              p.text-muted.mb-0.mt-1
+                small
+                  | Sexo: 
+                  if internacion.isDesconocido === true
+                    strong.text-info Masculino
+                  else if internacion.isDesconocido === false
+                    strong.text-danger Femenino
+                  else
+                    strong No especificado
+                  |  | 
+                  | Habitación: 
+                  strong= internacion.Cama && internacion.Cama.Habitacion ? internacion.Cama.Habitacion.codigo : '-'
+                  |  - Cama: 
+                  strong= internacion.Cama ? internacion.Cama.numero_cama : '-'
           .col-md-4.text-end
             if internacion.prioridad === 'alta'
               span.badge.bg-danger.fs-6 Prioridad Alta

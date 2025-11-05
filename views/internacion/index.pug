@@ -22,8 +22,8 @@ block content
       tbody
         each internacion in internaciones
           tr
-            td= internacion.PacienteSeguro && internacion.PacienteSeguro.paciente ? internacion.PacienteSeguro.paciente.persona.nombre + ' ' + internacion.PacienteSeguro.paciente.persona.apellido : '-'
-            td= internacion.PacienteSeguro && internacion.PacienteSeguro.paciente ? internacion.PacienteSeguro.paciente.persona.DNI : '-'
+            td= internacion.PacienteSeguro && internacion.PacienteSeguro.paciente ? internacion.PacienteSeguro.paciente.persona.nombre + ' ' + internacion.PacienteSeguro.paciente.persona.apellido : 'Desconocido'
+            td= internacion.PacienteSeguro && internacion.PacienteSeguro.paciente ? internacion.PacienteSeguro.paciente.persona.DNI : 'Desconocido'
             td= internacion.fecha_internacion ? new Date(internacion.fecha_internacion).toLocaleDateString('es-AR') : '-'
             td
               if internacion.estado === 'activa'
@@ -32,10 +32,10 @@ block content
                 span.badge.bg-secondary= internacion.estado
               else
                 span.badge.bg-warning= internacion.estado
-            td= internacion.Cama && internacion.Cama.Habitacion && internacion.Cama.Habitacion.Ala && internacion.Cama.Habitacion.Ala.Sector ? internacion.Cama.Habitacion.Ala.Sector.nombre : '-'
-            td= internacion.Cama && internacion.Cama.Habitacion && internacion.Cama.Habitacion.Ala ? internacion.Cama.Habitacion.Ala.ubicacion : '-'
-            td= internacion.Cama && internacion.Cama.Habitacion ? internacion.Cama.Habitacion.codigo : '-'
-            td= internacion.Cama ? internacion.Cama.numero_cama : '-'
+            td= internacion.Cama && internacion.Cama.Habitacion && internacion.Cama.Habitacion.Ala && internacion.Cama.Habitacion.Ala.Sector ? internacion.Cama.Habitacion.Ala.Sector.nombre : 'Desconocido'
+            td= internacion.Cama && internacion.Cama.Habitacion && internacion.Cama.Habitacion.Ala ? internacion.Cama.Habitacion.Ala.ubicacion : 'Desconocido'
+            td= internacion.Cama && internacion.Cama.Habitacion ? internacion.Cama.Habitacion.codigo : 'Desconocido'
+            td= internacion.Cama ? internacion.Cama.numero_cama : 'Desconocido'
             td
               a.btn.btn-info.btn-sm(href=`/internacion/details/${internacion.id}`)
                 i.fas.fa-eye.me-1

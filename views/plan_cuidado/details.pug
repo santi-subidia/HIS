@@ -9,29 +9,61 @@ block content
 
   if plan
     // Información del Paciente
-    .card.mb-4.shadow
-      .card-header.bg-primary.text-white
+    .card.mb-4.shadow(class=plan.internacion && plan.internacion.PacienteSeguro && plan.internacion.PacienteSeguro.paciente ? '' : 'border-warning')
+      .card-header(class=plan.internacion && plan.internacion.PacienteSeguro && plan.internacion.PacienteSeguro.paciente ? 'bg-primary text-white' : 'bg-warning text-dark')
         h5.mb-0
-          i.fas.fa-user.me-2
-          | Información del Paciente
+          if plan.internacion && plan.internacion.PacienteSeguro && plan.internacion.PacienteSeguro.paciente
+            i.fas.fa-user.me-2
+            | Información del Paciente
+          else
+            i.fas.fa-user-injured.me-2
+            | Paciente de Emergencia (Desconocido)
       .card-body
-        .row
-          .col-md-3
-            p.mb-2
-              strong.text-muted Nombre:
-              span.ms-2= plan.internacion && plan.internacion.PacienteSeguro && plan.internacion.PacienteSeguro.paciente ? plan.internacion.PacienteSeguro.paciente.persona.nombre + ' ' + plan.internacion.PacienteSeguro.paciente.persona.apellido : '-'
-          .col-md-3
-            p.mb-2
-              strong.text-muted DNI:
-              span.ms-2= plan.internacion && plan.internacion.PacienteSeguro && plan.internacion.PacienteSeguro.paciente ? plan.internacion.PacienteSeguro.paciente.persona.DNI : '-'
-          .col-md-3
-            p.mb-2
-              strong.text-muted Ubicación:
-              span.ms-2= plan.internacion && plan.internacion.Cama && plan.internacion.Cama.Habitacion ? `${plan.internacion.Cama.Habitacion.Ala.Sector.nombre} - Hab. ${plan.internacion.Cama.Habitacion.codigo} - Cama ${plan.internacion.Cama.numero_cama}` : '-'
-          .col-md-3
-            p.mb-2
-              strong.text-muted Internación:
-              span.ms-2 ID ##{plan.id_internacion}
+        if plan.internacion && plan.internacion.PacienteSeguro && plan.internacion.PacienteSeguro.paciente
+          .row
+            .col-md-3
+              p.mb-2
+                strong.text-muted Nombre:
+                span.ms-2= plan.internacion.PacienteSeguro.paciente.persona.nombre + ' ' + plan.internacion.PacienteSeguro.paciente.persona.apellido
+            .col-md-3
+              p.mb-2
+                strong.text-muted DNI:
+                span.ms-2= plan.internacion.PacienteSeguro.paciente.persona.DNI
+            .col-md-3
+              p.mb-2
+                strong.text-muted Ubicación:
+                span.ms-2= plan.internacion.Cama && plan.internacion.Cama.Habitacion ? `${plan.internacion.Cama.Habitacion.Ala.Sector.nombre} - Hab. ${plan.internacion.Cama.Habitacion.codigo} - Cama ${plan.internacion.Cama.numero_cama}` : '-'
+            .col-md-3
+              p.mb-2
+                strong.text-muted Internación:
+                span.ms-2 ID ##{plan.id_internacion}
+        else
+          .alert.alert-warning.mb-3
+            i.fas.fa-exclamation-triangle.me-2
+            strong Paciente internado de emergencia
+            p.mb-0.mt-2 Los datos del paciente serán completados posteriormente.
+          .row
+            .col-md-3
+              p.mb-2
+                strong.text-muted Sexo:
+                if plan.internacion && plan.internacion.isDesconocido === true
+                  span.ms-2.badge.bg-info Masculino
+                else if plan.internacion && plan.internacion.isDesconocido === false
+                  span.ms-2.badge.bg-pink Femenino
+                else
+                  span.ms-2.text-muted No especificado
+            .col-md-3
+              p.mb-2
+                strong.text-muted Ubicación:
+                span.ms-2= plan.internacion && plan.internacion.Cama && plan.internacion.Cama.Habitacion ? `Hab. ${plan.internacion.Cama.Habitacion.codigo} - Cama ${plan.internacion.Cama.numero_cama}` : '-'
+            .col-md-3
+              p.mb-2
+                strong.text-muted Fecha Internación:
+                span.ms-2= plan.internacion && plan.internacion.fecha_internacion ? new Date(plan.internacion.fecha_internacion).toLocaleDateString('es-AR') : '-'
+            .col-md-3
+              p.mb-2
+                strong.text-muted Internación:
+                span.ms-2 ID ##{plan.id_internacion}
 
     // Información del Plan de Cuidado
     .card.mb-4.shadow

@@ -336,25 +336,22 @@ module.exports = {
   // Interna un paciente de emergencia (anónimo)
   Create_emergencia_POST: async (req, res) => {
     try {
-      const { sexo, habitacion, cama } = req.body;
+      const { sexo, cama, detalle_motivo } = req.body;
 
-      // 4. Crear la internación usando el id de PacienteSeguro
-      let paciente_seguro = 2; // mujer por defecto
-      if(sexo === "Masculino"){
-        paciente_seguro = 1;
-      }
+      const motivoEmergencia = await Motivo.findOne({ where: { nombre: 'Emergencias y Urgencias' } });
 
       await Internacion.create({
-        id_paciente_seguro: paciente_seguro,
+        id_paciente_seguro: null,
         id_cama: cama,
         fecha_internacion: new Date(),
         estado: 'activa',
-        id_motivo: 1,
-        detalle_motivo: 'Internación de emergencia',
-        id_contactoEmergencia: 1
+        id_motivo: motivoEmergencia ? motivoEmergencia.id : null,
+        detalle_motivo: detalle_motivo || 'Sin detalles especificados',
+        id_contactoEmergencia: null,
+        isDesconocido: sexo === 'Masculino' ? true : false
       });
 
-      // 5. Cambiar estado de la cama y restar 1 a camas_disponibles
+      // 5. Cambiar estado de la cama
       const camaObj = await Cama.findByPk(cama);
       if (camaObj) await camaObj.update({ estado: 'ocupada' });
 

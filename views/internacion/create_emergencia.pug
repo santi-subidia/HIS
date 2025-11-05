@@ -11,7 +11,14 @@ block content
       | Solo se requiere sexo y ubicación. Los demás datos se completarán luego.
 
     if mensaje
-      .alert.alert-danger= mensaje
+      if mensaje.includes('exitosamente') || mensaje.includes('éxito')
+        .alert.alert-success
+          i.fas.fa-check-circle.me-2
+          = mensaje
+      else
+        .alert.alert-danger
+          i.fas.fa-exclamation-triangle.me-2
+          = mensaje
 
     .card.shadow.mb-5
       .card-body
@@ -23,6 +30,20 @@ block content
                 option(value="") Seleccione...
                 option(value="Masculino") Masculino
                 option(value="Femenino") Femenino
+
+          .row.mb-3
+            .col-md-12
+              label.form-label(for="detalleMotivo") 
+                | Detalle del Motivo
+                span.text-danger *
+              textarea#detalleMotivo.form-control(
+                name="detalle_motivo"
+                rows="4"
+                placeholder="Describa el motivo de la internación de emergencia (síntomas, condición, situación...)"
+                required
+                maxlength="1000"
+              )
+              .form-text Máximo 1000 caracteres
 
           hr
 

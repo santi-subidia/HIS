@@ -8,43 +8,66 @@ block content
         | Detalles de la Internación
 
   if internacion
-    // Información del Paciente
-    .card.mt-4.shadow
-      .card-header.bg-primary.text-white
-        h5.mb-0
-          i.fas.fa-user.me-2
-          | Información del Paciente
-        a.btn.btn-light.btn-sm.float-end(href=`/historial-medico/${internacion.PacienteSeguro && internacion.PacienteSeguro.paciente ? internacion.PacienteSeguro.paciente.id : '#'}` style="position: absolute; right: 15px; top: 12px;")
-          i.fas.fa-notes-medical.me-1
-          | Ver Historial Médico
+    if internacion.PacienteSeguro && internacion.PacienteSeguro.paciente
+      // Información del Paciente
+      .card.mt-4.shadow
+        .card-header.bg-primary.text-white
+          h5.mb-0
+            i.fas.fa-user.me-2
+            | Información del Paciente
+          a.btn.btn-light.btn-sm.float-end(href=`/historial-medico/${internacion.PacienteSeguro.paciente.id}` style="position: absolute; right: 15px; top: 12px;")
+            i.fas.fa-notes-medical.me-1
+            | Ver Historial Médico
       .card-body
         .row.mb-3
           .col-md-6
             p.mb-2
               strong.text-muted DNI:
-              span.ms-2= internacion.PacienteSeguro && internacion.PacienteSeguro.paciente ? internacion.PacienteSeguro.paciente.persona.DNI : '-'
+              span.ms-2= internacion.PacienteSeguro.paciente.persona.DNI
           .col-md-6
             p.mb-2
               strong.text-muted Nombre Completo:
-              span.ms-2= internacion.PacienteSeguro && internacion.PacienteSeguro.paciente ? internacion.PacienteSeguro.paciente.persona.nombre + ' ' + internacion.PacienteSeguro.paciente.persona.apellido : '-'
+              span.ms-2= internacion.PacienteSeguro.paciente.persona.nombre + ' ' + internacion.PacienteSeguro.paciente.persona.apellido
         .row.mb-3
           .col-md-6
             p.mb-2
               strong.text-muted Sexo:
-              span.ms-2= internacion.PacienteSeguro && internacion.PacienteSeguro.paciente ? internacion.PacienteSeguro.paciente.sexo : '-'
+              span.ms-2= internacion.PacienteSeguro.paciente.sexo
           .col-md-6
             p.mb-2
               strong.text-muted Fecha de Nacimiento:
-              span.ms-2= internacion.PacienteSeguro && internacion.PacienteSeguro.paciente && internacion.PacienteSeguro.paciente.fecha_nacimiento ? new Date(internacion.PacienteSeguro.paciente.fecha_nacimiento).toLocaleDateString('es-AR') : '-'
+              span.ms-2= internacion.PacienteSeguro.paciente.fecha_nacimiento ? new Date(internacion.PacienteSeguro.paciente.fecha_nacimiento).toLocaleDateString('es-AR') : '-'
         .row
           .col-md-6
             p.mb-2
               strong.text-muted Seguro Médico:
-              span.ms-2= internacion.PacienteSeguro && internacion.PacienteSeguro.seguro ? internacion.PacienteSeguro.seguro.nombre : '-'
+              span.ms-2= internacion.PacienteSeguro.seguro ? internacion.PacienteSeguro.seguro.nombre : '-'
           .col-md-6
             p.mb-2
               strong.text-muted Código de Afiliado:
-              span.ms-2= internacion.PacienteSeguro ? internacion.PacienteSeguro.codigo_afiliado : '-'
+              span.ms-2= internacion.PacienteSeguro.codigo_afiliado
+    else
+      // Paciente de Emergencia (Desconocido)
+      .card.mt-4.shadow
+        .card-header.bg-warning.text-dark
+          h5.mb-0
+            i.fas.fa-user-injured.me-2
+            | Paciente de Emergencia (Datos Desconocidos)
+        .card-body
+          .alert.alert-warning
+            i.fas.fa-exclamation-triangle.me-2
+            strong Internación de Emergencia
+            p.mb-0.mt-2 Este paciente fue internado de emergencia sin datos completos. Complete la información del paciente cuando esté disponible.
+          .row.mb-3
+            .col-md-12
+              p.mb-2
+                strong.text-muted Sexo del Paciente:
+                if internacion.isDesconocido === true
+                  span.ms-2.badge.bg-info Masculino
+                else if internacion.isDesconocido === false
+                  span.ms-2.badge.bg-pink Femenino
+                else
+                  span.ms-2.text-muted No especificado
 
     // Información de la Internación
     .card.mt-4.shadow
@@ -117,31 +140,32 @@ block content
               strong.text-muted Cama:
               span.ms-2= internacion.Cama ? 'Cama ' + internacion.Cama.numero_cama : '-'
 
-    // Contacto de Emergencia
-    .card.mt-4.shadow
-      .card-header.bg-danger.text-white
-        h5.mb-0
-          i.fas.fa-phone.me-2
-          | Contacto de Emergencia
-      .card-body
-        .row.mb-3
-          .col-md-6
-            p.mb-2
-              strong.text-muted Nombre:
-              span.ms-2= internacion.ContactoEmergencia && internacion.ContactoEmergencia.persona ? internacion.ContactoEmergencia.persona.nombre + ' ' + internacion.ContactoEmergencia.persona.apellido : '-'
-          .col-md-6
-            p.mb-2
-              strong.text-muted Parentesco:
-              span.ms-2= internacion.ContactoEmergencia && internacion.ContactoEmergencia.Parentesco ? internacion.ContactoEmergencia.Parentesco.nombre : '-'
-        .row
-          .col-md-6
-            p.mb-2
-              strong.text-muted DNI:
-              span.ms-2= internacion.ContactoEmergencia && internacion.ContactoEmergencia.persona ? internacion.ContactoEmergencia.persona.DNI : '-'
-          .col-md-6
-            p.mb-2
-              strong.text-muted Teléfono:
-              span.ms-2= internacion.ContactoEmergencia && internacion.ContactoEmergencia.persona ? internacion.ContactoEmergencia.persona.telefono : '-'
+    if internacion.ContactoEmergencia && internacion.ContactoEmergencia.persona
+      // Contacto de Emergencia
+      .card.mt-4.shadow
+        .card-header.bg-danger.text-white
+          h5.mb-0
+            i.fas.fa-phone.me-2
+            | Contacto de Emergencia
+        .card-body
+          .row.mb-3
+            .col-md-6
+              p.mb-2
+                strong.text-muted Nombre:
+                span.ms-2= internacion.ContactoEmergencia.persona.nombre + ' ' + internacion.ContactoEmergencia.persona.apellido
+            .col-md-6
+              p.mb-2
+                strong.text-muted Parentesco:
+                span.ms-2= internacion.ContactoEmergencia.Parentesco ? internacion.ContactoEmergencia.Parentesco.nombre : '-'
+          .row
+            .col-md-6
+              p.mb-2
+                strong.text-muted DNI:
+                span.ms-2= internacion.ContactoEmergencia.persona.DNI
+            .col-md-6
+              p.mb-2
+                strong.text-muted Teléfono:
+                span.ms-2= internacion.ContactoEmergencia.persona.telefono
 
     // Acciones
     .card.mt-4.shadow.border-primary
