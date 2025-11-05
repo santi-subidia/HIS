@@ -56,8 +56,13 @@ module.exports = {
           });
 
           const paciente = internacion?.PacienteSeguro?.paciente;
+          let sexoDesconocido = null;
+          if (internacion?.isDesconocido) {
+            // Si el sexo es desconocido, se considera compatible
+            sexoDesconocido = internacion.isDesconocido == 1 ? 'Masculino' : 'Femenino';
+          }
           // Si el sexo del paciente internado es diferente al nuevo paciente, no es compatible
-          if (paciente && String(paciente.sexo) !== String(sexo)) {
+          if ((paciente && String(paciente.sexo) !== String(sexo)) || (sexoDesconocido && String(sexoDesconocido) !== String(sexo))) {
             sexoCompatible = false;
             break;
           }
