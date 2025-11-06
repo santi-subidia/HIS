@@ -5,6 +5,12 @@ module.exports = (sequelize) => {
     static associate(models) {
       Medico.belongsTo(models.Persona, { foreignKey: 'id_persona', as: 'persona' });
       Medico.belongsTo(models.Especialidad, { foreignKey: 'id_especialidad', as: 'especialidad' });
+      
+      // Relación con Altas
+      Medico.hasMany(models.Alta, { foreignKey: 'id_medico', as: 'altas' });
+      
+      // Relación con Solicitudes Médicas
+      Medico.hasMany(models.Solicitud_medica, { foreignKey: 'id_medico', as: 'solicitudes_medicas' });
     }
   }
 

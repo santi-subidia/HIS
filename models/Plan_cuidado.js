@@ -11,6 +11,9 @@ module.exports = (sequelize) => {
         Plan_cuidado.belongsTo(models.Reseta, { foreignKey: 'id_reseta', as: 'reseta' });
         // Un plan de cuidado pertenece a un tipo
         Plan_cuidado.belongsTo(models.Tipo, { foreignKey: 'id_tipo', as: 'tipo' });
+        
+        // Un plan de cuidado final puede estar asociado a un alta
+        Plan_cuidado.hasOne(models.Alta, { foreignKey: 'id_plan_cuidado_final', as: 'alta' });
     }
   }
 

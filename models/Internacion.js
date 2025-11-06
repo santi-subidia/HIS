@@ -8,6 +8,15 @@ module.exports = (sequelize) => {
       Internacion.belongsTo(models.Cama, { foreignKey: 'id_cama' });
       Internacion.belongsTo(models.Motivo, { foreignKey: 'id_motivo' });
       Internacion.belongsTo(models.ContactoEmergencia, { foreignKey: 'id_contactoEmergencia', as: 'ContactoEmergencia' });
+      
+      // Relación con Alta (una internación puede tener un alta)
+      Internacion.hasOne(models.Alta, { foreignKey: 'id_internacion', as: 'alta' });
+      
+      // Relación con Solicitudes Médicas
+      Internacion.hasMany(models.Solicitud_medica, { foreignKey: 'id_internacion', as: 'solicitudes_medicas' });
+      
+      // Relación con Planes de Cuidado
+      Internacion.hasMany(models.Plan_cuidado, { foreignKey: 'id_internacion', as: 'planes_cuidado' });
     }
   }
 
