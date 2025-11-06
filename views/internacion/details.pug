@@ -18,34 +18,34 @@ block content
           a.btn.btn-light.btn-sm.float-end(href=`/historial-medico/${internacion.PacienteSeguro.paciente.id}` style="position: absolute; right: 15px; top: 12px;")
             i.fas.fa-notes-medical.me-1
             | Ver Historial Médico
-      .card-body
-        .row.mb-3
-          .col-md-6
-            p.mb-2
-              strong.text-muted DNI:
-              span.ms-2= internacion.PacienteSeguro.paciente.persona.DNI
-          .col-md-6
-            p.mb-2
-              strong.text-muted Nombre Completo:
-              span.ms-2= internacion.PacienteSeguro.paciente.persona.nombre + ' ' + internacion.PacienteSeguro.paciente.persona.apellido
-        .row.mb-3
-          .col-md-6
-            p.mb-2
-              strong.text-muted Sexo:
-              span.ms-2= internacion.PacienteSeguro.paciente.sexo
-          .col-md-6
-            p.mb-2
-              strong.text-muted Fecha de Nacimiento:
-              span.ms-2= internacion.PacienteSeguro.paciente.fecha_nacimiento ? new Date(internacion.PacienteSeguro.paciente.fecha_nacimiento).toLocaleDateString('es-AR') : '-'
-        .row
-          .col-md-6
-            p.mb-2
-              strong.text-muted Seguro Médico:
-              span.ms-2= internacion.PacienteSeguro.seguro ? internacion.PacienteSeguro.seguro.nombre : '-'
-          .col-md-6
-            p.mb-2
-              strong.text-muted Código de Afiliado:
-              span.ms-2= internacion.PacienteSeguro.codigo_afiliado
+        .card-body
+          .row.mb-3
+            .col-md-6
+              p.mb-2
+                strong.text-muted DNI:
+                span.ms-2= internacion.PacienteSeguro.paciente.persona.DNI
+            .col-md-6
+              p.mb-2
+                strong.text-muted Nombre Completo:
+                span.ms-2= internacion.PacienteSeguro.paciente.persona.nombre + ' ' + internacion.PacienteSeguro.paciente.persona.apellido
+          .row.mb-3
+            .col-md-6
+              p.mb-2
+                strong.text-muted Sexo:
+                span.ms-2= internacion.PacienteSeguro.paciente.sexo
+            .col-md-6
+              p.mb-2
+                strong.text-muted Fecha de Nacimiento:
+                span.ms-2= internacion.PacienteSeguro.paciente.fecha_nacimiento ? new Date(internacion.PacienteSeguro.paciente.fecha_nacimiento).toLocaleDateString('es-AR') : '-'
+          .row
+            .col-md-6
+              p.mb-2
+                strong.text-muted Seguro Médico:
+                span.ms-2= internacion.PacienteSeguro.seguro ? internacion.PacienteSeguro.seguro.nombre : '-'
+            .col-md-6
+              p.mb-2
+                strong.text-muted Código de Afiliado:
+                span.ms-2= internacion.PacienteSeguro.codigo_afiliado
     else
       // Paciente de Emergencia (Desconocido)
       .card.mt-4.shadow

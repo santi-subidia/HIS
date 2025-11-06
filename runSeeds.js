@@ -14,6 +14,8 @@ const anonimosSeed = require('./seeds/anonimo_seed');
 const tiposAntecedentesSeed = require('./seeds/tipos_antecedentes_seed');
 const internacionesSeed = require('./seeds/internaciones_seed');
 const enfermerosSeed = require('./seeds/enfermeros_seed');
+const categoriasTiposEstudiosSeed = require('./seeds/categorias_tipos_estudios_seed');
+const tiposEstudiosSeed = require('./seeds/tipos_estudios_seed');
 
 async function runSeeds() {
   try {
@@ -68,6 +70,14 @@ async function runSeeds() {
     // Sembrar tipos de antecedentes
     await tiposAntecedentesSeed.up();
     console.log('Seed de tipos de antecedentes ejecutado correctamente.');
+
+    // Sembrar categorías de tipos de estudios
+    await categoriasTiposEstudiosSeed();
+    console.log('Seed de categorías de tipos de estudios ejecutado correctamente.');
+
+    // Sembrar tipos de estudios
+    await tiposEstudiosSeed();
+    console.log('Seed de tipos de estudios ejecutado correctamente.');
 
     // Sembrar internaciones
     await internacionesSeed.up();
