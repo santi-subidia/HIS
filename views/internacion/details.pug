@@ -174,69 +174,95 @@ block content
           i.fas.fa-tasks.me-2
           | Acciones y Registros
       .card-body
-        .row
-          .col-md-4.mb-3
-            .card.h-100.border-primary
-              .card-body.text-center
-                i.fas.fa-heartbeat.fa-3x.text-primary.mb-3
-                h6.card-title Signos Vitales
-                p.card-text.text-muted Registrar y consultar signos vitales del paciente
-                a.btn.btn-primary.btn-sm(href=`/enfermeria/signos-vitales/registrar/${internacion.id}`)
-                  i.fas.fa-plus.me-1
-                  | Registrar
-                a.btn.btn-outline-primary.btn-sm.ms-2(href=`/enfermeria/signos-vitales/${internacion.id}`)
-                  i.fas.fa-list.me-1
-                  | Ver Historial
+        .row.g-3
+          // Signos Vitales
+          .col-md-6.col-lg-4
+            .card.h-100.border-primary.shadow-sm.hover-shadow(style="transition: transform 0.2s;")
+              .card-body.text-center.p-4
+                .mb-3
+                  i.fas.fa-heartbeat.fa-3x.text-primary
+                h5.card-title.mb-2 Signos Vitales
+                p.card-text.text-muted.small Registrar y consultar signos vitales del paciente
+                .d-grid.gap-2.mt-3
+                  a.btn.btn-primary.btn-sm(href=`/enfermeria/signos-vitales/registrar/${internacion.id}`)
+                    i.fas.fa-plus.me-1
+                    | Registrar
+                  a.btn.btn-outline-primary.btn-sm(href=`/enfermeria/signos-vitales/${internacion.id}`)
+                    i.fas.fa-list.me-1
+                    | Ver Historial
           
-          .col-md-4.mb-3
-            .card.h-100.border-success
-              .card-body.text-center
-                i.fas.fa-clipboard-list.fa-3x.text-success.mb-3
-                h6.card-title Plan de Cuidado
-                p.card-text.text-muted Crear y gestionar planes de cuidado
-                a.btn.btn-success.btn-sm(href=`/enfermeria/planes-cuidado/crear/${internacion.id}`)
-                  i.fas.fa-plus.me-1
-                  | Crear Plan
-                a.btn.btn-outline-success.btn-sm.ms-2(href=`/enfermeria/planes-cuidado/${internacion.id}`)
-                  i.fas.fa-list.me-1
-                  | Ver Planes
+          // Plan de Cuidado
+          .col-md-6.col-lg-4
+            .card.h-100.border-success.shadow-sm.hover-shadow(style="transition: transform 0.2s;")
+              .card-body.text-center.p-4
+                .mb-3
+                  i.fas.fa-clipboard-list.fa-3x.text-success
+                h5.card-title.mb-2 Plan de Cuidado
+                p.card-text.text-muted.small Crear y gestionar planes de cuidado
+                .d-grid.gap-2.mt-3
+                  a.btn.btn-success.btn-sm(href=`/enfermeria/planes-cuidado/crear/${internacion.id}`)
+                    i.fas.fa-plus.me-1
+                    | Crear Plan
+                  a.btn.btn-outline-success.btn-sm(href=`/enfermeria/planes-cuidado/${internacion.id}`)
+                    i.fas.fa-list.me-1
+                    | Ver Planes
           
-          .col-md-4.mb-3
-            .card.h-100.border-warning
-              .card-body.text-center
-                i.fas.fa-exchange-alt.fa-3x.text-warning.mb-3
-                h6.card-title Gestión
-                p.card-text.text-muted Dar de alta o trasladar paciente
-                a.btn.btn-warning.btn-sm(href=`/internacion/alta/${internacion.id}`)
-                  i.fas.fa-sign-out-alt.me-1
-                  | Dar de Alta
-                a.btn.btn-outline-warning.btn-sm.ms-2(href=`/internacion/traslado/${internacion.id}`)
-                  i.fas.fa-ambulance.me-1
-                  | Trasladar
+          // Solicitudes de Atención
+          .col-md-6.col-lg-4
+            .card.h-100.border-warning.shadow-sm.hover-shadow(style="transition: transform 0.2s;")
+              .card-body.text-center.p-4
+                .mb-3
+                  i.fas.fa-bell.fa-3x.text-warning
+                h5.card-title.mb-2 Solicitud de Atención
+                p.card-text.text-muted.small Notificar al equipo médico sobre situaciones urgentes
+                .d-grid.gap-2.mt-3
+                  a.btn.btn-warning.btn-sm(href=`/solicitudes-atencion/crear/${internacion.id}`)
+                    i.fas.fa-bell.me-1
+                    | Solicitar Atención
+          
+          // Estudios Médicos
+          .col-md-6.col-lg-4
+            .card.h-100.border-info.shadow-sm.hover-shadow(style="transition: transform 0.2s;")
+              .card-body.text-center.p-4
+                .mb-3
+                  i.fas.fa-microscope.fa-3x.text-info
+                h5.card-title.mb-2 Estudios Médicos
+                p.card-text.text-muted.small Solicitar estudios y ver resultados
+                .d-grid.gap-2.mt-3
+                  a.btn.btn-info.btn-sm(href=`/estudios/crear/${internacion.id}`)
+                    i.fas.fa-plus.me-1
+                    | Solicitar Estudio
+                  a.btn.btn-outline-info.btn-sm(href=`/estudios/historial/${internacion.id}`)
+                    i.fas.fa-list.me-1
+                    | Ver Historial
 
-        .row.mt-3
-          .col-md-6.mb-3
-            .card.h-100.border-danger
-              .card-body.text-center
-                i.fas.fa-bell.fa-3x.text-danger.mb-3
-                h6.card-title Solicitar Atención Médica
-                p.card-text.text-muted Notificar al equipo médico sobre situaciones que requieren evaluación
-                a.btn.btn-danger.btn-sm(href=`/solicitudes-atencion/crear/${internacion.id}`)
-                  i.fas.fa-bell.me-1
-                  | Solicitar Atención
+          // Dar de Alta (solo si está activa)
+          if internacion.estado === 'activa'
+            .col-md-6.col-lg-4
+              .card.h-100.border-danger.shadow-sm.hover-shadow(style="transition: transform 0.2s;")
+                .card-body.text-center.p-4
+                  .mb-3
+                    i.fas.fa-door-open.fa-3x.text-danger
+                  h5.card-title.mb-2 Dar de Alta
+                  p.card-text.text-muted.small Finalizar la internación del paciente
+                  .d-grid.gap-2.mt-3
+                    a.btn.btn-danger.btn-sm(href=`/alta/crear/${internacion.id}`)
+                      i.fas.fa-check-circle.me-1
+                      | Dar de Alta
           
-          .col-md-6.mb-3
-            .card.h-100.border-info
-              .card-body.text-center
-                i.fas.fa-microscope.fa-3x.text-info.mb-3
-                h6.card-title Estudios Médicos
-                p.card-text.text-muted Solicitar estudios y ver resultados
-                a.btn.btn-info.btn-sm(href=`/estudios/crear/${internacion.id}`)
-                  i.fas.fa-plus.me-1
-                  | Solicitar Estudio
-                a.btn.btn-outline-info.btn-sm.ms-2(href=`/estudios/historial/${internacion.id}`)
-                  i.fas.fa-list.me-1
-                  | Ver Historial
+          // Ver Alta (solo si ya tiene alta)
+          if internacion.estado === 'alta'
+            .col-md-6.col-lg-4
+              .card.h-100.border-secondary.shadow-sm.hover-shadow(style="transition: transform 0.2s;")
+                .card-body.text-center.p-4
+                  .mb-3
+                    i.fas.fa-file-medical.fa-3x.text-secondary
+                  h5.card-title.mb-2 Alta Registrada
+                  p.card-text.text-muted.small Ver detalles del alta del paciente
+                  .d-grid.gap-2.mt-3
+                    a.btn.btn-secondary.btn-sm(href=`/alta/details/${internacion.id}`)
+                      i.fas.fa-eye.me-1
+                      | Ver Detalles del Alta
 
     // Historial de Solicitudes de Atención
     if solicitudes && solicitudes.length > 0
@@ -327,3 +353,9 @@ block content
 
   else
     .alert.alert-warning.mt-4 Internación no encontrada.
+
+  style.
+    .hover-shadow:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15) !important;
+    }

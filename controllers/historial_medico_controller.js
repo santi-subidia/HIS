@@ -68,8 +68,12 @@ module.exports = {
         });
       }
 
-      // Obtener todos los tipos disponibles
-      const tipos = await Tipo.findAll();
+      // Obtener todos los tipos disponibles (solo para antecedentes)
+      const tipos = await Tipo.findAll({
+        where: {
+          nombre: ['Alergias', 'Cirugías', 'Enfermedades Previas', 'Antecedentes Familiares']
+        }
+      });
 
       res.render('historial_medico/index', {
         paciente,

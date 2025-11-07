@@ -1,0 +1,105 @@
+extends ../layout
+
+block content
+  .container.mt-4
+    if success
+      .alert.alert-success.alert-dismissible.fade.show(role='alert')
+        i.bi.bi-check-circle.me-2
+        = success
+        button.btn-close(type='button' data-bs-dismiss='alert')
+
+    .row
+      .col-md-12
+        .d-flex.justify-content-between.align-items-center.mb-3
+          h2 
+            i.bi.bi-file-medical-fill.text-success.me-2
+            | Detalles del Alta
+          div
+            a(href=`/internacion/details/${alta.id_internacion}`)
+              button.btn.btn-primary.me-2
+                i.bi.bi-hospital.me-1
+                | Ver Internación
+            a(href='/alta/listado')
+              button.btn.btn-secondary
+                i.bi.bi-list.me-1
+                | Listado de Altas
+
+    .row
+      // Columna izquierda: Info del paciente y médico
+      .col-md-6
+        .card.border-info.mb-3
+          .card-header.bg-info.text-white
+            i.bi.bi-person-fill.me-2
+            strong Información del Paciente
+          .card-body
+            p
+              strong Paciente: 
+              if alta.internacion.PacienteSeguro.isDesconocido
+                span.badge.bg-warning.text-dark Paciente No Identificado
+              else
+                = alta.internacion.PacienteSeguro.paciente.persona.nombre + ' ' + alta.internacion.PacienteSeguro.paciente.persona.apellido
+            p
+              strong Ubicación durante internación: 
+              = `Cama ${alta.internacion.Cama.numero_cama}`
+            p
+              strong Fecha de Ingreso: 
+              = new Date(alta.internacion.fecha_internacion).toLocaleDateString('es-AR')
+            p
+              strong Fecha de Alta: 
+              = new Date(alta.fecha_alta).toLocaleDateString('es-AR')
+            p
+              strong Duración de internación: 
+              = Math.ceil((new Date(alta.fecha_alta) - new Date(alta.internacion.fecha_internacion)) / (1000 * 60 * 60 * 24)) + ' días'
+
+        .card.border-success.mb-3
+          .card-header.bg-success.text-white
+            i.bi.bi-person-badge.me-2
+            strong Médico Responsable
+          .card-body
+            p
+              strong Nombre: 
+              = alta.medico.persona.nombre + ' ' + alta.medico.persona.apellido
+            p
+              strong Matrícula: 
+              = alta.medico.matricula
+
+      // Columna derecha: Info del alta
+      .col-md-6
+        .card.border-primary.mb-3
+          .card-header.bg-primary.text-white
+            i.bi.bi-clipboard-check.me-2
+            strong Información del Alta
+          .card-body
+            p
+              strong Tipo de Alta: 
+              if alta.tipo_alta === 'Medica'
+                span.badge.bg-success Médica
+              else if alta.tipo_alta === 'Voluntaria'
+                span.badge.bg-warning.text-dark Voluntaria
+              else if alta.tipo_alta === 'Defuncion'
+                span.badge.bg-dark Defunción
+              else if alta.tipo_alta === 'Traslado'
+                span.badge.bg-info Traslado
+            p
+              strong Plan de Cuidado Final: 
+              = alta.plan_cuidado_final.diagnostico
+            hr
+            p
+              strong Diagnóstico Final:
+            p.border.rounded.p-3.bg-light= alta.diagnostico_final
+
+        if alta.observaciones
+          .card.border-warning.mb-3
+            .card-header.bg-warning.text-dark
+              i.bi.bi-info-circle.me-2
+              strong Observaciones
+            .card-body
+              p= alta.observaciones
+
+        if alta.recomendaciones
+          .card.border-secondary.mb-3
+            .card-header.bg-secondary.text-white
+              i.bi.bi-prescription2.me-2
+              strong Recomendaciones Post-Alta
+            .card-body
+              p= alta.recomendaciones

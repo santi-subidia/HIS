@@ -1,0 +1,143 @@
+extends ../layout
+
+block content
+  .container.mt-4
+    .row
+      .col-md-12
+        .d-flex.justify-content-between.align-items-center.mb-3
+          h2 
+            i.bi.bi-file-medical-fill.text-danger.me-2
+            | Dar de Alta a Paciente
+          a(href=`/internacion/details/${internacion.id}`)
+            button.btn.btn-secondary
+              i.bi.bi-arrow-left.me-1
+              | Volver
+
+    .row
+      .col-md-12
+        .card.border-info.mb-4
+          .card-header.bg-info.text-white
+            i.bi.bi-person-fill.me-2
+            strong Información del Paciente
+          .card-body
+            .row
+              .col-md-6
+                p
+                  strong Paciente: 
+                  if internacion.PacienteSeguro.isDesconocido
+                    span.badge.bg-warning.text-dark Paciente No Identificado
+                  else
+                    = internacion.PacienteSeguro.paciente.persona.nombre + ' ' + internacion.PacienteSeguro.paciente.persona.apellido
+              .col-md-6
+                p
+                  strong Ubicación: 
+                  = `Cama ${internacion.Cama.numero_cama}`
+              .col-md-6
+                p
+                  strong Fecha de Ingreso: 
+                  = new Date(internacion.fecha_internacion).toLocaleDateString('es-AR')
+              .col-md-6
+                p
+                  strong Días de internación: 
+                  = Math.ceil((new Date() - new Date(internacion.fecha_internacion)) / (1000 * 60 * 60 * 24))
+
+    .row
+      .col-md-12
+        .card
+          .card-header.bg-primary.text-white
+            i.bi.bi-clipboard-check.me-2
+            strong Formulario de Alta
+          .card-body
+            if planesCuidadoFinales.length === 0
+              .alert.alert-warning
+                i.bi.bi-exclamation-triangle.me-2
+                strong Advertencia: 
+                | No hay planes de cuidado tipo "Final" para esta internación.
+                br
+                small Debe crear un plan de cuidado tipo "Final" antes de dar el alta.
+                br
+                a(href=`/plan-cuidado/crear/${internacion.id}`) 
+                  | Crear Plan de Cuidado Final
+
+            form(action='/alta/crear' method='POST')
+              input(type='hidden' name='id_internacion' value=internacion.id)
+
+              .mb-3
+                label.form-label(for='id_plan_cuidado_final')
+                  strong Plan de Cuidado Final 
+                  span.text-danger *
+                select.form-select(name='id_plan_cuidado_final' id='id_plan_cuidado_final' required disabled=planesCuidadoFinales.length === 0)
+                  option(value='') Seleccione un plan de cuidado
+                  each plan in planesCuidadoFinales
+                    option(value=plan.id)= `${plan.diagnostico} - ${new Date(plan.fecha).toLocaleDateString('es-AR')}`
+                small.form-text.text-muted Seleccione el plan de cuidado post-internación
+
+              .mb-3
+                label.form-label(for='tipo_alta')
+                  strong Tipo de Alta 
+                  span.text-danger *
+                select.form-select(name='tipo_alta' id='tipo_alta' required disabled=planesCuidadoFinales.length === 0)
+                  option(value='') Seleccione tipo de alta
+                  option(value='Medica') Médica
+                  option(value='Voluntaria') Voluntaria
+                  option(value='Defuncion') Defunción
+                  option(value='Traslado') Traslado
+
+              .mb-3
+                label.form-label(for='diagnostico_final')
+                  strong Diagnóstico Final 
+                  span.text-danger *
+                textarea.form-textarea(name='diagnostico_final' id='diagnostico_final' rows='4' required disabled=planesCuidadoFinales.length === 0 minlength='10' maxlength='1000')
+                .d-flex.justify-content-between
+                  small.form-text.text-muted Describa el diagnóstico final del paciente
+                  small.form-text.text-muted#diagnostico-counter 0 / 1000
+
+              .mb-3
+                label.form-label(for='observaciones')
+                  strong Observaciones 
+                  span.text-muted (Opcional)
+                textarea.form-textarea(name='observaciones' id='observaciones' rows='3' disabled=planesCuidadoFinales.length === 0 maxlength='1000')
+                .d-flex.justify-content-between
+                  small.form-text.text-muted Observaciones adicionales sobre el alta
+                  small.form-text.text-muted#observaciones-counter 0 / 1000
+
+              .mb-3
+                label.form-label(for='recomendaciones')
+                  strong Recomendaciones 
+                  span.text-muted (Opcional)
+                textarea.form-textarea(name='recomendaciones' id='recomendaciones' rows='3' disabled=planesCuidadoFinales.length === 0 maxlength='1000')
+                .d-flex.justify-content-between
+                  small.form-text.text-muted Recomendaciones post-alta para el paciente
+                  small.form-text.text-muted#recomendaciones-counter 0 / 1000
+
+              .d-grid.gap-2
+                button.btn.btn-danger.btn-lg(type='submit' disabled=planesCuidadoFinales.length === 0)
+                  i.bi.bi-check-circle.me-2
+                  | Registrar Alta
+
+  script.
+    // Contadores de caracteres
+    const diagnosticoTextarea = document.getElementById('diagnostico_final');
+    const diagnosticoCounter = document.getElementById('diagnostico-counter');
+    const observacionesTextarea = document.getElementById('observaciones');
+    const observacionesCounter = document.getElementById('observaciones-counter');
+    const recomendacionesTextarea = document.getElementById('recomendaciones');
+    const recomendacionesCounter = document.getElementById('recomendaciones-counter');
+
+    if (diagnosticoTextarea) {
+      diagnosticoTextarea.addEventListener('input', function() {
+        diagnosticoCounter.textContent = this.value.length + ' / 1000';
+      });
+    }
+
+    if (observacionesTextarea) {
+      observacionesTextarea.addEventListener('input', function() {
+        observacionesCounter.textContent = this.value.length + ' / 1000';
+      });
+    }
+
+    if (recomendacionesTextarea) {
+      recomendacionesTextarea.addEventListener('input', function() {
+        recomendacionesCounter.textContent = this.value.length + ' / 1000';
+      });
+    }
