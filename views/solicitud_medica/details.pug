@@ -1,0 +1,177 @@
+extends ../layout
+
+block content
+  .row
+    .col-lg-12.mb-4
+      h3.text-primary.mb-4
+        i.fas.fa-file-medical-alt.me-2
+        | Detalles del Estudio Médico
+
+  if solicitud
+    // Información del Paciente
+    .card.mb-4.shadow(class=solicitud.internacion.PacienteSeguro && solicitud.internacion.PacienteSeguro.paciente ? '' : 'border-warning')
+      .card-header(class=solicitud.internacion.PacienteSeguro && solicitud.internacion.PacienteSeguro.paciente ? 'bg-primary text-white' : 'bg-warning text-dark')
+        h5.mb-0
+          if solicitud.internacion.PacienteSeguro && solicitud.internacion.PacienteSeguro.paciente
+            i.fas.fa-user.me-2
+            | Información del Paciente
+          else
+            i.fas.fa-user-injured.me-2
+            | Paciente de Emergencia (Desconocido)
+      .card-body
+        if solicitud.internacion.PacienteSeguro && solicitud.internacion.PacienteSeguro.paciente
+          .row
+            .col-md-4
+              p.mb-2
+                strong.text-muted Nombre:
+                span.ms-2= solicitud.internacion.PacienteSeguro.paciente.persona.nombre + ' ' + solicitud.internacion.PacienteSeguro.paciente.persona.apellido
+            .col-md-4
+              p.mb-2
+                strong.text-muted DNI:
+                span.ms-2= solicitud.internacion.PacienteSeguro.paciente.persona.DNI
+            .col-md-4
+              p.mb-2
+                strong.text-muted Internación:
+                span.ms-2 ID ##{solicitud.id_internacion}
+        else
+          .alert.alert-warning.mb-3
+            i.fas.fa-exclamation-triangle.me-2
+            strong Paciente internado de emergencia
+            p.mb-0.mt-2 Los datos del paciente serán completados posteriormente.
+          .row
+            .col-md-4
+              p.mb-2
+                strong.text-muted Sexo:
+                if solicitud.internacion.isDesconocido === true
+                  span.ms-2.badge.bg-info Masculino
+                else if solicitud.internacion.isDesconocido === false
+                  span.ms-2.badge.bg-danger Femenino
+                else
+                  span.ms-2.text-muted No especificado
+            .col-md-4
+              p.mb-2
+                strong.text-muted Internación:
+                span.ms-2 ID ##{solicitud.id_internacion}
+            .col-md-4
+              p.mb-2
+                strong.text-muted Fecha Internación:
+                span.ms-2= solicitud.internacion.fecha_internacion ? new Date(solicitud.internacion.fecha_internacion).toLocaleDateString('es-AR') : '-'
+
+    // Información del Estudio
+    .card.mb-4.shadow
+      .card-header.bg-info.text-white
+        h5.mb-0
+          i.fas.fa-flask.me-2
+          | Información del Estudio
+      .card-body
+        .row.mb-3
+          .col-md-3
+            p.mb-2
+              strong.text-muted ID del Estudio:
+              span.ms-2 ##{solicitud.id}
+          .col-md-3
+            p.mb-2
+              strong.text-muted Categoría:
+              span.badge.bg-primary.ms-2= solicitud.tipo_estudio.categoria.nombre
+          .col-md-3
+            p.mb-2
+              strong.text-muted Tipo de Estudio:
+              span.ms-2= solicitud.tipo_estudio.nombre
+          .col-md-3
+            p.mb-2
+              strong.text-muted Estado:
+              if solicitud.fecha_completado
+                span.badge.bg-success.ms-2
+                  i.fas.fa-check-circle.me-1
+                  | Completado
+              else
+                span.badge.bg-warning.text-dark.ms-2
+                  i.fas.fa-clock.me-1
+                  | Pendiente
+        
+        .row.mb-3
+          .col-md-4
+            p.mb-2
+              strong.text-muted Fecha de Solicitud:
+              span.ms-2= new Date(solicitud.fecha_solicitud).toLocaleString('es-AR')
+          .col-md-4
+            p.mb-2
+              strong.text-muted Médico Solicitante:
+              span.ms-2= solicitud.medico.persona.apellido + ', ' + solicitud.medico.persona.nombre
+          .col-md-4
+            if solicitud.fecha_completado
+              p.mb-2
+                strong.text-muted Fecha de Completado:
+                span.ms-2= new Date(solicitud.fecha_completado).toLocaleString('es-AR')
+        
+        .row
+          .col-md-12
+            p.mb-2
+              strong.text-muted Indicación del Estudio:
+            .alert.alert-light.mb-0
+              p.mb-0= solicitud.descripcion
+
+    // Resultado del Estudio
+    if solicitud.fecha_completado
+      .card.mb-4.shadow
+        .card-header.bg-success.text-white
+          h5.mb-0
+            i.fas.fa-clipboard-check.me-2
+            | Resultado del Estudio
+        .card-body
+          .row
+            .col-md-12.mb-3
+              p.mb-2
+                strong.text-muted Interpretación/Resultado:
+              .alert.alert-light.mb-0
+                p.mb-0= solicitud.resultado
+          
+          if solicitud.url_file
+            hr
+            .row
+              .col-md-12
+                p.mb-2
+                  strong.text-muted Archivo Adjunto:
+                .text-center
+                  if solicitud.url_file.endsWith('.pdf')
+                    a.btn.btn-primary(href=solicitud.url_file target="_blank")
+                      i.fas.fa-file-pdf.me-2
+                      | Ver PDF
+                  else
+                    a(href=solicitud.url_file target="_blank")
+                      img(src=solicitud.url_file alt="Estudio" style="max-width: 100%; max-height: 600px; border: 1px solid #ddd; border-radius: 5px;")
+                    br
+                    a.btn.btn-primary.mt-2(href=solicitud.url_file target="_blank")
+                      i.fas.fa-download.me-2
+                      | Descargar Imagen
+    else
+      .card.mb-4.shadow.border-warning
+        .card-header.bg-warning.text-dark
+          h5.mb-0
+            i.fas.fa-clock.me-2
+            | Estudio Pendiente
+        .card-body
+          .alert.alert-warning.mb-0
+            i.fas.fa-exclamation-triangle.me-2
+            | Este estudio aún no tiene resultado cargado.
+            br
+            a.btn.btn-success.btn-sm.mt-3(href=`/estudios/cargar-resultado/${solicitud.id}`)
+              i.fas.fa-upload.me-1
+              | Cargar Resultado Ahora
+
+    // Botones de Navegación
+    .row.mt-4.mb-4
+      .col-12.d-flex.gap-2
+        a.btn.btn-secondary(href=`/estudios/historial/${solicitud.id_internacion}`)
+          i.fas.fa-arrow-left.me-2
+          | Volver al Historial
+        a.btn.btn-outline-primary(href=`/internacion/details/${solicitud.id_internacion}`)
+          i.fas.fa-bed.me-2
+          | Ver Internación
+        if !solicitud.fecha_completado
+          a.btn.btn-success(href=`/estudios/cargar-resultado/${solicitud.id}`)
+            i.fas.fa-upload.me-2
+            | Cargar Resultado
+
+  else
+    .alert.alert-warning.mt-4 Estudio no encontrado.

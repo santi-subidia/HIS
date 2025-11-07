@@ -215,7 +215,7 @@ block content
                   | Trasladar
 
         .row.mt-3
-          .col-md-12.mb-3
+          .col-md-6.mb-3
             .card.h-100.border-danger
               .card-body.text-center
                 i.fas.fa-bell.fa-3x.text-danger.mb-3
@@ -224,6 +224,19 @@ block content
                 a.btn.btn-danger.btn-sm(href=`/solicitudes-atencion/crear/${internacion.id}`)
                   i.fas.fa-bell.me-1
                   | Solicitar Atención
+          
+          .col-md-6.mb-3
+            .card.h-100.border-info
+              .card-body.text-center
+                i.fas.fa-microscope.fa-3x.text-info.mb-3
+                h6.card-title Estudios Médicos
+                p.card-text.text-muted Solicitar estudios y ver resultados
+                a.btn.btn-info.btn-sm(href=`/estudios/crear/${internacion.id}`)
+                  i.fas.fa-plus.me-1
+                  | Solicitar Estudio
+                a.btn.btn-outline-info.btn-sm.ms-2(href=`/estudios/historial/${internacion.id}`)
+                  i.fas.fa-list.me-1
+                  | Ver Historial
 
     // Historial de Solicitudes de Atención
     if solicitudes && solicitudes.length > 0

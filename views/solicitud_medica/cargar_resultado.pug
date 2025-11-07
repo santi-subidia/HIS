@@ -1,0 +1,139 @@
+extends ../layout
+
+block content
+  .row
+    .col-lg-12.mb-4
+      h3.text-success.mb-4
+        i.fas.fa-upload.me-2
+        | Cargar Resultado de Estudio
+
+  if solicitud
+    // Información del Estudio Solicitado
+    .card.mb-4.shadow
+      .card-header.bg-info.text-white
+        h5.mb-0
+          i.fas.fa-file-medical.me-2
+          | Información del Estudio
+      .card-body
+        .row.mb-3
+          .col-md-4
+            p.mb-2
+              strong.text-muted Tipo de Estudio:
+              br
+              span.badge.bg-primary.mt-1= solicitud.tipo_estudio.categoria.nombre
+              span.ms-2= solicitud.tipo_estudio.nombre
+          .col-md-4
+            p.mb-2
+              strong.text-muted Fecha de Solicitud:
+              br
+              span.mt-1= new Date(solicitud.fecha_solicitud).toLocaleString('es-AR')
+          .col-md-4
+            p.mb-2
+              strong.text-muted Paciente:
+              br
+              if solicitud.internacion.PacienteSeguro && solicitud.internacion.PacienteSeguro.paciente
+                span.mt-1= solicitud.internacion.PacienteSeguro.paciente.persona.nombre + ' ' + solicitud.internacion.PacienteSeguro.paciente.persona.apellido
+              else
+                span.badge.bg-warning.mt-1 Paciente Desconocido
+        
+        .row
+          .col-md-12
+            p.mb-2
+              strong.text-muted Indicación del Estudio:
+            .alert.alert-light.mb-0
+              p.mb-0= solicitud.descripcion
+
+    // Formulario para Cargar Resultado
+    .card.shadow
+      .card-header.bg-success.text-white
+        h5.mb-0
+          i.fas.fa-clipboard-check.me-2
+          | Cargar Resultado
+      .card-body
+        form(action=`/estudios/cargar-resultado/${solicitud.id}` method="POST" enctype="multipart/form-data")
+          
+          // Resultado/Interpretación
+          .row
+            .col-md-12.mb-3
+              label.form-label(for="resultado")
+                i.fas.fa-notes-medical.me-1
+                | Interpretación/Resultado del Estudio
+                span.text-danger *
+              textarea#resultado.form-control(
+                name="resultado"
+                rows="6"
+                required
+                minlength="10"
+                maxlength="1000"
+                placeholder="Describa los hallazgos, resultados e interpretación del estudio (10-1000 caracteres)"
+              )
+              .form-text 
+                span#charCount 0
+                |  / 1000 caracteres
+
+          // Archivo
+          .row
+            .col-md-12.mb-3
+              label.form-label(for="archivo")
+                i.fas.fa-file-upload.me-1
+                | Archivo del Estudio (opcional)
+              input#archivo.form-control(
+                type="file"
+                name="archivo"
+                accept=".jpg,.jpeg,.png,.pdf"
+              )
+              .form-text 
+                i.fas.fa-info-circle.me-1
+                | Formatos permitidos: JPG, PNG, PDF (máx 10MB)
+
+          // Información
+          .alert.alert-warning.mb-3
+            i.fas.fa-exclamation-triangle.me-2
+            strong Importante:
+            ul.mb-0.mt-2
+              li El estudio será marcado como <strong>Completado</strong>
+              li La fecha de completado se registrará automáticamente
+              li Si adjunta un archivo, podrá visualizarlo posteriormente
+
+          // Botones
+          .row
+            .col-md-12.d-flex.justify-content-end.gap-2
+              a.btn.btn-secondary(href=`/internacion/details/${solicitud.id_internacion}`)
+                i.fas.fa-times.me-1
+                | Cancelar
+              button.btn.btn-success(type="submit")
+                i.fas.fa-save.me-1
+                | Guardar Resultado
+
+  else
+    .alert.alert-warning.mt-4 Solicitud no encontrada.
+
+  // Script para contador de caracteres
+  script.
+    document.getElementById('resultado').addEventListener('input', function() {
+      const charCount = this.value.length;
+      const counter = document.getElementById('charCount');
+      counter.textContent = charCount;
+      
+      if (charCount > 1000) {
+        counter.classList.add('text-danger');
+        counter.classList.remove('text-muted');
+      } else if (charCount > 900) {
+        counter.classList.add('text-warning');
+        counter.classList.remove('text-danger', 'text-muted');
+      } else {
+        counter.classList.add('text-muted');
+        counter.classList.remove('text-danger', 'text-warning');
+      }
+    });
+    
+    // Mostrar nombre del archivo seleccionado
+    document.getElementById('archivo').addEventListener('change', function() {
+      const fileName = this.files[0]?.name;
+      if (fileName) {
+        const fileLabel = document.createElement('small');
+        fileLabel.className = 'text-success ms-2';
+        fileLabel.textContent = `Archivo seleccionado: ${fileName}`;
+        this.parentElement.appendChild(fileLabel);
+      }
+    });

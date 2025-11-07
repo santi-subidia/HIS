@@ -1,0 +1,145 @@
+extends ../layout
+
+block content
+  .row
+    .col-lg-12.mb-4
+      h3.text-primary.mb-4
+        i.fas.fa-microscope.me-2
+        | Solicitar Estudio Médico
+
+  if internacion
+    // Información del Paciente
+    .card.mb-4.shadow(class=internacion.PacienteSeguro && internacion.PacienteSeguro.paciente ? '' : 'border-warning')
+      .card-header(class=internacion.PacienteSeguro && internacion.PacienteSeguro.paciente ? 'bg-primary text-white' : 'bg-warning text-dark')
+        h5.mb-0
+          if internacion.PacienteSeguro && internacion.PacienteSeguro.paciente
+            i.fas.fa-user.me-2
+            | Información del Paciente
+          else
+            i.fas.fa-user-injured.me-2
+            | Paciente de Emergencia (Desconocido)
+      .card-body
+        if internacion.PacienteSeguro && internacion.PacienteSeguro.paciente
+          .row
+            .col-md-4
+              p.mb-2
+                strong.text-muted Nombre:
+                span.ms-2= internacion.PacienteSeguro.paciente.persona.nombre + ' ' + internacion.PacienteSeguro.paciente.persona.apellido
+            .col-md-4
+              p.mb-2
+                strong.text-muted DNI:
+                span.ms-2= internacion.PacienteSeguro.paciente.persona.DNI
+            .col-md-4
+              p.mb-2
+                strong.text-muted Ubicación:
+                span.ms-2= internacion.Cama && internacion.Cama.Habitacion ? `Hab. ${internacion.Cama.Habitacion.codigo} - Cama ${internacion.Cama.numero_cama}` : '-'
+        else
+          .alert.alert-warning.mb-3
+            i.fas.fa-exclamation-triangle.me-2
+            strong Paciente internado de emergencia
+            p.mb-0.mt-2 Los datos del paciente serán completados posteriormente.
+          .row
+            .col-md-4
+              p.mb-2
+                strong.text-muted Sexo:
+                if internacion.isDesconocido === true
+                  span.ms-2.badge.bg-info Masculino
+                else if internacion.isDesconocido === false
+                  span.ms-2.badge.bg-danger Femenino
+                else
+                  span.ms-2.text-muted No especificado
+            .col-md-4
+              p.mb-2
+                strong.text-muted Ubicación:
+                span.ms-2= internacion.Cama && internacion.Cama.Habitacion ? `Hab. ${internacion.Cama.Habitacion.codigo} - Cama ${internacion.Cama.numero_cama}` : '-'
+            .col-md-4
+              p.mb-2
+                strong.text-muted Fecha de Internación:
+                span.ms-2= internacion.fecha_internacion ? new Date(internacion.fecha_internacion).toLocaleDateString('es-AR') : '-'
+
+    // Formulario de Solicitud de Estudio
+    .card.shadow
+      .card-header.bg-primary.text-white
+        h5.mb-0
+          i.fas.fa-file-medical.me-2
+          | Nueva Solicitud de Estudio
+      .card-body
+        form(action="/estudios/crear" method="POST")
+          input(type="hidden" name="id_internacion" value=internacion.id)
+          
+          // Tipo de Estudio
+          .row
+            .col-md-12.mb-3
+              label.form-label(for="id_tipo_estudio")
+                i.fas.fa-flask.me-1
+                | Tipo de Estudio
+                span.text-danger *
+              select#id_tipo_estudio.form-select(name="id_tipo_estudio" required)
+                option(value="" disabled selected) Seleccione el tipo de estudio
+                - var currentCategoria = null;
+                each tipo in tipos_estudios
+                  if tipo.categoria && tipo.categoria.nombre !== currentCategoria
+                    - currentCategoria = tipo.categoria.nombre
+                    optgroup(label=currentCategoria)
+                  option(value=tipo.id)= tipo.nombre
+
+          // Descripción/Indicación
+          .row
+            .col-md-12.mb-3
+              label.form-label(for="descripcion")
+                i.fas.fa-comment-medical.me-1
+                | Indicación del Estudio
+                span.text-danger *
+              textarea#descripcion.form-control(
+                name="descripcion"
+                rows="4"
+                required
+                minlength="10"
+                maxlength="500"
+                placeholder="Describa la razón de la solicitud y qué se espera evaluar (10-500 caracteres)"
+              )
+              .form-text 
+                span#charCount 0
+                |  / 500 caracteres
+
+          // Información
+          .alert.alert-info.mb-3
+            i.fas.fa-info-circle.me-2
+            div
+              strong Nota:
+              ul.mb-0.mt-2
+                li El estudio quedará registrado con estado <strong>Pendiente</strong>
+                li Podrá cargar el resultado cuando lo reciba del laboratorio/técnico
+                li Puede adjuntar archivos (imágenes o PDFs) al cargar el resultado
+
+          // Botones
+          .row
+            .col-md-12.d-flex.justify-content-end.gap-2
+              a.btn.btn-secondary(href=`/internacion/details/${internacion.id}`)
+                i.fas.fa-times.me-1
+                | Cancelar
+              button.btn.btn-primary(type="submit")
+                i.fas.fa-paper-plane.me-1
+                | Solicitar Estudio
+
+  else
+    .alert.alert-warning.mt-4 Internación no encontrada.
+
+  // Script para contador de caracteres
+  script.
+    document.getElementById('descripcion').addEventListener('input', function() {
+      const charCount = this.value.length;
+      const counter = document.getElementById('charCount');
+      counter.textContent = charCount;
+      
+      if (charCount > 500) {
+        counter.classList.add('text-danger');
+        counter.classList.remove('text-muted');
+      } else if (charCount > 450) {
+        counter.classList.add('text-warning');
+        counter.classList.remove('text-danger', 'text-muted');
+      } else {
+        counter.classList.add('text-muted');
+        counter.classList.remove('text-danger', 'text-warning');
+      }
+    });

@@ -23,6 +23,7 @@ app.use('/enfermeria/signos-vitales', require('./routes/signos_vitales_routes'))
 app.use('/enfermeria/planes-cuidado', require('./routes/plan_cuidado_routes'));
 app.use('/recetas', require('./routes/receta_routes'));
 app.use('/solicitudes-atencion', require('./routes/solicitud_atencion_routes'));
+app.use('/estudios', require('./routes/solicitud_medica_routes'));
 app.use('/api', require('./routes/api_routes'));
 
 const PORT = process.env.PORT || 3000;
