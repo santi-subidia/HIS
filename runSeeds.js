@@ -17,6 +17,7 @@ const internacionesSeed = require('./seeds/internaciones_seed');
 const enfermerosSeed = require('./seeds/enfermeros_seed');
 const medicosSeed = require('./seeds/medicos_seed');
 const usuariosSeed = require('./seeds/usuarios_seed');
+const medicamentosSeed = require('./seeds/medicamentos_seed');
 const categoriasTiposEstudiosSeed = require('./seeds/categorias_tipos_estudios_seed');
 const tiposEstudiosSeed = require('./seeds/tipos_estudios_seed');
 
@@ -85,6 +86,10 @@ async function runSeeds() {
     // Sembrar tipos de antecedentes
     await tiposAntecedentesSeed.up();
     console.log('Seed de tipos de antecedentes ejecutado correctamente.');
+
+    // Sembrar medicamentos desde CSV
+    await medicamentosSeed.up();
+    console.log('Seed de medicamentos ejecutado correctamente.');
 
     // Sembrar categorías de tipos de estudios
     await categoriasTiposEstudiosSeed();
