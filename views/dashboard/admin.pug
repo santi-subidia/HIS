@@ -1,0 +1,134 @@
+extends ../layout
+
+block content
+  .container-fluid.mt-4
+    // Header
+    .row.mb-4
+      .col-md-12
+        .d-flex.justify-content-between.align-items-center
+          div
+            h2.text-danger
+              i.fas.fa-user-shield.me-2
+              | Dashboard Administrador
+            p.text-muted Bienvenido, #{usuario.nombre_completo}
+          div
+            a.btn.btn-danger(href='/logout')
+              i.fas.fa-sign-out-alt.me-2
+              | Cerrar Sesión
+
+    // Estadísticas Generales
+    .row.mb-4
+      .col-md-3
+        .card.border-primary.shadow-sm
+          .card-body.text-center
+            i.fas.fa-users.fa-3x.text-primary.mb-2
+            h3.mb-0= stats.totalPacientes
+            small.text-muted Total Pacientes
+      .col-md-3
+        .card.border-success.shadow-sm
+          .card-body.text-center
+            i.fas.fa-user-md.fa-3x.text-success.mb-2
+            h3.mb-0= stats.totalMedicos
+            small.text-muted Médicos
+      .col-md-3
+        .card.border-info.shadow-sm
+          .card-body.text-center
+            i.fas.fa-user-nurse.fa-3x.text-info.mb-2
+            h3.mb-0= stats.totalEnfermeros
+            small.text-muted Enfermeros
+      .col-md-3
+        .card.border-warning.shadow-sm
+          .card-body.text-center
+            i.fas.fa-user-lock.fa-3x.text-warning.mb-2
+            h3.mb-0= stats.totalUsuarios
+            small.text-muted Usuarios del Sistema
+
+    // Estadísticas de Internaciones
+    .row.mb-4
+      .col-md-12
+        .card.shadow
+          .card-header.bg-primary.text-white
+            h5.mb-0
+              i.fas.fa-hospital.me-2
+              | Internaciones
+          .card-body
+            .row.text-center
+              .col-md-4
+                i.fas.fa-bed.fa-3x.text-success.mb-2
+                h4= stats.internacionesActivas
+                small.text-muted Internaciones Activas
+              .col-md-4
+                i.fas.fa-clipboard-list.fa-3x.text-primary.mb-2
+                h4= stats.totalInternaciones
+                small.text-muted Total Histórico
+              .col-md-4
+                i.fas.fa-door-open.fa-3x.text-info.mb-2
+                h4= stats.totalAltas
+                small.text-muted Altas Registradas
+
+    // Estadísticas del Día
+    .row.mb-4
+      .col-md-12
+        .card.shadow
+          .card-header.bg-success.text-white
+            h5.mb-0
+              i.fas.fa-calendar-day.me-2
+              | Actividad de Hoy
+          .card-body
+            .row.text-center
+              .col-md-4
+                i.fas.fa-file-medical.fa-3x.text-success.mb-2
+                h4= stats.altasHoy
+                small.text-muted Altas Hoy
+              .col-md-4
+                i.fas.fa-calendar-check.fa-3x.text-info.mb-2
+                h4= stats.turnosHoy
+                small.text-muted Turnos Hoy
+              .col-md-4
+                i.fas.fa-microscope.fa-3x.text-warning.mb-2
+                h4= stats.estudiosPendientes
+                small.text-muted Estudios Pendientes
+
+    // Accesos Rápidos
+    .row
+      .col-md-12
+        .card.shadow
+          .card-header.bg-danger.text-white
+            h5.mb-0
+              i.fas.fa-tools.me-2
+              | Panel de Administración
+          .card-body
+            .row.g-3
+              .col-md-3
+                a.btn.btn-primary.btn-lg.w-100.h-100.d-flex.flex-column.align-items-center.justify-content-center(href='/paciente')
+                  i.fas.fa-users.fa-3x.mb-3
+                  | Pacientes
+              .col-md-3
+                a.btn.btn-success.btn-lg.w-100.h-100.d-flex.flex-column.align-items-center.justify-content-center(href='/internacion')
+                  i.fas.fa-hospital.fa-3x.mb-3
+                  | Internaciones
+              .col-md-3
+                a.btn.btn-info.btn-lg.w-100.h-100.d-flex.flex-column.align-items-center.justify-content-center(href='/turno')
+                  i.fas.fa-calendar-alt.fa-3x.mb-3
+                  | Turnos
+              .col-md-3
+                a.btn.btn-warning.btn-lg.w-100.h-100.d-flex.flex-column.align-items-center.justify-content-center(href='/habitacion')
+                  i.fas.fa-door-open.fa-3x.mb-3
+                  | Habitaciones
+              .col-md-3
+                a.btn.btn-secondary.btn-lg.w-100.h-100.d-flex.flex-column.align-items-center.justify-content-center(href='/estudios/pendientes')
+                  i.fas.fa-microscope.fa-3x.mb-3
+                  | Estudios Médicos
+              .col-md-3
+                a.btn.btn-dark.btn-lg.w-100.h-100.d-flex.flex-column.align-items-center.justify-content-center(href='/alta/listado')
+                  i.fas.fa-file-medical.fa-3x.mb-3
+                  | Altas
+              .col-md-3
+                a.btn.btn-outline-primary.btn-lg.w-100.h-100.d-flex.flex-column.align-items-center.justify-content-center(href='/solicitudes-atencion')
+                  i.fas.fa-bell.fa-3x.mb-3
+                  | Solicitudes
+              .col-md-3
+                a.btn.btn-outline-danger.btn-lg.w-100.h-100.d-flex.flex-column.align-items-center.justify-content-center(href='#')
+                  i.fas.fa-user-cog.fa-3x.mb-3
+                  | Usuarios
+                  small.text-muted (Próximamente)

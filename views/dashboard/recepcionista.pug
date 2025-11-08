@@ -1,0 +1,117 @@
+extends ../layout
+
+block content
+  .container-fluid.mt-4
+    // Header
+    .row.mb-4
+      .col-md-12
+        .d-flex.justify-content-between.align-items-center
+          div
+            h2.text-info
+              i.fas.fa-calendar-check.me-2
+              | Dashboard Recepcionista
+            p.text-muted Bienvenido, #{usuario.nombre_completo}
+          div
+            a.btn.btn-primary.me-2(href='/turno')
+              i.fas.fa-calendar-plus.me-1
+              | Gestionar Turnos
+            a.btn.btn-danger(href='/logout')
+              i.fas.fa-sign-out-alt.me-2
+              | Cerrar Sesión
+
+    // Estadísticas
+    .row.mb-4
+      .col-md-4
+        .card.border-info.shadow-sm
+          .card-body.text-center
+            i.fas.fa-calendar-day.fa-3x.text-info.mb-2
+            h3.mb-0= turnosHoy.length
+            small.text-muted Turnos Hoy
+      .col-md-4
+        .card.border-warning.shadow-sm
+          .card-body.text-center
+            i.fas.fa-clock.fa-3x.text-warning.mb-2
+            h3.mb-0= turnosPendientes
+            small.text-muted Pendientes
+      .col-md-4
+        .card.border-success.shadow-sm
+          .card-body.text-center
+            i.fas.fa-check-circle.fa-3x.text-success.mb-2
+            h3.mb-0= turnosAtendidos
+            small.text-muted Atendidos
+
+    // Turnos del día
+    .row
+      .col-md-12
+        .card.shadow
+          .card-header.bg-info.text-white
+            h5.mb-0
+              i.fas.fa-calendar-alt.me-2
+              | Turnos de Hoy - #{fechaHoy}
+          .card-body
+            if turnosHoy.length === 0
+              .alert.alert-info
+                i.fas.fa-info-circle.me-2
+                | No hay turnos programados para hoy
+
+            else
+              .table-responsive
+                table.table.table-hover.table-striped
+                  thead.table-dark
+                    tr
+                      th Hora
+                      th Paciente
+                      th DNI
+                      th Estado
+                      th Observaciones
+                      th Acciones
+                  tbody
+                    each turno in turnosHoy
+                      tr
+                        td
+                          strong= new Date(turno.fecha_turno).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })
+                        td= turno.paciente.persona.apellido + ', ' + turno.paciente.persona.nombre
+                        td= turno.paciente.persona.DNI
+                        td
+                          if turno.estado === 'Pendiente'
+                            span.badge.bg-warning Pendiente
+                          else if turno.estado === 'Atendido'
+                            span.badge.bg-success Atendido
+                          else if turno.estado === 'Cancelado'
+                            span.badge.bg-danger Cancelado
+                          else
+                            span.badge.bg-secondary= turno.estado
+                        td
+                          if turno.observaciones
+                            = turno.observaciones.substring(0, 50)
+                            if turno.observaciones.length > 50
+                              | ...
+                          else
+                            span.text-muted Sin observaciones
+                        td
+                          a.btn.btn-sm.btn-info(href=`/turno/details/${turno.id}`)
+                            i.fas.fa-eye.me-1
+                            | Ver
+
+    // Acceso rápido
+    .row.mt-4
+      .col-md-12
+        .card.shadow
+          .card-header.bg-light
+            h5.mb-0
+              i.fas.fa-bolt.me-2
+              | Accesos Rápidos
+          .card-body
+            .row.g-3
+              .col-md-4
+                a.btn.btn-primary.btn-lg.w-100(href='/paciente')
+                  i.fas.fa-users.fa-2x.mb-2.d-block
+                  | Gestión de Pacientes
+              .col-md-4
+                a.btn.btn-success.btn-lg.w-100(href='/internacion')
+                  i.fas.fa-hospital.fa-2x.mb-2.d-block
+                  | Internaciones
+              .col-md-4
+                a.btn.btn-info.btn-lg.w-100(href='/habitacion')
+                  i.fas.fa-door-open.fa-2x.mb-2.d-block
+                  | Disponibilidad de Camas

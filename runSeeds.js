@@ -1,5 +1,6 @@
 const { sequelize } = require('./models');
 
+const rolesSeed = require('./seeds/roles_seed');
 const provinciasSeed = require('./seeds/provincias_seed');
 const localidadesSeed = require('./seeds/localidades_seed');
 const tipoSangreSeed = require('./seeds/tipoSangre_seed');
@@ -15,11 +16,16 @@ const tiposAntecedentesSeed = require('./seeds/tipos_antecedentes_seed');
 const internacionesSeed = require('./seeds/internaciones_seed');
 const enfermerosSeed = require('./seeds/enfermeros_seed');
 const medicosSeed = require('./seeds/medicos_seed');
+const usuariosSeed = require('./seeds/usuarios_seed');
 const categoriasTiposEstudiosSeed = require('./seeds/categorias_tipos_estudios_seed');
 const tiposEstudiosSeed = require('./seeds/tipos_estudios_seed');
 
 async function runSeeds() {
   try {
+    // Sembrar roles
+    await rolesSeed.up();
+    console.log('Seed de roles ejecutado correctamente.');
+
     // Sembrar provincias
     await provinciasSeed.up();
     console.log('Seed de provincias ejecutado correctamente.');
@@ -59,6 +65,10 @@ async function runSeeds() {
     // Sembrar médicos
     await medicosSeed.up();
     console.log('Seed de médicos ejecutado correctamente.');
+
+    // Sembrar usuarios (después de médicos y enfermeros)
+    await usuariosSeed.up();
+    console.log('Seed de usuarios ejecutado correctamente.');
 
     // Sembrar motivos
     await motivosSeed.up();

@@ -1,8 +1,10 @@
 require('dotenv').config(); // Carga variables de entorno desde .env
 
 const express = require('express');
+const session = require('express-session');
 const path = require('path');
 const { sequelize } = require('./models');
+const { userLocals } = require('./middlewares/auth');
 
 const app = express();
 
@@ -11,6 +13,27 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
 app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, 'views'));
+
+// Configuración de sesiones
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'hospital-secret-key-change-in-production',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    maxAge: 1000 * 60 * 60 * 8, // 8 horas
+    httpOnly: true,
+    secure: false // true en producción con HTTPS
+  }
+}));
+
+// Middleware para pasar usuario a las vistas
+app.use(userLocals);
+
+// Rutas de autenticación (sin protección)
+app.use('/', require('./routes/auth_routes'));
+
+// Rutas de dashboards (protegidas por rol)
+app.use('/dashboard', require('./routes/dashboard_routes'));
 
 // Rutas principales
 app.get('/', (req, res) => res.render('index'));

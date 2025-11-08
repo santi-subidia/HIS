@@ -1,12 +1,18 @@
 const { Model, DataTypes } = require('sequelize');
+const bcrypt = require('bcrypt');
 
 module.exports = (sequelize) => {
   class Usuario extends Model {
     static associate(models) {
       // Un usuario puede estar asociado a una persona
-      Usuario.hasOne(models.Persona, { foreignKey: 'id_persona', as: 'persona' });
+      Usuario.belongsTo(models.Persona, { foreignKey: 'id_persona', as: 'persona' });
       // Un usuario tiene un rol
       Usuario.belongsTo(models.Rol, { foreignKey: 'id_rol', as: 'rol' });
+    }
+
+    // Método para comparar contraseñas
+    async validarPassword(password) {
+      return await bcrypt.compare(password, this.password);
     }
   }
 
@@ -16,7 +22,7 @@ module.exports = (sequelize) => {
       allowNull: false,
       validate: {
         isInt: { msg: "Debe ser un número entero" },
-        min: -1
+        min: 1
       }
     },
     usuario: {
@@ -24,10 +30,10 @@ module.exports = (sequelize) => {
       allowNull: false,
       unique: true,
       validate: {
-        notEmpty: { msg: "El nombre no puede estar vacío" },
+        notEmpty: { msg: "El nombre de usuario no puede estar vacío" },
         len: {
-          args: [2, 50],
-          msg: "El nombre debe tener entre 2 y 50 caracteres"
+          args: [3, 50],
+          msg: "El nombre de usuario debe tener entre 3 y 50 caracteres"
         }
       }
     },
@@ -38,7 +44,7 @@ module.exports = (sequelize) => {
         notEmpty: { msg: "La contraseña no puede estar vacía" },
         len: {
           args: [6, 100],
-          msg: "La contraseña debe tener entre 6 y 100 caracteres"
+          msg: "La contraseña debe tener al menos 6 caracteres"
         }
       }
     },
@@ -47,14 +53,28 @@ module.exports = (sequelize) => {
       allowNull: false,
       validate: {
         isInt: { msg: "Debe ser un número entero" },
-        min: -1
+        min: 1
       }
     }
   }, {
     sequelize,
     modelName: 'Usuario',
     tableName: 'usuarios',
-    timestamps: false
+    timestamps: false,
+    hooks: {
+      beforeCreate: async (usuario) => {
+        if (usuario.password) {
+          const salt = await bcrypt.genSalt(10);
+          usuario.password = await bcrypt.hash(usuario.password, salt);
+        }
+      },
+      beforeUpdate: async (usuario) => {
+        if (usuario.changed('password')) {
+          const salt = await bcrypt.genSalt(10);
+          usuario.password = await bcrypt.hash(usuario.password, salt);
+        }
+      }
+    }
   });
 
   return Usuario;

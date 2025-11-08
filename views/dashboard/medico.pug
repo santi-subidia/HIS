@@ -1,0 +1,99 @@
+extends ../layout
+
+block content
+  .container-fluid.mt-4
+    // Header
+    .row.mb-4
+      .col-md-12
+        .d-flex.justify-content-between.align-items-center
+          div
+            h2.text-primary
+              i.fas.fa-user-md.me-2
+              | Dashboard Médico
+            p.text-muted Bienvenido, #{usuario.nombre_completo}
+          div
+            a.btn.btn-danger(href='/logout')
+              i.fas.fa-sign-out-alt.me-2
+              | Cerrar Sesión
+
+    // Estadísticas
+    .row.mb-4
+      .col-md-3
+        .card.border-primary.shadow-sm
+          .card-body.text-center
+            i.fas.fa-hospital-user.fa-3x.text-primary.mb-2
+            h3.mb-0= totalInternaciones
+            small.text-muted Total Internaciones
+      .col-md-3
+        .card.border-danger.shadow-sm
+          .card-body.text-center
+            i.fas.fa-exclamation-circle.fa-3x.text-danger.mb-2
+            h3.mb-0= prioridadAlta
+            small.text-muted Prioridad Alta
+      .col-md-3
+        .card.border-warning.shadow-sm
+          .card-body.text-center
+            i.fas.fa-exclamation-triangle.fa-3x.text-warning.mb-2
+            h3.mb-0= prioridadMedia
+            small.text-muted Prioridad Media
+      .col-md-3
+        .card.border-info.shadow-sm
+          .card-body.text-center
+            i.fas.fa-info-circle.fa-3x.text-info.mb-2
+            h3.mb-0= prioridadBaja
+            small.text-muted Prioridad Baja
+
+    // Tabla de internaciones
+    .row
+      .col-md-12
+        .card.shadow
+          .card-header.bg-primary.text-white
+            h5.mb-0
+              i.fas.fa-bed.me-2
+              | Internaciones Activas
+          .card-body
+            if internaciones.length === 0
+              .alert.alert-info
+                i.fas.fa-info-circle.me-2
+                | No hay internaciones activas en este momento
+
+            else
+              .table-responsive
+                table.table.table-hover.table-striped
+                  thead.table-dark
+                    tr
+                      th Prioridad
+                      th Paciente
+                      th Ubicación
+                      th Motivo
+                      th Fecha Ingreso
+                      th Acciones
+                  tbody
+                    each internacion in internaciones
+                      tr
+                        td
+                          if internacion.prioridad === 'alta'
+                            span.badge.bg-danger 🔴 Alta
+                          else if internacion.prioridad === 'media'
+                            span.badge.bg-warning 🟡 Media
+                          else if internacion.prioridad === 'baja'
+                            span.badge.bg-info 🟢 Baja
+                          else
+                            span.badge.bg-secondary Sin asignar
+                        td
+                          if internacion.PacienteSeguro.isDesconocido
+                            span.badge.bg-warning.text-dark Paciente No Identificado
+                          else
+                            = internacion.PacienteSeguro.paciente.persona.apellido + ', ' + internacion.PacienteSeguro.paciente.persona.nombre
+                        td
+                          if internacion.Cama && internacion.Cama.Habitacion
+                            = internacion.Cama.Habitacion.Ala.Sector.nombre + ' - ' + internacion.Cama.Habitacion.codigo + ' - Cama ' + internacion.Cama.numero_cama
+                          else
+                            span.text-muted Sin cama asignada
+                        td= internacion.Motivo ? internacion.Motivo.nombre : '-'
+                        td
+                          small= new Date(internacion.fecha_internacion).toLocaleDateString('es-AR')
+                        td
+                          a.btn.btn-sm.btn-primary(href=`/internacion/details/${internacion.id}`)
+                            i.fas.fa-eye.me-1
+                            | Ver Detalles
