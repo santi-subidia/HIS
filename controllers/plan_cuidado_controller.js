@@ -5,7 +5,7 @@ module.exports = {
   Crear_GET: async (req, res) => {
     try {
       const { id } = req.params;
-      const { id_receta } = req.query;
+      const { id_receta, desde_alta, return: returnUrl } = req.query;
       
       // Buscar la internación con todos sus datos relacionados
       const internacion = await Internacion.findByPk(id, {
@@ -55,18 +55,21 @@ module.exports = {
         return res.status(404).send('Internación no encontrada');
       }
 
-      // Obtener tipos de planes de cuidado (Transitorio y Final)
-      const tipos = await Tipo.findAll({
-        where: {
-          nombre: ['Transitorio', 'Final']
-        },
-        order: [['nombre', 'ASC']]
+      // Determinar el tipo de plan automáticamente
+      const esFinal = desde_alta === 'true';
+      const nombreTipo = esFinal ? 'Final' : 'Transitorio';
+      
+      // Buscar el tipo correspondiente
+      const tipo = await Tipo.findOne({
+        where: { nombre: nombreTipo }
       });
 
       res.render('plan_cuidado/crear', { 
         internacion,
-        tipos,
+        tipoAutomatico: tipo.id,
+        esFinal: esFinal,
         id_receta: id_receta || null,
+        returnUrl: returnUrl || null,
         title: 'Crear Plan de Cuidado'
       });
     } catch (error) {
@@ -79,7 +82,7 @@ module.exports = {
   Crear_POST: async (req, res) => {
     try {
       const { id } = req.params;
-      const { id_tipo, diagnostico, tratamiento, id_reseta } = req.body;
+      const { id_tipo, diagnostico, tratamiento, id_reseta, returnUrl } = req.body;
 
       // Validar que la internación existe
       const internacion = await Internacion.findByPk(id);
@@ -103,7 +106,13 @@ module.exports = {
       });
 
       console.log(`Plan de cuidado creado para internación ${id}`);
-      res.redirect(`/internacion/details/${id}`);
+      
+      // Redirigir según el parámetro returnUrl o por defecto a detalles de internación
+      if (returnUrl) {
+        res.redirect(returnUrl);
+      } else {
+        res.redirect(`/internacion/details/${id}`);
+      }
     } catch (error) {
       console.error('Error al crear plan de cuidado:', error);
       res.status(500).send('Error al crear el plan de cuidado');

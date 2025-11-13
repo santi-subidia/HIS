@@ -37,8 +37,9 @@ block content
         | Prescripción de Medicamentos
     .card-body
       form#formReceta(action=`/recetas/crear${returnUrl ? '?return=' + returnUrl : ''}` method="POST")
-        // ID Historial
-        input(type="hidden" name="id_historial" value=(internacion && internacion.PacienteSeguro && internacion.PacienteSeguro.paciente.historialMedico ? internacion.PacienteSeguro.paciente.historialMedico.id : ''))
+        // ID Historial (oculto)
+        if internacion && internacion.PacienteSeguro && internacion.PacienteSeguro.paciente && internacion.PacienteSeguro.paciente.historialMedico
+          input(type="hidden" name="id_historial" value=internacion.PacienteSeguro.paciente.historialMedico.id)
 
         // Contenedor de medicamentos
         #medicamentosContainer

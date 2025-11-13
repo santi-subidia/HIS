@@ -48,35 +48,37 @@ block content
             i.bi.bi-clipboard-check.me-2
             strong Formulario de Alta
           .card-body
-            if planesCuidadoFinales.length === 0
+            if !planCuidadoFinal
               .alert.alert-warning
                 i.bi.bi-exclamation-triangle.me-2
-                strong Advertencia: 
-                | No hay planes de cuidado tipo "Final" para esta internación.
-                br
-                small Debe crear un plan de cuidado tipo "Final" antes de dar el alta.
-                br
-                a(href=`/plan-cuidado/crear/${internacion.id}`) 
+                strong Se requiere Plan de Cuidado Final
+                p.mb-2.mt-2 Debe crear un plan de cuidado tipo "Final" antes de dar el alta del paciente.
+                a.btn.btn-primary(href=`/enfermeria/planes-cuidado/crear/${internacion.id}?desde_alta=true&return=/alta/crear/${internacion.id}`) 
+                  i.bi.bi-clipboard-plus.me-2
                   | Crear Plan de Cuidado Final
+            else
+              .alert.alert-success.mb-4
+                i.bi.bi-check-circle.me-2
+                strong Plan de Cuidado Final Registrado
+                p.mb-0.mt-2
+                  strong Diagnóstico: 
+                  = planCuidadoFinal.diagnostico
+                  br
+                  strong Tratamiento: 
+                  = planCuidadoFinal.tratamiento
+                  br
+                  small.text-muted Fecha: #{new Date(planCuidadoFinal.fecha).toLocaleDateString('es-AR')}
 
             form(action='/alta/crear' method='POST')
               input(type='hidden' name='id_internacion' value=internacion.id)
-
-              .mb-3
-                label.form-label(for='id_plan_cuidado_final')
-                  strong Plan de Cuidado Final 
-                  span.text-danger *
-                select.form-select(name='id_plan_cuidado_final' id='id_plan_cuidado_final' required disabled=planesCuidadoFinales.length === 0)
-                  option(value='') Seleccione un plan de cuidado
-                  each plan in planesCuidadoFinales
-                    option(value=plan.id)= `${plan.diagnostico} - ${new Date(plan.fecha).toLocaleDateString('es-AR')}`
-                small.form-text.text-muted Seleccione el plan de cuidado post-internación
+              if planCuidadoFinal
+                input(type='hidden' name='id_plan_cuidado_final' value=planCuidadoFinal.id)
 
               .mb-3
                 label.form-label(for='tipo_alta')
                   strong Tipo de Alta 
                   span.text-danger *
-                select.form-select(name='tipo_alta' id='tipo_alta' required disabled=planesCuidadoFinales.length === 0)
+                select.form-select(name='tipo_alta' id='tipo_alta' required disabled=!planCuidadoFinal)
                   option(value='') Seleccione tipo de alta
                   option(value='Medica') Médica
                   option(value='Voluntaria') Voluntaria
@@ -87,7 +89,7 @@ block content
                 label.form-label(for='diagnostico_final')
                   strong Diagnóstico Final 
                   span.text-danger *
-                textarea.form-textarea(name='diagnostico_final' id='diagnostico_final' rows='4' required disabled=planesCuidadoFinales.length === 0 minlength='10' maxlength='1000')
+                textarea.form-textarea(name='diagnostico_final' id='diagnostico_final' rows='4' required disabled=!planCuidadoFinal minlength='10' maxlength='1000')
                 .d-flex.justify-content-between
                   small.form-text.text-muted Describa el diagnóstico final del paciente
                   small.form-text.text-muted#diagnostico-counter 0 / 1000
@@ -96,7 +98,7 @@ block content
                 label.form-label(for='observaciones')
                   strong Observaciones 
                   span.text-muted (Opcional)
-                textarea.form-textarea(name='observaciones' id='observaciones' rows='3' disabled=planesCuidadoFinales.length === 0 maxlength='1000')
+                textarea.form-textarea(name='observaciones' id='observaciones' rows='3' disabled=!planCuidadoFinal maxlength='1000')
                 .d-flex.justify-content-between
                   small.form-text.text-muted Observaciones adicionales sobre el alta
                   small.form-text.text-muted#observaciones-counter 0 / 1000
@@ -105,13 +107,13 @@ block content
                 label.form-label(for='recomendaciones')
                   strong Recomendaciones 
                   span.text-muted (Opcional)
-                textarea.form-textarea(name='recomendaciones' id='recomendaciones' rows='3' disabled=planesCuidadoFinales.length === 0 maxlength='1000')
+                textarea.form-textarea(name='recomendaciones' id='recomendaciones' rows='3' disabled=!planCuidadoFinal maxlength='1000')
                 .d-flex.justify-content-between
                   small.form-text.text-muted Recomendaciones post-alta para el paciente
                   small.form-text.text-muted#recomendaciones-counter 0 / 1000
 
               .d-grid.gap-2
-                button.btn.btn-danger.btn-lg(type='submit' disabled=planesCuidadoFinales.length === 0)
+                button.btn.btn-danger.btn-lg(type='submit' disabled=!planCuidadoFinal)
                   i.bi.bi-check-circle.me-2
                   | Registrar Alta
 

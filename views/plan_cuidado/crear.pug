@@ -70,51 +70,44 @@ block content
           | Registrar Plan de Cuidado
       .card-body
         form(action=`/enfermeria/planes-cuidado/crear/${internacion.id}` method="POST")
+          // Tipo de Plan (automático)
+          input(type="hidden" name="id_tipo" value=tipoAutomatico)
+          
+          // URL de retorno (si viene desde alta)
+          if returnUrl
+            input(type="hidden" name="returnUrl" value=returnUrl)
+          
+          if esFinal
+            .alert.alert-info.mb-3
+              i.fas.fa-info-circle.me-2
+              strong Plan Final de Cuidado
+              p.mb-0.mt-2 Este es el plan definitivo para el alta del paciente
+          else
+            .alert.alert-info.mb-3
+              i.fas.fa-info-circle.me-2
+              strong Plan Transitorio de Cuidado
+              p.mb-0.mt-2 Este plan tiene duración limitada durante la internación
+          
           .row
-            // Tipo de Plan
-            .col-md-6.mb-3
-              label.form-label(for="id_tipo")
-                i.fas.fa-tag.me-1
-                | Tipo de Plan
-                span.text-danger *
-              select#id_tipo.form-select(name="id_tipo" required)
-                option(value="" disabled selected) Seleccione un tipo
-                each tipo in tipos
-                  option(value=tipo.id)= tipo.nombre
-              .form-text 
-                strong Transitorio:
-                |  Plan con duración limitada (el de menor tiempo es el inicial)
-                br
-                strong Final:
-                |  Plan definitivo de cuidado
-
-            // ID de Receta (opcional)
-            .col-md-6.mb-3
-              label.form-label(for="id_reseta")
+            // Receta Médica (opcional)
+            .col-md-12.mb-3
+              label.form-label
                 i.fas.fa-prescription.me-1
                 | Receta Médica (opcional)
-              .input-group
-                input#id_reseta.form-control(
-                  type="number"
-                  name="id_reseta"
-                  min="1"
-                  placeholder="Ingrese el ID de la receta médica"
-                  value=id_receta || ''
-                  readonly=id_receta ? true : false
-                )
-                a#btnNuevaReceta.btn.btn-outline-primary(
-                  href=`/recetas/crear?id_internacion=${internacion.id}&return=/enfermeria/planes-cuidado/crear/${internacion.id}`
-                  title="Crear nueva receta médica"
-                )
-                  i.fas.fa-plus.me-1
-                  | Nueva Receta
-              .form-text 
-                i.fas.fa-info-circle.me-1
-                | Si el paciente necesita medicación, puede crear una nueva receta. El ID se completará automáticamente
               if id_receta
-                .alert.alert-success.mt-2.mb-0
+                input(type="hidden" name="id_reseta" value=id_receta)
+                .alert.alert-success.mb-0
                   i.fas.fa-check-circle.me-2
                   | Receta ##{id_receta} creada y vinculada correctamente
+              else
+                a.btn.btn-outline-primary.w-100(
+                  href=`/recetas/crear?id_internacion=${internacion.id}&return=/enfermeria/planes-cuidado/crear/${internacion.id}`
+                )
+                  i.fas.fa-plus.me-2
+                  | Crear Receta Médica
+                .form-text.mt-2
+                  i.fas.fa-info-circle.me-1
+                  | Si el paciente necesita medicación, puede crear una receta. Se vinculará automáticamente
 
           // Diagnóstico y Tratamiento
           .row

@@ -45,8 +45,8 @@ module.exports = {
         return res.status(400).send('Esta internación ya tiene un alta registrada');
       }
 
-      // Obtener planes de cuidado tipo "Final" de esta internación
-      const planesCuidadoFinales = await Plan_cuidado.findAll({
+      // Obtener el plan de cuidado tipo "Final" de esta internación (el más reciente)
+      const planCuidadoFinal = await Plan_cuidado.findOne({
         where: { id_internacion: id },
         include: [{
           model: Tipo,
@@ -59,7 +59,7 @@ module.exports = {
       res.render('alta/crear', {
         title: 'Dar de Alta a Paciente',
         internacion,
-        planesCuidadoFinales
+        planCuidadoFinal
       });
 
     } catch (error) {
