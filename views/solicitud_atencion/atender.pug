@@ -25,11 +25,11 @@ block content
                                             | #{solicitud.Internacion.PacienteSeguro.paciente.persona.apellido}, #{solicitud.Internacion.PacienteSeguro.paciente.persona.nombre}
                                         p.mb-2
                                             strong DNI: 
-                                            | #{solicitud.Internacion.PacienteSeguro.paciente.persona.dni}
+                                            | #{solicitud.Internacion.PacienteSeguro.paciente.persona.DNI}
                                     .col-md-6
                                         p.mb-2
                                             strong Ubicación: 
-                                            span.badge.bg-info.ms-2 Habitación #{solicitud.Internacion.Cama.Habitacion.numero} - Cama #{solicitud.Internacion.Cama.numero}
+                                            span.badge.bg-info.ms-2 Habitación #{solicitud.Internacion.Cama.Habitacion.codigo} - Cama #{solicitud.Internacion.Cama.numero_cama}
                                         p.mb-2
                                             strong Internación: 
                                             | ##{solicitud.id_internacion}
@@ -67,7 +67,7 @@ block content
                         hr
 
                         // Formulario de respuesta
-                        form(method='POST' action=`/solicitudes-atencion/atender/${solicitud.id_solicitud}`)
+                        form(method='POST' action=`/solicitudes-atencion/atender/${solicitud.id}`)
                             .card.border-primary
                                 .card-header.bg-primary.text-white
                                     h5.mb-0

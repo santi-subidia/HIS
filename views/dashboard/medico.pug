@@ -97,3 +97,54 @@ block content
                           a.btn.btn-sm.btn-primary(href=`/internacion/details/${internacion.id}`)
                             i.fas.fa-eye.me-1
                             | Ver Detalles
+
+    // Solicitudes de Atención Pendientes
+    if solicitudesPendientes && solicitudesPendientes.length > 0
+      .row.mt-4
+        .col-md-12
+          .card.shadow.border-warning
+            .card-header.bg-warning.text-dark
+              h5.mb-0
+                i.fas.fa-bell.me-2
+                | Solicitudes de Atención Pendientes
+                span.badge.bg-danger.ms-2 #{solicitudesPendientes.length}
+            .card-body
+              .table-responsive
+                table.table.table-hover.table-bordered
+                  thead.table-warning
+                    tr
+                      th Fecha
+                      th Paciente
+                      th Ubicación
+                      th Motivo
+                      th Enfermero
+                      th Acciones
+                  tbody
+                    each solicitud in solicitudesPendientes
+                      tr
+                        td
+                          small= new Date(solicitud.fecha_solicitud).toLocaleString('es-AR')
+                        td
+                          if solicitud.Internacion.PacienteSeguro.isDesconocido
+                            span.badge.bg-warning.text-dark Paciente No Identificado
+                          else
+                            = solicitud.Internacion.PacienteSeguro.paciente.persona.apellido + ', ' + solicitud.Internacion.PacienteSeguro.paciente.persona.nombre
+                        td
+                          if solicitud.Internacion.Cama && solicitud.Internacion.Cama.Habitacion
+                            = solicitud.Internacion.Cama.Habitacion.codigo + ' - Cama ' + solicitud.Internacion.Cama.numero_cama
+                          else
+                            span.text-muted Sin cama
+                        td
+                          strong.text-danger= solicitud.motivo
+                          br
+                          small.text-muted= solicitud.descripcion.substring(0, 60) + '...'
+                        td
+                          small= solicitud.Enfermero.persona.apellido + ', ' + solicitud.Enfermero.persona.nombre
+                        td.text-center
+                          .btn-group(role="group")
+                            a.btn.btn-sm.btn-success(href=`/solicitudes-atencion/atender/${solicitud.id_solicitud_atencion || solicitud.id}`)
+                              i.fas.fa-check.me-1
+                              | Atender
+                            a.btn.btn-sm.btn-info(href=`/internacion/details/${solicitud.Internacion.id}`)
+                              i.fas.fa-eye.me-1
+                              | Ver

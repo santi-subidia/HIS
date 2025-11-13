@@ -1,6 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const controller = require('../controllers/solicitud_medica_controller');
+const { requireAuth } = require('../middlewares/auth');
+
+// Proteger todas las rutas con autenticación
+router.use(requireAuth);
 
 // Crear solicitud
 router.get('/crear/:id', controller.Crear_GET);

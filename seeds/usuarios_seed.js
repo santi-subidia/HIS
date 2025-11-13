@@ -6,9 +6,10 @@ module.exports = {
       // Obtener roles
       const rolMedico = await Rol.findOne({ where: { nombre: 'Medico' } });
       const rolEnfermero = await Rol.findOne({ where: { nombre: 'Enfermero' } });
+      const rolRecepcionista = await Rol.findOne({ where: { nombre: 'Recepcionista' } });
       const rolAdmin = await Rol.findOne({ where: { nombre: 'Admin' } });
 
-      if (!rolMedico || !rolEnfermero || !rolAdmin) {
+      if (!rolMedico || !rolEnfermero || !rolRecepcionista || !rolAdmin) {
         console.error('❌ Error: Asegúrate de ejecutar el seed de roles primero');
         return;
       }
@@ -65,12 +66,20 @@ module.exports = {
 
       // Crear usuario admin (usar la primera persona disponible o crear una genérica)
       usuarios.push({
-        id_persona: 1, // Ajusta esto según tu BD
+        id_persona: 10, // Ajusta esto según tu BD
         usuario: 'admin',
         password: 'admin123',
         id_rol: rolAdmin.id
       });
       console.log('✅ Usuario admin preparado (usuario: admin, password: admin123)');
+
+      // Crear usuario recepcionista (usar la segunda persona disponible o crear una genérica)
+      usuarios.push({
+        id_persona: 11, // Ajusta esto según tu BD
+        usuario: 'recepcionista',
+        password: 'recepcionista123',
+        id_rol: rolRecepcionista.id
+      });
 
       // Insertar usuarios
       for (const usuario of usuarios) {
@@ -84,6 +93,7 @@ module.exports = {
       console.log('\n📝 Credenciales de prueba:');
       console.log('   Médico:     medico1 / 123456');
       console.log('   Enfermero:  enfermero1 / 123456');
+      console.log('   Recepcionista: recepcionista / recepcionista123');
       console.log('   Admin:      admin / admin123');
 
     } catch (error) {

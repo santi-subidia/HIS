@@ -207,37 +207,39 @@ block content
                     i.fas.fa-list.me-1
                     | Ver Planes
           
-          // Solicitudes de Atención
-          .col-md-6.col-lg-4
-            .card.h-100.border-warning.shadow-sm.hover-shadow(style="transition: transform 0.2s;")
-              .card-body.text-center.p-4
-                .mb-3
-                  i.fas.fa-bell.fa-3x.text-warning
-                h5.card-title.mb-2 Solicitud de Atención
-                p.card-text.text-muted.small Notificar al equipo médico sobre situaciones urgentes
-                .d-grid.gap-2.mt-3
-                  a.btn.btn-warning.btn-sm(href=`/solicitudes-atencion/crear/${internacion.id}`)
-                    i.fas.fa-bell.me-1
-                    | Solicitar Atención
+          // Solicitudes de Atención (solo Enfermeros)
+          if usuario.rol === 'Enfermero' || usuario.rol === 'Admin'
+            .col-md-6.col-lg-4
+              .card.h-100.border-warning.shadow-sm.hover-shadow(style="transition: transform 0.2s;")
+                .card-body.text-center.p-4
+                  .mb-3
+                    i.fas.fa-bell.fa-3x.text-warning
+                  h5.card-title.mb-2 Solicitud de Atención
+                  p.card-text.text-muted.small Notificar al equipo médico sobre situaciones urgentes
+                  .d-grid.gap-2.mt-3
+                    a.btn.btn-warning.btn-sm(href=`/solicitudes-atencion/crear/${internacion.id}`)
+                      i.fas.fa-bell.me-1
+                      | Solicitar Atención
           
-          // Estudios Médicos
-          .col-md-6.col-lg-4
-            .card.h-100.border-info.shadow-sm.hover-shadow(style="transition: transform 0.2s;")
-              .card-body.text-center.p-4
-                .mb-3
-                  i.fas.fa-microscope.fa-3x.text-info
-                h5.card-title.mb-2 Estudios Médicos
-                p.card-text.text-muted.small Solicitar estudios y ver resultados
-                .d-grid.gap-2.mt-3
-                  a.btn.btn-info.btn-sm(href=`/estudios/crear/${internacion.id}`)
-                    i.fas.fa-plus.me-1
-                    | Solicitar Estudio
-                  a.btn.btn-outline-info.btn-sm(href=`/estudios/historial/${internacion.id}`)
-                    i.fas.fa-list.me-1
-                    | Ver Historial
+          // Estudios Médicos (solo Médicos, Recepcionistas y Admin)
+          if usuario.rol === 'Medico' || usuario.rol === 'Recepcionista' || usuario.rol === 'Admin'
+            .col-md-6.col-lg-4
+              .card.h-100.border-info.shadow-sm.hover-shadow(style="transition: transform 0.2s;")
+                .card-body.text-center.p-4
+                  .mb-3
+                    i.fas.fa-microscope.fa-3x.text-info
+                  h5.card-title.mb-2 Estudios Médicos
+                  p.card-text.text-muted.small Solicitar estudios y ver resultados
+                  .d-grid.gap-2.mt-3
+                    a.btn.btn-info.btn-sm(href=`/estudios/crear/${internacion.id}`)
+                      i.fas.fa-plus.me-1
+                      | Solicitar Estudio
+                    a.btn.btn-outline-info.btn-sm(href=`/estudios/historial/${internacion.id}`)
+                      i.fas.fa-list.me-1
+                      | Ver Historial
 
-          // Dar de Alta (solo si está activa)
-          if internacion.estado === 'activa'
+          // Dar de Alta (solo Médicos, Recepcionistas y Admin - si está activa)
+          if internacion.estado === 'activa' && (usuario.rol === 'Medico' || usuario.rol === 'Recepcionista' || usuario.rol === 'Admin')
             .col-md-6.col-lg-4
               .card.h-100.border-danger.shadow-sm.hover-shadow(style="transition: transform 0.2s;")
                 .card-body.text-center.p-4

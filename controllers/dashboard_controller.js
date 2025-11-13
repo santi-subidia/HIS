@@ -1,4 +1,4 @@
-const { Internacion, PacienteSeguro, Paciente, Persona, Cama, Habitacion, Ala, Sector, Motivo, Turno } = require('../models');
+const { Internacion, PacienteSeguro, Paciente, Persona, Cama, Habitacion, Ala, Sector, Motivo, Turno, SolicitudAtencion, Enfermero } = require('../models');
 const { Op } = require('sequelize');
 
 module.exports = {
@@ -44,9 +44,57 @@ module.exports = {
         order: [['prioridad', 'DESC'], ['fecha_internacion', 'ASC']]
       });
 
+      // Obtener solicitudes de atención pendientes
+      const solicitudesPendientes = await SolicitudAtencion.findAll({
+        where: { estado: 'Pendiente' },
+        include: [
+          {
+            model: Internacion,
+            as: 'Internacion',
+            include: [
+              {
+                model: PacienteSeguro,
+                as: 'PacienteSeguro',
+                include: [{
+                  model: Paciente,
+                  as: 'paciente',
+                  include: [{
+                    model: Persona,
+                    as: 'persona'
+                  }]
+                }]
+              },
+              {
+                model: Cama,
+                as: 'Cama',
+                include: [{
+                  model: Habitacion,
+                  as: 'Habitacion'
+                }]
+              }
+            ]
+          },
+          {
+            model: Enfermero,
+            as: 'Enfermero',
+            include: [{
+              model: Persona,
+              as: 'persona'
+            }]
+          }
+        ],
+        order: [['fecha_solicitud', 'ASC']]
+      });
+
+      // Debug: ver qué campos tiene la solicitud
+      if (solicitudesPendientes.length > 0) {
+        console.log('Primera solicitud keys:', Object.keys(solicitudesPendientes[0].dataValues));
+      }
+
       res.render('dashboard/medico', {
         title: 'Dashboard Médico',
         internaciones,
+        solicitudesPendientes,
         totalInternaciones: internaciones.length,
         prioridadAlta: internaciones.filter(i => i.prioridad === 'alta').length,
         prioridadMedia: internaciones.filter(i => i.prioridad === 'media').length,
@@ -126,7 +174,7 @@ module.exports = {
 
       const turnosHoy = await Turno.findAll({
         where: {
-          fecha_turno: {
+          fecha: {
             [Op.gte]: hoy,
             [Op.lt]: mañana
           }
@@ -134,14 +182,17 @@ module.exports = {
         include: [
           {
             model: Paciente,
-            as: 'paciente',
+            as: 'Paciente',
             include: [{
               model: Persona,
               as: 'persona'
             }]
+          },
+          {
+            model: Motivo
           }
         ],
-        order: [['fecha_turno', 'ASC']]
+        order: [['fecha', 'ASC']]
       });
 
       const totalTurnos = await Turno.count();

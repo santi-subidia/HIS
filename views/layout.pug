@@ -28,49 +28,114 @@ html(lang="es")
     nav.navbar.navbar-expand-lg.navbar-dark.bg-primary.mb-4
       .container-fluid
         a.navbar-brand(href="/") HIS
-        button.navbar-toggler(type="button", data-bs-toggle="collapse", data-bs-target="#navbarNav")
-          span.navbar-toggler-icon
-        .collapse.navbar-collapse#navbarNav
-          ul.navbar-nav.me-auto
-            li.nav-item.dropdown
-              a.nav-link.dropdown-toggle(href="#" role="button" data-bs-toggle="dropdown") Admisión y Recepción
-              ul.dropdown-menu
-                // Pacientes
-                li.dropdown-submenu
-                  a.dropdown-item.dropdown-toggle(href="/paciente") Pacientes
+        
+        if usuario
+          button.navbar-toggler(type="button", data-bs-toggle="collapse", data-bs-target="#navbarNav")
+            span.navbar-toggler-icon
+          .collapse.navbar-collapse#navbarNav
+            ul.navbar-nav.me-auto
+              if usuario.rol === 'Recepcionista'
+                // Menú expandido para Recepcionista
+                li.nav-item.dropdown
+                  a.nav-link.dropdown-toggle(href="#" role="button" data-bs-toggle="dropdown") Pacientes
                   ul.dropdown-menu
+                    li
+                      a.dropdown-item(href="/paciente") Ver Pacientes
                     li
                       a.dropdown-item(href="/paciente/create") Registrar nuevo Paciente
-                // Internación
-                li.dropdown-submenu
-                  a.dropdown-item.dropdown-toggle(href="/internacion") Internación
+                
+                li.nav-item.dropdown
+                  a.nav-link.dropdown-toggle(href="#" role="button" data-bs-toggle="dropdown") Internación
                   ul.dropdown-menu
                     li
-                      a.dropdown-item(href="/internacion/create") Internacion de Paciente
-                // Turnos
-                li.dropdown-submenu
-                  a.dropdown-item.dropdown-toggle(href="/turno") Turnos
+                      a.dropdown-item(href="/internacion") Ver Internaciones
+                    li
+                      a.dropdown-item(href="/internacion/create") Internar Paciente
+                    li
+                      hr.dropdown-divider
+                    li
+                      a.dropdown-item.bg-danger.text-white(href="/internacion/create/emergencia") 
+                        i.fas.fa-ambulance.me-2
+                        | Emergencia
+                
+                li.nav-item.dropdown
+                  a.nav-link.dropdown-toggle(href="#" role="button" data-bs-toggle="dropdown") Turnos
                   ul.dropdown-menu
                     li
-                      a.dropdown-item(href="/turno/create") Crear turno
-                // Habitaciones
-                li.dropdown-submenu
-                  a.dropdown-item.dropdown-toggle(href="/habitacion") Habitaciones
+                      a.dropdown-item(href="/turno") Ver Turnos
+                    li
+                      a.dropdown-item(href="/turno/create") Crear Turno
+                
+                li.nav-item.dropdown
+                  a.nav-link.dropdown-toggle(href="#" role="button" data-bs-toggle="dropdown") Habitaciones
                   ul.dropdown-menu
                     li
-                      a.dropdown-item(href="/habitacion/") Gestión de Habitaciones
-                li
-                  a.dropdown-item.bg-danger.text-white(href="/internacion/create/emergencia") Emergencia
+                      a.dropdown-item(href="/habitacion") Gestión de Habitaciones
+              
+              else if usuario.rol === 'Admin'
+                // Menú agrupado para Admin
+                li.nav-item.dropdown
+                  a.nav-link.dropdown-toggle(href="#" role="button" data-bs-toggle="dropdown") Admisión y Recepción
+                  ul.dropdown-menu
+                    // Pacientes
+                    li.dropdown-submenu
+                      a.dropdown-item.dropdown-toggle(href="/paciente") Pacientes
+                      ul.dropdown-menu
+                        li
+                          a.dropdown-item(href="/paciente/create") Registrar nuevo Paciente
+                    // Internación
+                    li.dropdown-submenu
+                      a.dropdown-item.dropdown-toggle(href="/internacion") Internación
+                      ul.dropdown-menu
+                        li
+                          a.dropdown-item(href="/internacion/create") Internacion de Paciente
+                    // Turnos
+                    li.dropdown-submenu
+                      a.dropdown-item.dropdown-toggle(href="/turno") Turnos
+                      ul.dropdown-menu
+                        li
+                          a.dropdown-item(href="/turno/create") Crear turno
+                    // Habitaciones
+                    li.dropdown-submenu
+                      a.dropdown-item.dropdown-toggle(href="/habitacion") Habitaciones
+                      ul.dropdown-menu
+                        li
+                          a.dropdown-item(href="/habitacion/") Gestión de Habitaciones
+                    li
+                      a.dropdown-item.bg-danger.text-white(href="/internacion/create/emergencia") Emergencia
 
-            li.nav-item.dropdown
-              a.nav-link.dropdown-toggle(href="#" role="button" data-bs-toggle="dropdown") Enfermería
-              ul.dropdown-menu
-                // Internaciones
-                li.dropdown-submenu
-                  a.dropdown-item.dropdown-toggle(href="/internacion") Internaciones
+                li.nav-item.dropdown
+                  a.nav-link.dropdown-toggle(href="#" role="button" data-bs-toggle="dropdown") Enfermería
                   ul.dropdown-menu
-                    li
-                      a.dropdown-item(href="/internacion") Ver Internaciones Activas
+                    // Internaciones
+                    li.dropdown-submenu
+                      a.dropdown-item.dropdown-toggle(href="/internacion") Internaciones
+                      ul.dropdown-menu
+                        li
+                          a.dropdown-item(href="/internacion") Ver Internaciones Activas
+            
+            ul.navbar-nav.ms-auto
+              li.nav-item.dropdown
+                a.nav-link.dropdown-toggle(href="#" role="button" data-bs-toggle="dropdown")
+                  i.fas.fa-user-circle.me-2
+                  | #{usuario.nombre_completo}
+                ul.dropdown-menu.dropdown-menu-end
+                  li
+                    a.dropdown-item(href="/dashboard")
+                      i.fas.fa-tachometer-alt.me-2
+                      | Dashboard
+                  li
+                    hr.dropdown-divider
+                  li
+                    a.dropdown-item(href="/logout")
+                      i.fas.fa-sign-out-alt.me-2
+                      | Cerrar Sesión
+        else
+          ul.navbar-nav.ms-auto
+            li.nav-item
+              a.nav-link(href="/login")
+                i.fas.fa-sign-in-alt.me-2
+                | Iniciar Sesión
 
     .container
       block content

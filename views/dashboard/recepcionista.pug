@@ -62,32 +62,30 @@ block content
                       th Hora
                       th Paciente
                       th DNI
+                      th Motivo
                       th Estado
-                      th Observaciones
                       th Acciones
                   tbody
                     each turno in turnosHoy
                       tr
                         td
-                          strong= new Date(turno.fecha_turno).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })
-                        td= turno.paciente.persona.apellido + ', ' + turno.paciente.persona.nombre
-                        td= turno.paciente.persona.DNI
+                          strong= new Date(turno.fecha).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })
+                        td= turno.Paciente.persona.apellido + ', ' + turno.Paciente.persona.nombre
+                        td= turno.Paciente.persona.DNI
                         td
-                          if turno.estado === 'Pendiente'
+                          if turno.Motivo
+                            = turno.Motivo.nombre
+                          else
+                            span.text-muted Sin motivo
+                        td
+                          if turno.estado === 'pendiente'
                             span.badge.bg-warning Pendiente
-                          else if turno.estado === 'Atendido'
-                            span.badge.bg-success Atendido
-                          else if turno.estado === 'Cancelado'
+                          else if turno.estado === 'confirmado'
+                            span.badge.bg-success Confirmado
+                          else if turno.estado === 'cancelado'
                             span.badge.bg-danger Cancelado
                           else
                             span.badge.bg-secondary= turno.estado
-                        td
-                          if turno.observaciones
-                            = turno.observaciones.substring(0, 50)
-                            if turno.observaciones.length > 50
-                              | ...
-                          else
-                            span.text-muted Sin observaciones
                         td
                           a.btn.btn-sm.btn-info(href=`/turno/details/${turno.id}`)
                             i.fas.fa-eye.me-1

@@ -1,6 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const historialMedicoController = require('../controllers/historial_medico_controller');
+const { requireAuth } = require('../middlewares/auth');
+
+// Proteger todas las rutas con autenticación
+router.use(requireAuth);
 
 router.get('/:id', historialMedicoController.Index);
 

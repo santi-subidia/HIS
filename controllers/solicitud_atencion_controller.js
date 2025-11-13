@@ -62,18 +62,22 @@ const Crear_POST = async (req, res) => {
             });
         }
 
-        // TODO: Obtener id_enfermero del usuario logueado (por ahora hardcodeado)
-        const id_enfermero = 1;
+        // Obtener id_enfermero de la sesión
+        const id_enfermero = req.session.id_enfermero;
+        
+        if (!id_enfermero) {
+            return res.status(403).send('Debe ser enfermero para crear solicitudes de atención');
+        }
 
         await SolicitudAtencion.create({
-            id_internacion,
-            id_enfermero,
+            id_internacion: parseInt(id_internacion),
+            id_enfermero: parseInt(id_enfermero),
             motivo,
             descripcion,
             estado: 'Pendiente'
         });
 
-        res.redirect(`/enfermeria/internacion/details/${id_internacion}?success=solicitud`);
+        res.redirect(`/internacion/details/${id_internacion}?success=solicitud`);
     } catch (error) {
         console.error('Error al crear solicitud:', error);
         res.status(500).send('Error al crear la solicitud');
@@ -220,8 +224,12 @@ const Atender_POST = async (req, res) => {
             });
         }
 
-        // TODO: Obtener id_medico del usuario logueado (por ahora hardcodeado)
-        const id_medico = 1;
+        // Obtener id_medico de la sesión
+        const id_medico = req.session.id_medico;
+        
+        if (!id_medico) {
+            return res.status(403).send('Debe ser médico para responder solicitudes de atención');
+        }
 
         const solicitud = await SolicitudAtencion.findByPk(id);
         if (!solicitud) {
@@ -229,13 +237,13 @@ const Atender_POST = async (req, res) => {
         }
 
         await solicitud.update({
-            id_medico,
+            id_medico: parseInt(id_medico),
             estado,
             respuesta,
             fecha_respuesta: new Date()
         });
 
-        res.redirect('/solicitudes-atencion/pendientes?success=respondida');
+        res.redirect('/dashboard?success=solicitud_respondida');
     } catch (error) {
         console.error('Error al responder solicitud:', error);
         res.status(500).send('Error al responder la solicitud');
