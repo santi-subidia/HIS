@@ -89,7 +89,7 @@ block content
                   th.text-center Color Piel
                   th.text-center Respuesta
                   th Observaciones
-                  th Enfermero
+                  th Registrado por
               tbody
                 each registro in registros
                   tr
@@ -158,9 +158,9 @@ block content
                       else
                         span.text-muted Sin observaciones
                     td
-                      if registro.enfermero && registro.enfermero.persona
+                      if registro.persona
                         small
-                          = registro.enfermero.persona.nombre + ' ' + registro.enfermero.persona.apellido
+                          = registro.persona.nombre + ' ' + registro.persona.apellido
                       else
                         span.text-muted -
         else

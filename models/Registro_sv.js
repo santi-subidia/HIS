@@ -5,8 +5,8 @@ module.exports = (sequelize) => {
     static associate(models) {
       // Un registro de signos vitales pertenece a una internación
       Registro_sv.belongsTo(models.Internacion, { foreignKey: 'id_internacion', as: 'internacion' });
-      // Un registro de signos vitales es realizado por un enfermero
-      Registro_sv.belongsTo(models.Enfermero, { foreignKey: 'id_enfermero', as: 'enfermero' });
+      // Un registro de signos vitales es realizado por una persona (médico o enfermero)
+      Registro_sv.belongsTo(models.Persona, { foreignKey: 'id_persona', as: 'persona' });
     }
   }
 
@@ -19,12 +19,12 @@ module.exports = (sequelize) => {
         min: -1
       }
     },
-    id_enfermero: {
+    id_persona: {
       type: DataTypes.INTEGER,
         allowNull: false,
         validate: {
           isInt: { msg: "Debe ser un número entero" },
-          min: -1
+          min: 1
         }
     },
     presion_arterial_sistolica: {

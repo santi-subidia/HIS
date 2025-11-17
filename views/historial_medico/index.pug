@@ -121,7 +121,7 @@ block content
           p.text-muted.mb-0 Sin enfermedades previas registradas
 
     // Antecedentes Familiares
-    .card.mt-4.shadow-sm.mb-4
+    .card.mt-4.shadow-sm
       .card-header.bg-secondary.text-white
         h5.mb-0
           i.fas.fa-users.me-2
@@ -140,6 +140,58 @@ block content
                     i.fas.fa-trash
         else
           p.text-muted.mb-0 Sin antecedentes familiares registrados
+
+    // Historial de Internaciones
+    .card.mt-4.shadow-sm.mb-4
+      .card-header.bg-dark.text-white
+        h5.mb-0
+          i.fas.fa-hospital.me-2
+          | Historial de Internaciones en este Hospital
+      .card-body
+        if internaciones && internaciones.length > 0
+          .table-responsive
+            table.table.table-hover.align-middle
+              thead.table-light
+                tr
+                  th.text-center #
+                  th Fecha Ingreso
+                  th Motivo
+                  th Ubicación
+                  th Estado
+                  th Fecha Egreso
+                  th.text-center Acciones
+              tbody
+                each internacion, index in internaciones
+                  tr
+                    td.text-center= index + 1
+                    td= new Date(internacion.fecha_internacion).toLocaleDateString('es-AR')
+                    td
+                      strong= internacion.Motivo.nombre
+                      br
+                      small.text-muted= internacion.detalle_motivo.substring(0, 50) + (internacion.detalle_motivo.length > 50 ? '...' : '')
+                    td= `Cama ${internacion.Cama.numero_cama}`
+                    td
+                      if internacion.estado === 'alta'
+                        span.badge.bg-success Alta
+                      else if internacion.estado === 'traslado'
+                        span.badge.bg-info Traslado
+                      else
+                        span.badge.bg-warning Activa
+                    td
+                      if internacion.alta
+                        = new Date(internacion.alta.fecha_alta).toLocaleDateString('es-AR')
+                        br
+                        small.text-muted Tipo: #{internacion.alta.tipo_alta}
+                      else
+                        span.text-muted -
+                    td.text-center
+                      a.btn.btn-sm.btn-primary(href=`/historial-medico/${paciente.id}/internacion/${internacion.id}` title="Ver detalles completos")
+                        i.fas.fa-eye.me-1
+                        | Ver Detalle
+        else
+          .alert.alert-info.mb-0
+            i.fas.fa-info-circle.me-2
+            | Este paciente no tiene internaciones previas registradas en este hospital.
 
   else
     .alert.alert-warning.mt-4 Paciente no encontrado.

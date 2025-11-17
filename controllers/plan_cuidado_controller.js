@@ -91,8 +91,11 @@ module.exports = {
       }
 
       // TODO: Obtener id_persona del usuario autenticado
-      // Por ahora usamos id_persona = 1 como placeholder
-      const id_persona = req.session?.id_persona || 1;
+      const id_persona = req.session.usuario ? req.session.usuario.id_persona : null;
+
+      if (!id_persona) {
+        return res.status(401).send('Usuario no autenticado');
+      }
 
       // Crear el plan de cuidado
       await Plan_cuidado.create({

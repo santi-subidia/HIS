@@ -12,4 +12,7 @@ router.post('/agregar-antecedente', historialMedicoController.AgregarAntecedente
 
 router.post('/eliminar-antecedente/:id', historialMedicoController.EliminarAntecedente_POST);
 
+// Ver detalle completo de una internación histórica
+router.get('/:id_paciente/internacion/:id_internacion', historialMedicoController.VerInternacion_GET);
+
 module.exports = router;

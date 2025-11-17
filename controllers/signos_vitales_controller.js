@@ -45,14 +45,8 @@ const Index_GET = async (req, res) => {
       where: { id_internacion: id },
       include: [
         {
-          model: Enfermero,
-          as: 'enfermero',
-          include: [
-            {
-              model: Persona,
-              as: 'persona'
-            }
-          ]
+          model: Persona,
+          as: 'persona'
         }
       ],
       order: [['fecha', 'DESC']]
@@ -149,12 +143,18 @@ const Registrar_POST = async (req, res) => {
       temperatura,
       color_piel,
       respuesta_estimulos,
-      observaciones,
-      id_enfermero
+      observaciones
     } = req.body;
 
+    // Obtener id_persona del usuario autenticado (puede ser médico o enfermero)
+    const id_persona = req.session.usuario ? req.session.usuario.id_persona : null;
+    
+    if (!id_persona) {
+      return res.status(401).send('No se pudo identificar al usuario. Por favor, inicie sesión nuevamente.');
+    }
+
     // Verificar que la internación existe y está activa
-  const internacion = await Internacion.findByPk(id);
+    const internacion = await Internacion.findByPk(id);
     
     if (!internacion) {
       return res.status(404).send('Internación no encontrada');
@@ -167,7 +167,7 @@ const Registrar_POST = async (req, res) => {
     // Crear el registro de signos vitales
     const nuevoRegistro = await Registro_sv.create({
       id_internacion: id,
-      id_enfermero: id_enfermero || 1, // TODO: Usar el ID del enfermero logueado
+      id_persona: id_persona,
       presion_arterial_sistolica: presion_arterial_sistolica || null,
       presion_arterial_diastolica: presion_arterial_diastolica || null,
       frecuencia_cardiaca: frecuencia_cardiaca || null,

@@ -1,4 +1,4 @@
-const { Paciente, Persona, Historial_medico, Antecedente, Tipo } = require('../models');
+const { Paciente, Persona, Historial_medico, Antecedente, Tipo, PacienteSeguro, Internacion, Cama, Motivo, Alta, Medico, Registro_sv, Enfermero, Plan_cuidado, Solicitud_medica, TipoEstudio, CategoriaTipoEstudio, Reseta, Renglon_reseta, Medicamento } = require('../models');
 
 module.exports = {
   // Muestra el historial médico de un paciente
@@ -75,11 +75,49 @@ module.exports = {
         }
       });
 
+      // Obtener internaciones previas del paciente (solo las que tienen alta o traslado)
+      const pacienteSeguro = await PacienteSeguro.findOne({
+        where: { id_paciente: id }
+      });
+
+      let internaciones = [];
+      if (pacienteSeguro) {
+        internaciones = await Internacion.findAll({
+          where: { 
+            id_paciente_seguro: pacienteSeguro.id,
+            estado: ['alta', 'traslado'] // Solo internaciones finalizadas
+          },
+          include: [
+            {
+              model: Cama,
+              as: 'Cama'
+            },
+            {
+              model: Motivo,
+              as: 'Motivo'
+            },
+            {
+              model: Alta,
+              as: 'alta',
+              include: [
+                {
+                  model: Medico,
+                  as: 'medico',
+                  include: [{ model: Persona, as: 'persona' }]
+                }
+              ]
+            }
+          ],
+          order: [['fecha_internacion', 'DESC']]
+        });
+      }
+
       res.render('historial_medico/index', {
         paciente,
         historial,
         antecedentesPorTipo,
-        tipos
+        tipos,
+        internaciones
       });
     } catch (error) {
       console.error('Error en historial médico Index:', error);
@@ -130,6 +168,141 @@ module.exports = {
     } catch (error) {
       console.error('Error al eliminar antecedente:', error);
       res.status(500).send('Error al eliminar antecedente');
+    }
+  },
+
+  // Ver detalle completo de una internación histórica (solo lectura)
+  VerInternacion_GET: async (req, res) => {
+    try {
+      const { id_paciente, id_internacion } = req.params;
+
+      // Cargar paciente
+      const paciente = await Paciente.findByPk(id_paciente, {
+        include: [{ model: Persona, as: 'persona' }]
+      });
+
+      if (!paciente) {
+        return res.status(404).send('Paciente no encontrado');
+      }
+
+      // Cargar internación con todos los detalles
+      const internacion = await Internacion.findByPk(id_internacion, {
+        include: [
+          {
+            model: PacienteSeguro,
+            as: 'PacienteSeguro',
+            include: [{
+              model: Paciente,
+              as: 'paciente',
+              include: [{ model: Persona, as: 'persona' }]
+            }]
+          },
+          {
+            model: Cama,
+            as: 'Cama'
+          },
+          {
+            model: Motivo,
+            as: 'Motivo'
+          },
+          {
+            model: Alta,
+            as: 'alta',
+            include: [
+              {
+                model: Medico,
+                as: 'medico',
+                include: [{ model: Persona, as: 'persona' }]
+              },
+              {
+                model: Plan_cuidado,
+                as: 'plan_cuidado_final',
+                include: [
+                  { model: Tipo, as: 'tipo' },
+                  { model: Persona, as: 'persona' }
+                ]
+              }
+            ]
+          }
+        ]
+      });
+
+      if (!internacion) {
+        return res.status(404).send('Internación no encontrada');
+      }
+
+      // Verificar que la internación pertenece al paciente
+      const pacienteSeguro = await PacienteSeguro.findOne({
+        where: { id_paciente: id_paciente }
+      });
+
+      if (!pacienteSeguro || internacion.id_paciente_seguro !== pacienteSeguro.id) {
+        return res.status(403).send('Esta internación no pertenece al paciente');
+      }
+
+      // Cargar signos vitales
+      const signosVitales = await Registro_sv.findAll({
+        where: { id_internacion },
+        include: [
+          {
+            model: Persona,
+            as: 'persona'
+          }
+        ],
+        order: [['fecha', 'DESC']]
+      });
+
+      // Cargar planes de cuidado
+      const planesCuidado = await Plan_cuidado.findAll({
+        where: { id_internacion },
+        include: [
+          { model: Tipo, as: 'tipo' },
+          { model: Persona, as: 'persona' },
+          {
+            model: Reseta,
+            as: 'reseta',
+            include: [
+              {
+                model: Renglon_reseta,
+                as: 'renglones',
+                include: [{ model: Medicamento, as: 'medicamento' }]
+              }
+            ]
+          }
+        ],
+        order: [['fecha', 'DESC']]
+      });
+
+      // Cargar solicitudes médicas (estudios)
+      const solicitudesMedicas = await Solicitud_medica.findAll({
+        where: { id_internacion },
+        include: [
+          {
+            model: Medico,
+            as: 'medico',
+            include: [{ model: Persona, as: 'persona' }]
+          },
+          {
+            model: TipoEstudio,
+            as: 'tipo_estudio',
+            include: [{ model: CategoriaTipoEstudio, as: 'categoria' }]
+          }
+        ],
+        order: [['fecha_solicitud', 'DESC']]
+      });
+
+      res.render('historial_medico/ver_internacion', {
+        title: 'Detalle de Internación',
+        paciente,
+        internacion,
+        signosVitales,
+        planesCuidado,
+        solicitudesMedicas
+      });
+
+    } catch (error) {
+      console.error('Error al ver internación histórica:', error);
+      res.status(500).send('Error al cargar los detalles de la internación');
     }
   }
 };

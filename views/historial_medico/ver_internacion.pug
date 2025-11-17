@@ -1,0 +1,295 @@
+extends ../layout
+
+block content
+  .container.mt-4
+    .row
+      .col-md-12
+        .d-flex.justify-content-between.align-items-center.mb-3
+          h2 
+            i.fas.fa-hospital.text-primary.me-2
+            | Detalle de Internación
+          a(href=`/historial-medico/${paciente.id}`)
+            button.btn.btn-secondary
+              i.fas.fa-arrow-left.me-1
+              | Volver al Historial
+
+    // Alerta de solo lectura
+    .alert.alert-info.mb-4
+      i.fas.fa-info-circle.me-2
+      strong Modo Solo Lectura
+      | - Esta es una internación finalizada. Los datos se muestran únicamente con fines informativos.
+
+    // Información del Paciente
+    .row
+      .col-md-12
+        .card.border-primary.mb-4
+          .card-header.bg-primary.text-white
+            i.fas.fa-user.me-2
+            strong Información del Paciente
+          .card-body
+            .row
+              .col-md-4
+                p
+                  strong Paciente: 
+                  = paciente.persona.nombre + ' ' + paciente.persona.apellido
+              .col-md-4
+                p
+                  strong DNI: 
+                  = paciente.persona.DNI
+              .col-md-4
+                p
+                  strong Sexo: 
+                  = paciente.sexo
+
+    // Información de la Internación
+    .row
+      .col-md-12
+        .card.mb-4
+          .card-header.bg-info.text-white
+            i.fas.fa-bed.me-2
+            strong Datos de la Internación
+          .card-body
+            .row
+              .col-md-6
+                p
+                  strong Fecha de Ingreso: 
+                  = new Date(internacion.fecha_internacion).toLocaleDateString('es-AR')
+              .col-md-6
+                p
+                  strong Ubicación: 
+                  = `Cama ${internacion.Cama.numero_cama}`
+              .col-md-6
+                p
+                  strong Motivo: 
+                  = internacion.Motivo.nombre
+              .col-md-6
+                p
+                  strong Estado: 
+                  if internacion.estado === 'alta'
+                    span.badge.bg-success Alta
+                  else if internacion.estado === 'traslado'
+                    span.badge.bg-info Traslado
+              .col-md-12
+                p.mb-0
+                  strong Detalle del Motivo: 
+                  br
+                  = internacion.detalle_motivo
+
+    // Información del Alta (si existe)
+    if internacion.alta
+      .row
+        .col-md-12
+          .card.mb-4.border-success
+            .card-header.bg-success.text-white
+              i.fas.fa-check-circle.me-2
+              strong Información del Alta
+            .card-body
+              .row
+                .col-md-6
+                  p
+                    strong Fecha de Alta: 
+                    = new Date(internacion.alta.fecha_alta).toLocaleDateString('es-AR')
+                .col-md-6
+                  p
+                    strong Tipo de Alta: 
+                    span.badge.bg-primary= internacion.alta.tipo_alta
+                .col-md-6
+                  p
+                    strong Médico: 
+                    = internacion.alta.medico.persona.nombre + ' ' + internacion.alta.medico.persona.apellido
+                .col-md-12.mt-2
+                  p
+                    strong Diagnóstico Final: 
+                    br
+                    = internacion.alta.diagnostico_final
+                if internacion.alta.observaciones
+                  .col-md-12.mt-2
+                    p
+                      strong Observaciones: 
+                      br
+                      = internacion.alta.observaciones
+                if internacion.alta.recomendaciones
+                  .col-md-12.mt-2
+                    p
+                      strong Recomendaciones: 
+                      br
+                      = internacion.alta.recomendaciones
+
+    // Planes de Cuidado
+    .row
+      .col-md-12
+        .card.mb-4
+          .card-header.bg-warning.text-dark
+            i.fas.fa-clipboard-list.me-2
+            strong Planes de Cuidado (#{planesCuidado.length})
+          .card-body
+            if planesCuidado.length > 0
+              .accordion#accordionPlanes
+                each plan, index in planesCuidado
+                  .accordion-item
+                    h2.accordion-header(id=`headingPlan${index}`)
+                      button.accordion-button.collapsed(type="button" data-bs-toggle="collapse" data-bs-target=`#collapsePlan${index}` aria-expanded="false" aria-controls=`collapsePlan${index}`)
+                        strong= `Plan ${index + 1} - ${plan.tipo.nombre}`
+                        span.ms-2.text-muted= new Date(plan.fecha).toLocaleDateString('es-AR')
+                    div(id=`collapsePlan${index}` class="accordion-collapse collapse" aria-labelledby=`headingPlan${index}` data-bs-parent="#accordionPlanes")
+                      .accordion-body
+                        p
+                          strong Tipo: 
+                          span.badge.bg-secondary= plan.tipo.nombre
+                        p
+                          strong Fecha: 
+                          = new Date(plan.fecha).toLocaleDateString('es-AR')
+                        p
+                          strong Responsable: 
+                          = plan.persona.nombre + ' ' + plan.persona.apellido
+                        p
+                          strong Diagnóstico: 
+                          br
+                          = plan.diagnostico
+                        p
+                          strong Tratamiento: 
+                          br
+                          = plan.tratamiento
+                        if plan.reseta
+                          hr
+                          p
+                            strong 
+                              i.fas.fa-pills.me-2
+                              | Medicamentos Recetados:
+                          if plan.reseta.renglones && plan.reseta.renglones.length > 0
+                            .table-responsive
+                              table.table.table-sm.table-bordered
+                                thead.table-light
+                                  tr
+                                    th Medicamento
+                                    th Dosis
+                                    th Duración
+                                    th Indicaciones
+                                tbody
+                                  each renglon in plan.reseta.renglones
+                                    tr
+                                      td= renglon.medicamento.marca_comercial
+                                      td= renglon.dosis
+                                      td= renglon.duracion
+                                      td= renglon.indicaciones ? renglon.indicaciones : '-'
+                          else
+                            p.text-muted.small.mb-0 Sin medicamentos especificados
+            else
+              p.text-muted.mb-0 No se registraron planes de cuidado durante esta internación.
+
+    // Signos Vitales
+    .row
+      .col-md-12
+        .card.mb-4
+          .card-header.bg-danger.text-white
+            i.fas.fa-heartbeat.me-2
+            strong Signos Vitales (#{signosVitales.length} registros)
+          .card-body
+            if signosVitales.length > 0
+              .table-responsive
+                table.table.table-hover.table-sm
+                  thead.table-light
+                    tr
+                      th Fecha/Hora
+                      th Presión Arterial
+                      th Freq. Cardíaca
+                      th Freq. Respiratoria
+                      th Temperatura
+                      th Registrado por
+                  tbody
+                    each sv in signosVitales
+                      tr
+                        td= new Date(sv.fecha).toLocaleString('es-AR')
+                        td
+                          if sv.presion_arterial_sistolica && sv.presion_arterial_diastolica
+                            = `${sv.presion_arterial_sistolica}/${sv.presion_arterial_diastolica} mmHg`
+                          else
+                            span.text-muted -
+                        td
+                          if sv.frecuencia_cardiaca
+                            = `${sv.frecuencia_cardiaca} bpm`
+                          else
+                            span.text-muted -
+                        td
+                          if sv.frecuencia_respiratoria
+                            = `${sv.frecuencia_respiratoria} rpm`
+                          else
+                            span.text-muted -
+                        td
+                          if sv.temperatura
+                            = `${sv.temperatura} °C`
+                          else
+                            span.text-muted -
+                        td= sv.persona.nombre + ' ' + sv.persona.apellido
+            else
+              p.text-muted.mb-0 No se registraron signos vitales durante esta internación.
+
+    // Solicitudes Médicas (Estudios)
+    .row
+      .col-md-12
+        .card.mb-4
+          .card-header.bg-primary.text-white
+            i.fas.fa-flask.me-2
+            strong Estudios y Solicitudes Médicas (#{solicitudesMedicas.length})
+          .card-body
+            if solicitudesMedicas.length > 0
+              .accordion#accordionEstudios
+                each solicitud, index in solicitudesMedicas
+                  .accordion-item
+                    h2.accordion-header(id=`headingEstudio${index}`)
+                      button.accordion-button.collapsed(type="button" data-bs-toggle="collapse" data-bs-target=`#collapseEstudio${index}` aria-expanded="false" aria-controls=`collapseEstudio${index}`)
+                        strong= solicitud.tipo_estudio.nombre
+                        span.ms-2
+                          if solicitud.fecha_completado
+                            span.badge.bg-success Completado
+                          else
+                            span.badge.bg-warning.text-dark Pendiente
+                        span.ms-2.text-muted= new Date(solicitud.fecha_solicitud).toLocaleDateString('es-AR')
+                    div(id=`collapseEstudio${index}` class="accordion-collapse collapse" aria-labelledby=`headingEstudio${index}` data-bs-parent="#accordionEstudios")
+                      .accordion-body
+                        p
+                          strong Tipo de Estudio: 
+                          = solicitud.tipo_estudio.nombre
+                        p
+                          strong Categoría: 
+                          span.badge.bg-info= solicitud.tipo_estudio.categoria.nombre
+                        p
+                          strong Médico Solicitante: 
+                          = solicitud.medico.persona.nombre + ' ' + solicitud.medico.persona.apellido
+                        p
+                          strong Fecha de Solicitud: 
+                          = new Date(solicitud.fecha_solicitud).toLocaleString('es-AR')
+                        p
+                          strong Descripción: 
+                          br
+                          = solicitud.descripcion
+                        if solicitud.resultado
+                          hr
+                          p
+                            strong Resultado: 
+                            br
+                            = solicitud.resultado
+                          p
+                            strong Fecha Completado: 
+                            = new Date(solicitud.fecha_completado).toLocaleString('es-AR')
+                        if solicitud.url_file
+                          hr
+                          p
+                            strong Archivo Adjunto: 
+                            br
+                            a.btn.btn-sm.btn-outline-primary(href=solicitud.url_file target="_blank")
+                              i.fas.fa-download.me-1
+                              | Descargar Archivo
+                        if !solicitud.fecha_completado && !solicitud.resultado
+                          .alert.alert-warning.mt-2.mb-0
+                            i.fas.fa-clock.me-2
+                            | Este estudio quedó pendiente al momento del alta.
+            else
+              p.text-muted.mb-0 No se solicitaron estudios durante esta internación.
+
+    // Botón volver
+    .row.mb-4
+      .col-md-12.text-center
+        a.btn.btn-lg.btn-secondary(href=`/historial-medico/${paciente.id}`)
+          i.fas.fa-arrow-left.me-2
+          | Volver al Historial Médico
