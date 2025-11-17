@@ -196,5 +196,90 @@ module.exports = {
       console.error('Error al buscar medicamentos:', error);
       res.status(500).json({ error: 'Error al buscar medicamentos' });
     }
+  },
+
+  // Buscar paciente por DNI para completar datos de emergencia
+  buscarPacienteCompletoDNI: async (req, res) => {
+    const { dni } = req.params;
+    const { Seguro, TipoSangre, Localidad } = require('../models');
+    
+    try {
+      // 1. Buscar persona (reutilizando lógica)
+      const persona = await Persona.findOne({ where: { DNI: dni } });
+      
+      if (!persona) {
+        return res.json({ persona: null, paciente: null, pacienteSeguro: null });
+      }
+
+      // 2. Buscar paciente
+      const paciente = await Paciente.findOne({
+        where: { id_persona: persona.id },
+        include: [
+          { model: TipoSangre, as: 'tipoSangre' },
+          { model: Localidad, as: 'localidad' }
+        ]
+      });
+
+      if (!paciente) {
+        return res.json({ persona, paciente: null, pacienteSeguro: null });
+      }
+
+      // 3. Buscar pacienteSeguro
+      const pacienteSeguro = await PacienteSeguro.findOne({
+        where: { id_paciente: paciente.id },
+        include: [{ model: Seguro, as: 'seguro' }]
+      });
+
+      // 4. Verificar si tiene internación activa
+      let internacionActiva = null;
+      if (pacienteSeguro) {
+        internacionActiva = await Internacion.findOne({
+          where: { 
+            id_paciente_seguro: pacienteSeguro.id, 
+            estado: 'activa' 
+          }
+        });
+      }
+
+      res.json({
+        persona,
+        paciente,
+        pacienteSeguro,
+        seguro: pacienteSeguro ? pacienteSeguro.seguro : null,
+        tieneInternacionActiva: internacionActiva !== null
+      });
+    } catch (error) {
+      console.error('Error al buscar paciente completo:', error);
+      res.status(500).json({ error: 'Error al buscar paciente' });
+    }
+  },
+
+  // Buscar contacto de emergencia por DNI
+  buscarContactoPorDNI: async (req, res) => {
+    const { dni } = req.params;
+    const { Parentesco } = require('../models');
+    
+    try {
+      // 1. Buscar persona (reutilizando lógica)
+      const persona = await Persona.findOne({ where: { DNI: dni } });
+      
+      if (!persona) {
+        return res.json({ persona: null, contacto: null });
+      }
+
+      // 2. Buscar contacto de emergencia
+      const contacto = await ContactoEmergencia.findOne({
+        where: { id_persona: persona.id },
+        include: [{ model: Parentesco }]
+      });
+
+      res.json({
+        persona,
+        contacto
+      });
+    } catch (error) {
+      console.error('Error al buscar contacto:', error);
+      res.status(500).json({ error: 'Error al buscar contacto' });
+    }
   }
 };

@@ -74,8 +74,13 @@ module.exports = {
       const { id_internacion, id_plan_cuidado_final, tipo_alta, diagnostico_final, observaciones, recomendaciones } = req.body;
 
       // Validaciones básicas
-      if (!id_internacion || !id_plan_cuidado_final || !tipo_alta || !diagnostico_final) {
+      if (!id_internacion || !tipo_alta || !diagnostico_final) {
         return res.status(400).send('Todos los campos obligatorios deben estar completos');
+      }
+
+      // Para altas Médica y Voluntaria, el plan de cuidado final es obligatorio
+      if ((tipo_alta === 'Medica' || tipo_alta === 'Voluntaria') && !id_plan_cuidado_final) {
+        return res.status(400).send('El plan de cuidado final es obligatorio para altas Médica y Voluntaria');
       }
 
       if (diagnostico_final.trim().length < 10 || diagnostico_final.trim().length > 1000) {
@@ -84,11 +89,19 @@ module.exports = {
 
       // Verificar que la internación existe y está activa
       const internacion = await Internacion.findByPk(id_internacion, {
-        include: [{ model: Cama, as: 'Cama' }]
+        include: [
+          { model: Cama, as: 'Cama' },
+          { model: PacienteSeguro, as: 'PacienteSeguro' }
+        ]
       });
 
       if (!internacion) {
         return res.status(404).send('Internación no encontrada');
+      }
+
+      // Para altas Médica y Voluntaria, verificar que el paciente tenga datos completos
+      if ((tipo_alta === 'Medica' || tipo_alta === 'Voluntaria') && !internacion.PacienteSeguro) {
+        return res.status(400).send('Para dar de alta Médica o Voluntaria, el paciente debe tener sus datos completos. Por favor, complete los datos del paciente primero.');
       }
 
       if (internacion.estado !== 'activa') {
@@ -104,20 +117,22 @@ module.exports = {
         return res.status(400).send('Esta internación ya tiene un alta registrada');
       }
 
-      // Verificar que el plan de cuidado existe y es tipo Final
-      const planCuidado = await Plan_cuidado.findByPk(id_plan_cuidado_final, {
-        include: [{
-          model: Tipo,
-          as: 'tipo'
-        }]
-      });
+      // Verificar el plan de cuidado solo si es requerido (Médica y Voluntaria)
+      if (id_plan_cuidado_final) {
+        const planCuidado = await Plan_cuidado.findByPk(id_plan_cuidado_final, {
+          include: [{
+            model: Tipo,
+            as: 'tipo'
+          }]
+        });
 
-      if (!planCuidado) {
-        return res.status(404).send('Plan de cuidado no encontrado');
-      }
+        if (!planCuidado) {
+          return res.status(404).send('Plan de cuidado no encontrado');
+        }
 
-      if (planCuidado.tipo.nombre !== 'Final') {
-        return res.status(400).send('Solo se pueden usar planes de cuidado tipo Final para el alta');
+        if (planCuidado.tipo.nombre !== 'Final') {
+          return res.status(400).send('Solo se pueden usar planes de cuidado tipo Final para el alta');
+        }
       }
 
       // TODO: Obtener id_medico del usuario autenticado
@@ -133,7 +148,7 @@ module.exports = {
       await Alta.create({
         id_internacion,
         id_medico,
-        id_plan_cuidado_final,
+        id_plan_cuidado_final: id_plan_cuidado_final || null,
         tipo_alta,
         diagnostico_final: diagnostico_final.trim(),
         observaciones: observaciones?.trim() || null,

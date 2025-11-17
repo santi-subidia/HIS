@@ -12,6 +12,9 @@ router.get('/details/:id', internacionController.Details_GET);
 
 router.post('/cambiar-prioridad/:id', internacionController.CambiarPrioridad_POST);
 
+router.get('/completar-datos/:id', internacionController.CompletarDatos_GET);
+router.post('/completar-datos/:id', internacionController.CompletarDatos_POST);
+
 router.get('/create/emergencia', internacionController.Create_emergencia_GET);
 router.post('/create/emergencia', internacionController.Create_emergencia_POST);
 

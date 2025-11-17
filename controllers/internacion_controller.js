@@ -1,4 +1,4 @@
-const { Paciente, Sector, Ala, Parentesco, Seguro, Motivo, Cama, Habitacion, Turno, Internacion, PacienteSeguro, ContactoEmergencia, Persona } = require('../models');
+const { Paciente, Sector, Ala, Parentesco, Seguro, Motivo, Cama, Habitacion, Turno, Internacion, PacienteSeguro, ContactoEmergencia, Persona, TipoSangre, Localidad, Provincia } = require('../models');
 const { contactoEmergenciaSchema } = require('../schemas/contactoEmergencia_schema');
 const { pacienteSeguroSchema } = require('../schemas/pacienteSeguro_schema');
 const { personaSchema } = require('../schemas/persona_schema');
@@ -468,6 +468,265 @@ module.exports = {
     } catch (error) {
       console.error('Error al cambiar prioridad:', error);
       res.status(500).send('Error al cambiar la prioridad');
+    }
+  },
+
+  // Muestra el formulario para completar datos de paciente desconocido
+  CompletarDatos_GET: async (req, res) => {
+    try {
+      const { id } = req.params;
+      
+      const internacion = await Internacion.findByPk(id, {
+        include: [
+          {
+            model: Cama,
+            include: [
+              {
+                model: Habitacion,
+                include: [
+                  {
+                    model: Ala,
+                    include: [{ model: Sector }]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      });
+
+      if (!internacion) {
+        return res.status(404).send('Internación no encontrada');
+      }
+
+      // Verificar que sea una internación de emergencia (sin paciente)
+      if (internacion.id_paciente_seguro !== null) {
+        return res.redirect(`/internacion/details/${id}`);
+      }
+
+      const tiposSangre = await TipoSangre.findAll();
+      const localidades = await Localidad.findAll({
+        include: [{ model: Provincia, as: 'provincia' }]
+      });
+      const seguros = await Seguro.findAll();
+      const parentescos = await Parentesco.findAll();
+
+      res.render('internacion/completar_datos', {
+        internacion,
+        tiposSangre,
+        localidades,
+        seguros,
+        parentescos,
+        error: null
+      });
+    } catch (error) {
+      console.error('Error en CompletarDatos_GET:', error);
+      res.status(500).send('Error interno del servidor');
+    }
+  },
+
+  // Procesa el formulario de completar datos de paciente desconocido
+  CompletarDatos_POST: async (req, res) => {
+    try {
+      const { id } = req.params;
+      
+      const internacion = await Internacion.findByPk(id);
+
+      if (!internacion) {
+        return res.status(404).send('Internación no encontrada');
+      }
+
+      // Verificar que sea una internación de emergencia
+      if (internacion.id_paciente_seguro !== null) {
+        return res.redirect(`/internacion/details/${id}`);
+      }
+
+      const {
+        DNI, nombre, apellido, telefono,
+        fecha_nacimiento, id_tipo_sangre, id_localidad,
+        id_seguro, codigo_afiliado,
+        contacto_DNI, contacto_nombre, contacto_apellido,
+        contacto_telefono, id_parentesco,
+        id_paciente_existente,
+        id_paciente_seguro_existente,
+        id_contacto_existente
+      } = req.body;
+
+      let pacienteSeguroId;
+      let contactoEmergenciaId;
+
+      // VALIDACIÓN: Verificar que el paciente no tenga internación activa
+      if (id_paciente_seguro_existente) {
+        const internacionActiva = await Internacion.findOne({
+          where: { 
+            id_paciente_seguro: parseInt(id_paciente_seguro_existente),
+            estado: 'activa'
+          }
+        });
+
+        if (internacionActiva) {
+          throw new Error('Este paciente ya tiene una internación activa');
+        }
+      }
+
+      // PARTE 1: GESTIÓN DEL PACIENTE
+      
+      if (id_paciente_seguro_existente) {
+        // Caso 1: Ya existe PacienteSeguro completo
+        pacienteSeguroId = parseInt(id_paciente_seguro_existente);
+        console.log(`Usando PacienteSeguro existente: ${pacienteSeguroId}`);
+        
+      } else if (id_paciente_existente) {
+        // Caso 2: Existe Paciente pero falta PacienteSeguro
+        const paciente = await Paciente.findByPk(parseInt(id_paciente_existente));
+        
+        if (!paciente) {
+          throw new Error('Paciente no encontrado');
+        }
+
+        // Crear PacienteSeguro
+        const pacienteSeguro = await PacienteSeguro.create({
+          id_paciente: paciente.id,
+          id_seguro: parseInt(id_seguro),
+          codigo_afiliado
+        });
+
+        pacienteSeguroId = pacienteSeguro.id;
+        console.log(`PacienteSeguro creado: ${pacienteSeguroId}`);
+        
+      } else {
+        // Caso 3: Crear todo desde cero
+        
+        // Determinar el sexo desde isDesconocido
+        const sexo = internacion.isDesconocido === true ? 'Masculino' : 
+                     internacion.isDesconocido === false ? 'Femenino' : null;
+
+        if (!sexo) {
+          throw new Error('No se pudo determinar el sexo del paciente');
+        }
+
+        // Validar campos requeridos
+        if (!nombre || !apellido || !telefono || !fecha_nacimiento || !id_tipo_sangre || !id_localidad) {
+          throw new Error('Faltan datos requeridos del paciente');
+        }
+
+        // Buscar o crear Persona
+        let personaPaciente = await Persona.findOne({ where: { DNI } });
+        
+        if (!personaPaciente) {
+          personaPaciente = await Persona.create({
+            DNI,
+            nombre,
+            apellido,
+            telefono
+          });
+          console.log(`Persona del paciente creada: ${personaPaciente.id}`);
+        } else {
+          console.log(`Persona del paciente ya existía: ${personaPaciente.id}`);
+        }
+
+        // Crear Paciente
+        const paciente = await Paciente.create({
+          id_persona: personaPaciente.id,
+          sexo,
+          fecha_nacimiento,
+          id_tipoSangre: parseInt(id_tipo_sangre),
+          id_localidad: parseInt(id_localidad)
+        });
+        console.log(`Paciente creado: ${paciente.id}`);
+
+        // Crear PacienteSeguro
+        const pacienteSeguro = await PacienteSeguro.create({
+          id_paciente: paciente.id,
+          id_seguro: parseInt(id_seguro),
+          codigo_afiliado
+        });
+
+        pacienteSeguroId = pacienteSeguro.id;
+        console.log(`PacienteSeguro creado: ${pacienteSeguroId}`);
+      }
+
+      // PARTE 2: GESTIÓN DEL CONTACTO DE EMERGENCIA
+      
+      if (id_contacto_existente) {
+        // Caso 1: Contacto ya existe
+        contactoEmergenciaId = parseInt(id_contacto_existente);
+        console.log(`Usando ContactoEmergencia existente: ${contactoEmergenciaId}`);
+        
+      } else {
+        // Caso 2: Crear contacto (puede reutilizar persona existente)
+        
+        // Buscar o crear Persona del contacto
+        let personaContacto = await Persona.findOne({ where: { DNI: contacto_DNI } });
+        
+        if (!personaContacto) {
+          personaContacto = await Persona.create({
+            DNI: contacto_DNI,
+            nombre: contacto_nombre,
+            apellido: contacto_apellido,
+            telefono: contacto_telefono
+          });
+          console.log(`Persona del contacto creada: ${personaContacto.id}`);
+        } else {
+          console.log(`Persona del contacto ya existía: ${personaContacto.id}`);
+        }
+
+        // Crear ContactoEmergencia
+        const contactoEmergencia = await ContactoEmergencia.create({
+          id_persona: personaContacto.id,
+          id_parentesco: parseInt(id_parentesco)
+        });
+
+        contactoEmergenciaId = contactoEmergencia.id;
+        console.log(`ContactoEmergencia creado: ${contactoEmergenciaId}`);
+      }
+
+      // PARTE 3: ACTUALIZAR LA INTERNACIÓN
+      
+      await internacion.update({
+        id_paciente_seguro: pacienteSeguroId,
+        id_contactoEmergencia: contactoEmergenciaId,
+        isDesconocido: null // Ya no es desconocido
+      });
+
+      console.log(`Internación ${id} actualizada con paciente y contacto`);
+      res.redirect(`/internacion/details/${id}`);
+      
+    } catch (error) {
+      console.error('Error en CompletarDatos_POST:', error);
+      
+      const tiposSangre = await TipoSangre.findAll();
+      const localidades = await Localidad.findAll({
+        include: [{ model: Provincia, as: 'provincia' }]
+      });
+      const seguros = await Seguro.findAll();
+      const parentescos = await Parentesco.findAll();
+
+      res.render('internacion/completar_datos', {
+        internacion: await Internacion.findByPk(req.params.id, {
+          include: [
+            {
+              model: Cama,
+              include: [
+                {
+                  model: Habitacion,
+                  include: [
+                    {
+                      model: Ala,
+                      include: [{ model: Sector }]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }),
+        tiposSangre,
+        localidades,
+        seguros,
+        parentescos,
+        error: error.message || 'Error al completar los datos del paciente'
+      });
     }
   }
 };

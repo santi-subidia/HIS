@@ -81,10 +81,12 @@ block content
                           else
                             span.badge.bg-secondary Sin asignar
                         td
-                          if internacion.PacienteSeguro.isDesconocido
-                            span.badge.bg-warning.text-dark Paciente No Identificado
-                          else
+                          if internacion.PacienteSeguro
                             = internacion.PacienteSeguro.paciente.persona.apellido + ', ' + internacion.PacienteSeguro.paciente.persona.nombre
+                          else
+                            span.badge.bg-warning.text-dark 
+                              i.fas.fa-user-injured.me-1
+                              | Paciente de Emergencia
                         td
                           if internacion.Cama && internacion.Cama.Habitacion
                             = internacion.Cama.Habitacion.Ala.Sector.nombre + ' - ' + internacion.Cama.Habitacion.codigo + ' - Cama ' + internacion.Cama.numero_cama

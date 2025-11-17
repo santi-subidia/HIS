@@ -68,16 +68,16 @@ module.exports = {
       usuarios.push({
         id_persona: 10, // Ajusta esto según tu BD
         usuario: 'admin',
-        password: 'admin123',
+        password: '123456',
         id_rol: rolAdmin.id
       });
-      console.log('✅ Usuario admin preparado (usuario: admin, password: admin123)');
+      console.log('✅ Usuario admin preparado (usuario: admin, password: 123456)');
 
       // Crear usuario recepcionista (usar la segunda persona disponible o crear una genérica)
       usuarios.push({
         id_persona: 11, // Ajusta esto según tu BD
         usuario: 'recepcionista',
-        password: 'recepcionista123',
+        password: '123456',
         id_rol: rolRecepcionista.id
       });
 
@@ -93,8 +93,8 @@ module.exports = {
       console.log('\n📝 Credenciales de prueba:');
       console.log('   Médico:     medico1 / 123456');
       console.log('   Enfermero:  enfermero1 / 123456');
-      console.log('   Recepcionista: recepcionista / recepcionista123');
-      console.log('   Admin:      admin / admin123');
+      console.log('   Recepcionista: recepcionista / 123456');
+      console.log('   Admin:      admin / 123456');
 
     } catch (error) {
       console.error('❌ Error al crear usuarios:', error.message);

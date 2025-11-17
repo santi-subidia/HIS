@@ -1,4 +1,4 @@
-const { Usuario, Rol, Persona, Medico, Enfermero } = require('../models');
+const { Usuario, Rol, Persona, Medico, Enfermero, Paciente, PacienteSeguro, Internacion } = require('../models');
 
 module.exports = {
   // GET /login - Mostrar formulario de login
@@ -47,6 +47,33 @@ module.exports = {
       const passwordValida = await user.validarPassword(password);
       if (!passwordValida) {
         return res.redirect('/login?error=credenciales-invalidas');
+      }
+
+      // Verificar si el usuario (médico o enfermero) está internado
+      const paciente = await Paciente.findOne({
+        where: { id_persona: user.id_persona }
+      });
+
+      if (paciente) {
+        // Buscar si tiene PacienteSeguro
+        const pacienteSeguro = await PacienteSeguro.findOne({
+          where: { id_paciente: paciente.id }
+        });
+
+        if (pacienteSeguro) {
+          // Verificar si tiene internación activa
+          const internacionActiva = await Internacion.findOne({
+            where: { 
+              id_paciente_seguro: pacienteSeguro.id,
+              estado: 'activa'
+            }
+          });
+
+          if (internacionActiva) {
+            console.log(`Intento de login bloqueado: ${user.usuario} tiene una internación activa`);
+            return res.redirect('/login?error=usuario-internado');
+          }
+        }
       }
 
       // Crear sesión básica

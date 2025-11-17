@@ -23,6 +23,10 @@ block content
                   | El usuario no tiene un perfil de médico asociado
                 else if error === 'usuario-sin-perfil-enfermero'
                   | El usuario no tiene un perfil de enfermero asociado
+                else if error === 'usuario-internado'
+                  strong Acceso Denegado
+                  br
+                  | No puede iniciar sesión porque actualmente tiene una internación activa. Por razones de seguridad, el acceso está bloqueado hasta que reciba el alta.
                 else if error === 'error-del-servidor'
                   | Error del servidor. Intente nuevamente
                 else if error === 'debes-iniciar-sesion'

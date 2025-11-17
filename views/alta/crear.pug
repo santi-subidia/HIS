@@ -24,10 +24,13 @@ block content
               .col-md-6
                 p
                   strong Paciente: 
-                  if internacion.PacienteSeguro.isDesconocido
-                    span.badge.bg-warning.text-dark Paciente No Identificado
+                  if internacion.PacienteSeguro
+                    if internacion.PacienteSeguro.isDesconocido
+                      span.badge.bg-warning.text-dark Paciente No Identificado
+                    else
+                      = internacion.PacienteSeguro.paciente.persona.nombre + ' ' + internacion.PacienteSeguro.paciente.persona.apellido
                   else
-                    = internacion.PacienteSeguro.paciente.persona.nombre + ' ' + internacion.PacienteSeguro.paciente.persona.apellido
+                    span.badge.bg-info Paciente de Emergencia
               .col-md-6
                 p
                   strong Ubicación: 
@@ -48,48 +51,46 @@ block content
             i.bi.bi-clipboard-check.me-2
             strong Formulario de Alta
           .card-body
-            if !planCuidadoFinal
-              .alert.alert-warning
-                i.bi.bi-exclamation-triangle.me-2
-                strong Se requiere Plan de Cuidado Final
-                p.mb-2.mt-2 Debe crear un plan de cuidado tipo "Final" antes de dar el alta del paciente.
-                a.btn.btn-primary(href=`/enfermeria/planes-cuidado/crear/${internacion.id}?desde_alta=true&return=/alta/crear/${internacion.id}`) 
-                  i.bi.bi-clipboard-plus.me-2
-                  | Crear Plan de Cuidado Final
-            else
-              .alert.alert-success.mb-4
-                i.bi.bi-check-circle.me-2
-                strong Plan de Cuidado Final Registrado
-                p.mb-0.mt-2
-                  strong Diagnóstico: 
-                  = planCuidadoFinal.diagnostico
-                  br
-                  strong Tratamiento: 
-                  = planCuidadoFinal.tratamiento
-                  br
-                  small.text-muted Fecha: #{new Date(planCuidadoFinal.fecha).toLocaleDateString('es-AR')}
-
-            form(action='/alta/crear' method='POST')
+            form(action='/alta/crear' method='POST' id='formAlta')
               input(type='hidden' name='id_internacion' value=internacion.id)
               if planCuidadoFinal
                 input(type='hidden' name='id_plan_cuidado_final' value=planCuidadoFinal.id)
 
-              .mb-3
+              .mb-4
                 label.form-label(for='tipo_alta')
                   strong Tipo de Alta 
                   span.text-danger *
-                select.form-select(name='tipo_alta' id='tipo_alta' required disabled=!planCuidadoFinal)
+                select.form-select(name='tipo_alta' id='tipo_alta' required)
                   option(value='') Seleccione tipo de alta
                   option(value='Medica') Médica
                   option(value='Voluntaria') Voluntaria
                   option(value='Defuncion') Defunción
                   option(value='Traslado') Traslado
+                small.form-text.text-muted Seleccione el tipo de alta para continuar
+
+              // Alerta dinámica según tipo de alta
+              #alertaPlanCuidado.mb-4(style='display: none;')
+
+              // Plan de Cuidado Final (si existe)
+              #seccionPlanCuidado(style='display: none;')
+                if planCuidadoFinal
+                  .alert.alert-success.mb-4
+                    i.bi.bi-check-circle.me-2
+                    strong Plan de Cuidado Final Registrado
+                    p.mb-0.mt-2
+                      strong Diagnóstico: 
+                      = planCuidadoFinal.diagnostico
+                      br
+                      strong Tratamiento: 
+                      = planCuidadoFinal.tratamiento
+                      br
+                      small.text-muted Fecha: #{new Date(planCuidadoFinal.fecha).toLocaleDateString('es-AR')}
 
               .mb-3
                 label.form-label(for='diagnostico_final')
                   strong Diagnóstico Final 
                   span.text-danger *
-                textarea.form-textarea(name='diagnostico_final' id='diagnostico_final' rows='4' required disabled=!planCuidadoFinal minlength='10' maxlength='1000')
+                textarea.form-control(name='diagnostico_final' id='diagnostico_final' rows='4' required disabled minlength='10' maxlength='1000')
                 .d-flex.justify-content-between
                   small.form-text.text-muted Describa el diagnóstico final del paciente
                   small.form-text.text-muted#diagnostico-counter 0 / 1000
@@ -98,7 +99,7 @@ block content
                 label.form-label(for='observaciones')
                   strong Observaciones 
                   span.text-muted (Opcional)
-                textarea.form-textarea(name='observaciones' id='observaciones' rows='3' disabled=!planCuidadoFinal maxlength='1000')
+                textarea.form-control(name='observaciones' id='observaciones' rows='3' disabled maxlength='1000')
                 .d-flex.justify-content-between
                   small.form-text.text-muted Observaciones adicionales sobre el alta
                   small.form-text.text-muted#observaciones-counter 0 / 1000
@@ -107,24 +108,124 @@ block content
                 label.form-label(for='recomendaciones')
                   strong Recomendaciones 
                   span.text-muted (Opcional)
-                textarea.form-textarea(name='recomendaciones' id='recomendaciones' rows='3' disabled=!planCuidadoFinal maxlength='1000')
+                textarea.form-control(name='recomendaciones' id='recomendaciones' rows='3' disabled maxlength='1000')
                 .d-flex.justify-content-between
                   small.form-text.text-muted Recomendaciones post-alta para el paciente
                   small.form-text.text-muted#recomendaciones-counter 0 / 1000
 
               .d-grid.gap-2
-                button.btn.btn-danger.btn-lg(type='submit' disabled=!planCuidadoFinal)
+                button.btn.btn-danger.btn-lg#btnSubmit(type='submit' disabled)
                   i.bi.bi-check-circle.me-2
                   | Registrar Alta
 
   script.
-    // Contadores de caracteres
+    // Variables
+    const tipoAltaSelect = document.getElementById('tipo_alta');
+    const alertaPlanCuidado = document.getElementById('alertaPlanCuidado');
+    const seccionPlanCuidado = document.getElementById('seccionPlanCuidado');
     const diagnosticoTextarea = document.getElementById('diagnostico_final');
-    const diagnosticoCounter = document.getElementById('diagnostico-counter');
     const observacionesTextarea = document.getElementById('observaciones');
-    const observacionesCounter = document.getElementById('observaciones-counter');
     const recomendacionesTextarea = document.getElementById('recomendaciones');
+    const btnSubmit = document.getElementById('btnSubmit');
+    const diagnosticoCounter = document.getElementById('diagnostico-counter');
+    const observacionesCounter = document.getElementById('observaciones-counter');
     const recomendacionesCounter = document.getElementById('recomendaciones-counter');
+    
+    const planCuidadoExiste = #{planCuidadoFinal ? 'true' : 'false'};
+    const internacionId = '#{internacion.id}';
+    const pacienteTieneDatos = #{internacion.PacienteSeguro ? 'true' : 'false'};
+    
+    // Lógica según tipo de alta
+    tipoAltaSelect.addEventListener('change', function() {
+      const tipoAlta = this.value;
+      
+      // Ocultar todo primero
+      alertaPlanCuidado.style.display = 'none';
+      seccionPlanCuidado.style.display = 'none';
+      alertaPlanCuidado.innerHTML = '';
+      
+      if (!tipoAlta) {
+        // No se seleccionó nada, deshabilitar formulario
+        diagnosticoTextarea.disabled = true;
+        observacionesTextarea.disabled = true;
+        recomendacionesTextarea.disabled = true;
+        btnSubmit.disabled = true;
+        return;
+      }
+      
+      if (tipoAlta === 'Defuncion' || tipoAlta === 'Traslado') {
+        // Defunción o Traslado: NO requiere plan de cuidado ni datos completos del paciente
+        alertaPlanCuidado.style.display = 'block';
+        const tipoTexto = tipoAlta === 'Defuncion' ? 'Defunción' : 'Traslado';
+        alertaPlanCuidado.innerHTML = `
+          <div class="alert alert-info">
+            <i class="bi bi-info-circle me-2"></i>
+            <strong>Alta por ${tipoTexto}</strong>
+            <p class="mb-0 mt-2">Este tipo de alta no requiere plan de cuidado final${!pacienteTieneDatos ? ' ni datos completos del paciente' : ''}.</p>
+          </div>
+        `;
+        
+        // Habilitar formulario
+        diagnosticoTextarea.disabled = false;
+        observacionesTextarea.disabled = false;
+        recomendacionesTextarea.disabled = false;
+        btnSubmit.disabled = false;
+      } else {
+        // Médica, Voluntaria: SÍ requieren plan de cuidado Y datos completos del paciente
+        
+        // Primero verificar si tiene datos completos del paciente
+        if (!pacienteTieneDatos) {
+          alertaPlanCuidado.style.display = 'block';
+          alertaPlanCuidado.innerHTML = `
+            <div class="alert alert-danger">
+              <i class="bi bi-exclamation-triangle-fill me-2"></i>
+              <strong>Se requieren Datos Completos del Paciente</strong>
+              <p class="mb-2 mt-2">Para dar de alta ${tipoAlta === 'Medica' ? 'Médica' : 'Voluntaria'}, el paciente debe tener sus datos personales completos.</p>
+              <a class="btn btn-primary" href="/internacion/completar-datos/${internacionId}">
+                <i class="bi bi-person-plus me-2"></i>Completar Datos del Paciente
+              </a>
+            </div>
+          `;
+          
+          diagnosticoTextarea.disabled = true;
+          observacionesTextarea.disabled = true;
+          recomendacionesTextarea.disabled = true;
+          btnSubmit.disabled = true;
+          return;
+        }
+        
+        // Si tiene datos completos, verificar plan de cuidado
+        seccionPlanCuidado.style.display = 'block';
+        
+        if (planCuidadoExiste) {
+          // Ya existe el plan, habilitar formulario
+          diagnosticoTextarea.disabled = false;
+          observacionesTextarea.disabled = false;
+          recomendacionesTextarea.disabled = false;
+          btnSubmit.disabled = false;
+        } else {
+          // No existe el plan, mostrar alerta y deshabilitar formulario
+          alertaPlanCuidado.style.display = 'block';
+          alertaPlanCuidado.innerHTML = `
+            <div class="alert alert-warning">
+              <i class="bi bi-exclamation-triangle me-2"></i>
+              <strong>Se requiere Plan de Cuidado Final</strong>
+              <p class="mb-2 mt-2">Para este tipo de alta, debe crear un plan de cuidado tipo "Final" que indique el seguimiento post-internación del paciente.</p>
+              <a class="btn btn-primary" href="/enfermeria/planes-cuidado/crear/${internacionId}?desde_alta=true&return=/alta/crear/${internacionId}">
+                <i class="bi bi-clipboard-plus me-2"></i>Crear Plan de Cuidado Final
+              </a>
+            </div>
+          `;
+          
+          diagnosticoTextarea.disabled = true;
+          observacionesTextarea.disabled = true;
+          recomendacionesTextarea.disabled = true;
+          btnSubmit.disabled = true;
+        }
+      }
+    });
+    
+    // Contadores de caracteres
 
     if (diagnosticoTextarea) {
       diagnosticoTextarea.addEventListener('input', function() {

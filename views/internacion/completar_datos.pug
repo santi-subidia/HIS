@@ -1,0 +1,454 @@
+extends ../layout
+
+block content
+  .container.mt-4
+    .row
+      .col-md-12
+        .d-flex.justify-content-between.align-items-center.mb-3
+          h2 
+            i.bi.bi-person-plus-fill.text-primary.me-2
+            | Completar Datos del Paciente
+          a(href=`/internacion/details/${internacion.id}`)
+            button.btn.btn-secondary
+              i.bi.bi-arrow-left.me-1
+              | Volver
+
+    .row
+      .col-md-12
+        .alert.alert-info
+          i.bi.bi-info-circle.me-2
+          strong Internación de Emergencia
+          p.mb-0.mt-2 Este paciente fue internado de emergencia sin datos completos. Complete la información para registrarlo en el sistema.
+
+    .row
+      .col-md-12
+        .card.border-warning.mb-4
+          .card-header.bg-warning.text-dark
+            i.bi.bi-hospital.me-2
+            strong Información de la Internación
+          .card-body
+            .row
+              .col-md-6
+                p
+                  strong Sexo del Paciente: 
+                  if internacion.isDesconocido === true
+                    span.badge.bg-info Masculino
+                  else if internacion.isDesconocido === false
+                    span.badge.bg-danger Femenino
+                  else
+                    span.text-muted No especificado
+              .col-md-6
+                p
+                  strong Fecha de Ingreso: 
+                  = new Date(internacion.fecha_internacion).toLocaleString('es-AR')
+            .row
+              .col-md-6
+                p
+                  strong Ubicación: 
+                  = `Cama ${internacion.Cama.numero_cama} - ${internacion.Cama.Habitacion.codigo}`
+              .col-md-6
+                p
+                  strong Motivo: 
+                  = internacion.detalle_motivo.substring(0, 100) + '...'
+
+    if error
+      .alert.alert-danger
+        i.bi.bi-exclamation-triangle.me-2
+        = error
+
+    .row
+      .col-md-12
+        .card.shadow
+          .card-header.bg-primary.text-white
+            i.bi.bi-person-fill.me-2
+            strong Datos del Paciente
+          .card-body
+            form(action=`/internacion/completar-datos/${internacion.id}` method='POST' id='formCompletarDatos')
+              // Paso 1: Buscar Paciente por DNI
+              #paso1
+                h5.mb-3.text-primary
+                  i.bi.bi-search.me-2
+                  | Paso 1: Buscar Paciente
+                
+                .row
+                  .col-md-6.mb-3
+                    label.form-label(for='DNI')
+                      strong DNI del Paciente 
+                      span.text-danger *
+                    .input-group
+                      input.form-control(type='text' name='DNI' id='DNI' required pattern='[0-9]{7,8}' maxlength='8' placeholder='Ej: 12345678')
+                      button.btn.btn-primary(type='button' id='btnBuscarPaciente')
+                        i.bi.bi-search.me-1
+                        | Buscar
+                    small.form-text.text-muted 7 u 8 dígitos sin puntos
+                
+                #resultadoBusqueda.mt-3(style='display: none;')
+
+              // Paso 2: Datos del Paciente (si no existe)
+              #paso2(style='display: none;')
+                hr.my-4
+                h5.mb-3.text-primary
+                  i.bi.bi-person-vcard.me-2
+                  | Paso 2: Información Personal
+                
+                .row
+                  .col-md-6.mb-3
+                    label.form-label(for='nombre')
+                      strong Nombre 
+                      span.text-danger *
+                    input.form-control(type='text' name='nombre' id='nombre' minlength='2' maxlength='100')
+
+                  .col-md-6.mb-3
+                    label.form-label(for='apellido')
+                      strong Apellido 
+                      span.text-danger *
+                    input.form-control(type='text' name='apellido' id='apellido' minlength='2' maxlength='100')
+
+                .row
+                  .col-md-6.mb-3
+                    label.form-label(for='telefono')
+                      strong Teléfono 
+                      span.text-danger *
+                    input.form-control(type='tel' name='telefono' id='telefono' pattern='[0-9]{10}' maxlength='10' placeholder='Ej: 3815123456')
+                    small.form-text.text-muted 10 dígitos sin espacios ni guiones
+
+              // Paso 3: Información Médica (si no existe paciente)
+              #paso3(style='display: none;')
+                hr.my-4
+                h5.mb-3.text-primary
+                  i.bi.bi-clipboard2-pulse.me-2
+                  | Paso 3: Información Médica
+                
+                .row
+                  .col-md-6.mb-3
+                    label.form-label(for='fecha_nacimiento')
+                      strong Fecha de Nacimiento 
+                      span.text-danger *
+                    input.form-control(type='date' name='fecha_nacimiento' id='fecha_nacimiento' max=new Date().toISOString().split('T')[0])
+
+                  .col-md-6.mb-3
+                    label.form-label(for='id_tipo_sangre')
+                      strong Tipo de Sangre 
+                      span.text-danger *
+                    select.form-select(name='id_tipo_sangre' id='id_tipo_sangre')
+                      option(value='') Seleccione...
+                      each tipo in tiposSangre
+                        option(value=tipo.id)= `${tipo.tipo}${tipo.Rh ? '+' : '-'}`
+
+                .row
+                  .col-md-6.mb-3
+                    label.form-label(for='id_localidad')
+                      strong Localidad 
+                      span.text-danger *
+                    select.form-select(name='id_localidad' id='id_localidad')
+                      option(value='') Seleccione...
+                      each localidad in localidades
+                        option(value=localidad.id)= `${localidad.nombre} - ${localidad.provincia.nombre}`
+
+              // Paso 4: Seguro Médico (si no existe pacienteSeguro)
+              #paso4(style='display: none;')
+                hr.my-4
+                h5.mb-3.text-primary
+                  i.bi.bi-card-checklist.me-2
+                  | Paso 4: Seguro Médico
+                
+                .row
+                  .col-md-6.mb-3
+                    label.form-label(for='id_seguro')
+                      strong Seguro Médico 
+                      span.text-danger *
+                    select.form-select(name='id_seguro' id='id_seguro')
+                      option(value='') Seleccione...
+                      each seguro in seguros
+                        option(value=seguro.id)= seguro.nombre
+
+                  .col-md-6.mb-3
+                    label.form-label(for='codigo_afiliado')
+                      strong Código de Afiliado 
+                      span.text-danger *
+                    input.form-control(type='text' name='codigo_afiliado' id='codigo_afiliado' maxlength='50')
+                    small.form-text.text-muted Código o número de afiliado del seguro médico
+
+              // Paso 5: Contacto de Emergencia
+              #paso5(style='display: none;')
+                hr.my-4
+                h5.mb-3.text-primary
+                  i.bi.bi-telephone-fill.me-2
+                  | Paso 5: Contacto de Emergencia
+                
+                .row
+                  .col-md-6.mb-3
+                    label.form-label(for='contacto_DNI')
+                      strong DNI del Contacto 
+                      span.text-danger *
+                    .input-group
+                      input.form-control(type='text' name='contacto_DNI' id='contacto_DNI' pattern='[0-9]{7,8}' maxlength='8')
+                      button.btn.btn-secondary(type='button' id='btnBuscarContacto')
+                        i.bi.bi-search.me-1
+                        | Buscar
+                    small.form-text.text-muted 7 u 8 dígitos
+
+                #resultadoBusquedaContacto.mt-3(style='display: none;')
+
+                .row#datosContacto(style='display: none;')
+                  .col-md-6.mb-3
+                    label.form-label(for='contacto_nombre')
+                      strong Nombre 
+                      span.text-danger *
+                    input.form-control(type='text' name='contacto_nombre' id='contacto_nombre' minlength='2' maxlength='100')
+
+                  .col-md-6.mb-3
+                    label.form-label(for='contacto_apellido')
+                      strong Apellido 
+                      span.text-danger *
+                    input.form-control(type='text' name='contacto_apellido' id='contacto_apellido' minlength='2' maxlength='100')
+
+                  .col-md-6.mb-3
+                    label.form-label(for='contacto_telefono')
+                      strong Teléfono 
+                      span.text-danger *
+                    input.form-control(type='tel' name='contacto_telefono' id='contacto_telefono' pattern='[0-9]{10}' maxlength='10')
+
+                .row
+                  .col-md-12.mb-3
+                    label.form-label(for='id_parentesco')
+                      strong Parentesco 
+                      span.text-danger *
+                    select.form-select(name='id_parentesco' id='id_parentesco')
+                      option(value='') Seleccione...
+                      each parentesco in parentescos
+                        option(value=parentesco.id)= parentesco.nombre
+
+              // Campos ocultos para IDs existentes
+              input(type='hidden' name='id_paciente_existente' id='id_paciente_existente')
+              input(type='hidden' name='id_paciente_seguro_existente' id='id_paciente_seguro_existente')
+              input(type='hidden' name='id_contacto_existente' id='id_contacto_existente')
+
+              .d-grid.gap-2.mt-4#btnSubmitContainer(style='display: none;')
+                button.btn.btn-primary.btn-lg(type='submit')
+                  i.bi.bi-check-circle.me-2
+                  | Registrar Datos Completos
+
+  script.
+    const internacionId = '#{internacion.id}';
+    const sexoPaciente = '#{internacion.isDesconocido === true ? "Masculino" : "Femenino"}';
+    
+    // Buscar paciente por DNI
+    document.getElementById('btnBuscarPaciente').addEventListener('click', async function() {
+      const dni = document.getElementById('DNI').value;
+      
+      if (!dni || dni.length < 7) {
+        alert('Ingrese un DNI válido');
+        return;
+      }
+      
+      try {
+        const response = await fetch(`/api/buscar-paciente/${dni}`);
+        const data = await response.json();
+        
+        const resultado = document.getElementById('resultadoBusqueda');
+        resultado.style.display = 'block';
+        
+        // Verificar si tiene internación activa
+        if (data.tieneInternacionActiva) {
+          resultado.innerHTML = `
+            <div class="alert alert-danger">
+              <i class="bi bi-exclamation-circle me-2"></i>
+              <strong>Paciente con Internación Activa</strong>
+              <p class="mb-0 mt-2">
+                ${data.persona.nombre} ${data.persona.apellido} - DNI: ${data.persona.DNI}<br>
+                <strong>Este paciente ya tiene una internación activa.</strong> No se puede completar los datos con este DNI.
+              </p>
+            </div>
+          `;
+          // Limpiar el campo DNI
+          document.getElementById('DNI').value = '';
+          // Ocultar todos los pasos
+          document.getElementById('paso2').style.display = 'none';
+          document.getElementById('paso3').style.display = 'none';
+          document.getElementById('paso4').style.display = 'none';
+          document.getElementById('paso5').style.display = 'none';
+          document.getElementById('btnSubmitContainer').style.display = 'none';
+          // Limpiar campos ocultos
+          document.getElementById('id_paciente_existente').value = '';
+          document.getElementById('id_paciente_seguro_existente').value = '';
+          return;
+        }
+        
+        if (data.pacienteSeguro) {
+          // Paciente completo encontrado
+          resultado.innerHTML = `
+            <div class="alert alert-success">
+              <i class="bi bi-check-circle me-2"></i>
+              <strong>Paciente Encontrado</strong>
+              <p class="mb-0 mt-2">
+                ${data.persona.nombre} ${data.persona.apellido} - DNI: ${data.persona.DNI}<br>
+                Seguro: ${data.seguro.nombre} - Código: ${data.pacienteSeguro.codigo_afiliado}
+              </p>
+            </div>
+          `;
+          document.getElementById('id_paciente_seguro_existente').value = data.pacienteSeguro.id;
+          mostrarPaso5();
+        } else if (data.paciente) {
+          // Paciente sin seguro
+          resultado.innerHTML = `
+            <div class="alert alert-warning">
+              <i class="bi bi-exclamation-triangle me-2"></i>
+              <strong>Paciente sin Seguro</strong>
+              <p class="mb-0 mt-2">
+                ${data.persona.nombre} ${data.persona.apellido} - DNI: ${data.persona.DNI}<br>
+                Debe completar información del seguro médico.
+              </p>
+            </div>
+          `;
+          document.getElementById('id_paciente_existente').value = data.paciente.id;
+          mostrarPaso4();
+        } else if (data.persona) {
+          // Solo persona, crear paciente
+          resultado.innerHTML = `
+            <div class="alert alert-info">
+              <i class="bi bi-info-circle me-2"></i>
+              <strong>Persona Encontrada</strong>
+              <p class="mb-0 mt-2">
+                ${data.persona.nombre} ${data.persona.apellido} - DNI: ${data.persona.DNI}<br>
+                Se creará el registro como paciente.
+              </p>
+            </div>
+          `;
+          // Prellenar datos
+          document.getElementById('nombre').value = data.persona.nombre;
+          document.getElementById('apellido').value = data.persona.apellido;
+          document.getElementById('telefono').value = data.persona.telefono;
+          document.getElementById('nombre').readOnly = true;
+          document.getElementById('apellido').readOnly = true;
+          document.getElementById('telefono').readOnly = true;
+          mostrarPaso3();
+        } else {
+          // No existe, crear todo
+          resultado.innerHTML = `
+            <div class="alert alert-secondary">
+              <i class="bi bi-person-plus me-2"></i>
+              <strong>Paciente Nuevo</strong>
+              <p class="mb-0 mt-2">No se encontraron registros. Complete todos los datos.</p>
+            </div>
+          `;
+          mostrarPaso2();
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Error al buscar paciente');
+      }
+    });
+    
+    // Buscar contacto por DNI
+    document.getElementById('btnBuscarContacto').addEventListener('click', async function() {
+      const dni = document.getElementById('contacto_DNI').value;
+      
+      if (!dni || dni.length < 7) {
+        alert('Ingrese un DNI válido');
+        return;
+      }
+      
+      try {
+        const response = await fetch(`/api/buscar-contacto/${dni}`);
+        const data = await response.json();
+        
+        const resultado = document.getElementById('resultadoBusquedaContacto');
+        const datosContacto = document.getElementById('datosContacto');
+        resultado.style.display = 'block';
+        
+        if (data.contacto) {
+          // Contacto encontrado
+          resultado.innerHTML = `
+            <div class="alert alert-success">
+              <i class="bi bi-check-circle me-2"></i>
+              <strong>Contacto Encontrado</strong>
+              <p class="mb-0 mt-2">${data.persona.nombre} ${data.persona.apellido} - DNI: ${data.persona.DNI}</p>
+            </div>
+          `;
+          document.getElementById('id_contacto_existente').value = data.contacto.id;
+          datosContacto.style.display = 'none';
+        } else if (data.persona) {
+          // Persona encontrada, crear contacto
+          resultado.innerHTML = `
+            <div class="alert alert-info">
+              <i class="bi bi-info-circle me-2"></i>
+              <strong>Persona Encontrada</strong>
+              <p class="mb-0 mt-2">${data.persona.nombre} ${data.persona.apellido} - Se creará como contacto de emergencia.</p>
+            </div>
+          `;
+          document.getElementById('contacto_nombre').value = data.persona.nombre;
+          document.getElementById('contacto_apellido').value = data.persona.apellido;
+          document.getElementById('contacto_telefono').value = data.persona.telefono;
+          document.getElementById('contacto_nombre').readOnly = true;
+          document.getElementById('contacto_apellido').readOnly = true;
+          document.getElementById('contacto_telefono').readOnly = true;
+          datosContacto.style.display = 'none';
+        } else {
+          // No existe
+          resultado.innerHTML = `
+            <div class="alert alert-secondary">
+              <i class="bi bi-person-plus me-2"></i>
+              <strong>Contacto Nuevo</strong>
+              <p class="mb-0 mt-2">Complete los datos del contacto.</p>
+            </div>
+          `;
+          datosContacto.style.display = 'flex';
+        }
+        
+        document.getElementById('btnSubmitContainer').style.display = 'block';
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Error al buscar contacto');
+      }
+    });
+    
+    function mostrarPaso2() {
+      document.getElementById('paso2').style.display = 'block';
+      document.getElementById('paso3').style.display = 'block';
+      document.getElementById('paso4').style.display = 'block';
+      
+      // Hacer campos requeridos
+      document.getElementById('nombre').required = true;
+      document.getElementById('apellido').required = true;
+      document.getElementById('telefono').required = true;
+      document.getElementById('fecha_nacimiento').required = true;
+      document.getElementById('id_tipo_sangre').required = true;
+      document.getElementById('id_localidad').required = true;
+      document.getElementById('id_seguro').required = true;
+      document.getElementById('codigo_afiliado').required = true;
+      
+      mostrarPaso5();
+    }
+    
+    function mostrarPaso3() {
+      document.getElementById('paso3').style.display = 'block';
+      document.getElementById('paso4').style.display = 'block';
+      
+      // Hacer campos requeridos
+      document.getElementById('fecha_nacimiento').required = true;
+      document.getElementById('id_tipo_sangre').required = true;
+      document.getElementById('id_localidad').required = true;
+      document.getElementById('id_seguro').required = true;
+      document.getElementById('codigo_afiliado').required = true;
+      
+      mostrarPaso5();
+    }
+    
+    function mostrarPaso4() {
+      document.getElementById('paso4').style.display = 'block';
+      
+      // Hacer campos requeridos
+      document.getElementById('id_seguro').required = true;
+      document.getElementById('codigo_afiliado').required = true;
+      
+      mostrarPaso5();
+    }
+    
+    function mostrarPaso5() {
+      document.getElementById('paso5').style.display = 'block';
+      
+      // Hacer campos requeridos
+      document.getElementById('contacto_DNI').required = true;
+      document.getElementById('id_parentesco').required = true;
+    }
