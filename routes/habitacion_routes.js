@@ -8,4 +8,6 @@ router.use(requireAuth);
 
 router.get('/', habitacionController.Index);
 
+router.post('/marcar-disponible/:id', habitacionController.MarcarDisponible_POST);
+
 module.exports = router;
