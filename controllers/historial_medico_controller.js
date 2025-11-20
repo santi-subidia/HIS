@@ -76,41 +76,46 @@ module.exports = {
       });
 
       // Obtener internaciones previas del paciente (solo las que tienen alta o traslado)
-      const pacienteSeguro = await PacienteSeguro.findOne({
-        where: { id_paciente: id }
-      });
-
-      let internaciones = [];
-      if (pacienteSeguro) {
-        internaciones = await Internacion.findAll({
-          where: { 
-            id_paciente_seguro: pacienteSeguro.id,
-            estado: ['alta', 'traslado'] // Solo internaciones finalizadas
+      // Buscamos por id_paciente a través de PacienteSeguro porque el paciente es estable
+      // mientras que la relación con el seguro puede cambiar
+      const internaciones = await Internacion.findAll({
+        where: { 
+          estado: ['alta', 'traslado'] // Solo internaciones finalizadas
+        },
+        include: [
+          {
+            model: PacienteSeguro,
+            as: 'PacienteSeguro',
+            where: { id_paciente: id },
+            required: true,
+            include: [{
+              model: Paciente,
+              as: 'paciente',
+              include: [{ model: Persona, as: 'persona' }]
+            }]
           },
-          include: [
-            {
-              model: Cama,
-              as: 'Cama'
-            },
-            {
-              model: Motivo,
-              as: 'Motivo'
-            },
-            {
-              model: Alta,
-              as: 'alta',
-              include: [
-                {
-                  model: Medico,
-                  as: 'medico',
-                  include: [{ model: Persona, as: 'persona' }]
-                }
-              ]
-            }
-          ],
-          order: [['fecha_internacion', 'DESC']]
-        });
-      }
+          {
+            model: Cama,
+            as: 'Cama'
+          },
+          {
+            model: Motivo,
+            as: 'Motivo'
+          },
+          {
+            model: Alta,
+            as: 'alta',
+            include: [
+              {
+                model: Medico,
+                as: 'medico',
+                include: [{ model: Persona, as: 'persona' }]
+              }
+            ]
+          }
+        ],
+        order: [['fecha_internacion', 'DESC']]
+      });
 
       res.render('historial_medico/index', {
         paciente,

@@ -20,6 +20,7 @@ const usuariosSeed = require('./seeds/usuarios_seed');
 const medicamentosSeed = require('./seeds/medicamentos_seed');
 const categoriasTiposEstudiosSeed = require('./seeds/categorias_tipos_estudios_seed');
 const tiposEstudiosSeed = require('./seeds/tipos_estudios_seed');
+const datosInternacionesSeed = require('./seeds/datos_internaciones_seed');
 
 async function runSeeds() {
   try {
@@ -102,6 +103,10 @@ async function runSeeds() {
     // Sembrar internaciones
     await internacionesSeed.up();
     console.log('Seed de internaciones ejecutado correctamente.');
+
+    // Sembrar datos de internaciones (antecedentes, signos vitales, planes, estudios)
+    await datosInternacionesSeed.up();
+    console.log('Seed de datos de internaciones ejecutado correctamente.');
 
 
   } catch (error) {

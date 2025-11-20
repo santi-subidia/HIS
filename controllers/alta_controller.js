@@ -136,7 +136,11 @@ module.exports = {
       }
 
       // TODO: Obtener id_medico del usuario autenticado
-      const id_medico = req.session?.id_medico || 1;
+      const id_medico = req.session?.id_medico || null;
+
+      if (!id_medico) {
+        return res.status(400).send('No se ha autenticado un médico. Por favor, inicie sesión.');
+      }
 
       // Verificar que existe el médico
       const medico = await Medico.findByPk(id_medico);
@@ -168,7 +172,7 @@ module.exports = {
       // Liberar la cama (disponible)
       if (internacion.id_cama) {
         await Cama.update(
-          { disponible: true },
+          { estado: 'mantenimiento' },
           { where: { id: internacion.id_cama } }
         );
       }
