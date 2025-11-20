@@ -26,7 +26,7 @@ block content
           th DNI
           th Teléfono
           th Estado
-          th Acción
+          th Acciones
       tbody
         if turnos.length
           each turno in turnos
@@ -37,18 +37,23 @@ block content
               td= turno.Paciente ? turno.Paciente.persona.nombre + ' ' + turno.Paciente.persona.apellido : '-'
               td= turno.Paciente ? turno.Paciente.persona.DNI : '-'
               td= turno.Paciente ? turno.Paciente.persona.telefono : '-'
-              td= turno.estado
               td
-                if turno.Paciente && turno.estado !== 'cancelado'
-                  form(action="/internacion/registro/buscar" method="POST" style="display:inline;")
+                if turno.estado === 'pendiente'
+                  span.badge.bg-warning.text-dark Pendiente
+                else if turno.estado === 'confirmado'
+                  span.badge.bg-success Confirmado
+                else if turno.estado === 'cancelado'
+                  span.badge.bg-danger Cancelado
+              td
+                a.btn.btn-info.btn-sm.me-1(href=`/turno/details/${turno.id}` title="Ver detalles")
+                  i.bi.bi-eye.me-1
+                  | Ver
+                if turno.Paciente && turno.estado === 'confirmado'
+                  form(action="/internacion/create/buscar" method="POST" style="display:inline;")
                     input(type="hidden" name="dni" value=turno.Paciente.persona.DNI)
-                    button.btn.btn-success(type="submit" title="Internar paciente")
+                    button.btn.btn-success.btn-sm(type="submit" title="Internar paciente")
                       i.fas.fa-bed.me-1
                       | Internar
-                else if turno.estado === 'cancelado'
-                  span.text-muted No disponible
-                else
-                  span.text-danger Sin paciente
         else
           tr
             td(colspan="8").text-center No hay turnos para mostrar.

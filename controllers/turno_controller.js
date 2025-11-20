@@ -229,5 +229,91 @@ module.exports = {
       paciente: null,
       sugerirCrearPaciente: false
     });
+  },
+
+  // GET /turno/details/:id - Ver detalles de un turno
+  Details_GET: async (req, res) => {
+    try {
+      const { id } = req.params;
+
+      const turno = await Turno.findByPk(id, {
+        include: [
+          {
+            model: Paciente,
+            as: 'Paciente',
+            include: [{
+              model: Persona,
+              as: 'persona'
+            }]
+          },
+          {
+            model: Motivo
+          }
+        ]
+      });
+
+      if (!turno) {
+        return res.status(404).send('Turno no encontrado');
+      }
+
+      res.render('turno/details', {
+        title: 'Detalles del Turno',
+        turno
+      });
+
+    } catch (error) {
+      console.error('Error al cargar detalles del turno:', error);
+      res.status(500).send('Error al cargar los detalles');
+    }
+  },
+
+  // POST /turno/confirmar/:id - Confirmar un turno
+  Confirmar_POST: async (req, res) => {
+    try {
+      const { id } = req.params;
+
+      const turno = await Turno.findByPk(id);
+
+      if (!turno) {
+        return res.status(404).send('Turno no encontrado');
+      }
+
+      if (turno.estado !== 'pendiente') {
+        return res.status(400).send('Solo se pueden confirmar turnos pendientes');
+      }
+
+      await turno.update({ estado: 'confirmado' });
+
+      res.redirect(`/turno/details/${id}`);
+
+    } catch (error) {
+      console.error('Error al confirmar turno:', error);
+      res.status(500).send('Error al confirmar el turno');
+    }
+  },
+
+  // POST /turno/cancelar/:id - Cancelar un turno
+  Cancelar_POST: async (req, res) => {
+    try {
+      const { id } = req.params;
+
+      const turno = await Turno.findByPk(id);
+
+      if (!turno) {
+        return res.status(404).send('Turno no encontrado');
+      }
+
+      if (turno.estado === 'cancelado') {
+        return res.status(400).send('Este turno ya está cancelado');
+      }
+
+      await turno.update({ estado: 'cancelado' });
+
+      res.redirect(`/turno/details/${id}`);
+
+    } catch (error) {
+      console.error('Error al cancelar turno:', error);
+      res.status(500).send('Error al cancelar el turno');
+    }
   }
 };

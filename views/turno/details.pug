@@ -1,0 +1,162 @@
+extends ../layout
+
+block content
+  .container.mt-4
+    .row
+      .col-md-12
+        .d-flex.justify-content-between.align-items-center.mb-3
+          h2 
+            i.bi.bi-calendar-check.text-primary.me-2
+            | Detalles del Turno
+          div
+            a(href='/turno')
+              button.btn.btn-secondary
+                i.bi.bi-list.me-1
+                | Volver al Listado
+
+    .row
+      // Columna izquierda: Info del paciente
+      .col-md-6
+        .card.border-info.mb-3
+          .card-header.bg-info.text-white
+            i.bi.bi-person-fill.me-2
+            strong Información del Paciente
+          .card-body
+            p
+              strong Nombre Completo: 
+              = turno.Paciente.persona.nombre + ' ' + turno.Paciente.persona.apellido
+            p
+              strong DNI: 
+              = turno.Paciente.persona.DNI
+            p
+              strong Sexo: 
+              = turno.Paciente.sexo
+            if turno.Paciente.persona.telefono
+              p
+                strong Teléfono: 
+                = turno.Paciente.persona.telefono
+            if turno.Paciente.persona.email
+              p
+                strong Email: 
+                = turno.Paciente.persona.email
+            if turno.Paciente.persona.fecha_nacimiento
+              p
+                strong Fecha de Nacimiento: 
+                = new Date(turno.Paciente.persona.fecha_nacimiento).toLocaleDateString('es-AR')
+              p
+                strong Edad: 
+                = Math.floor((new Date() - new Date(turno.Paciente.persona.fecha_nacimiento)) / (365.25 * 24 * 60 * 60 * 1000)) + ' años'
+
+      // Columna derecha: Info del turno
+      .col-md-6
+        .card.border-primary.mb-3
+          .card-header.bg-primary.text-white
+            i.bi.bi-calendar-event.me-2
+            strong Información del Turno
+          .card-body
+            p
+              strong Fecha y Hora: 
+              = new Date(turno.fecha).toLocaleString('es-AR', { dateStyle: 'full', timeStyle: 'short' })
+            p
+              strong Motivo: 
+              = turno.Motivo.motivo
+            p
+              strong Estado: 
+              if turno.estado === 'pendiente'
+                span.badge.bg-warning.text-dark Pendiente
+              else if turno.estado === 'confirmado'
+                span.badge.bg-success Confirmado
+              else if turno.estado === 'cancelado'
+                span.badge.bg-danger Cancelado
+            hr
+            p.text-muted
+              strong ID del Turno: 
+              = turno.id
+
+        .card.border-secondary.mb-3
+          .card-header.bg-secondary.text-white
+            i.bi.bi-gear.me-2
+            strong Acciones
+          .card-body
+            .d-grid.gap-2
+              if turno.estado === 'pendiente'
+                button.btn.btn-success.w-100(type='button' data-bs-toggle='modal' data-bs-target='#confirmarModal')
+                  i.bi.bi-check-circle.me-1
+                  | Confirmar Turno
+                button.btn.btn-danger.w-100.mt-2(type='button' data-bs-toggle='modal' data-bs-target='#cancelarModal')
+                  i.bi.bi-x-circle.me-1
+                  | Cancelar Turno
+              else if turno.estado === 'confirmado'
+                form(action="/internacion/create/buscar" method="POST")
+                  input(type="hidden" name="dni" value=turno.Paciente.persona.DNI)
+                  button.btn.btn-primary.w-100(type="submit")
+                    i.fas.fa-bed.me-1
+                    | Internar Paciente
+                button.btn.btn-danger.w-100.mt-2(type='button' data-bs-toggle='modal' data-bs-target='#cancelarModal')
+                  i.bi.bi-x-circle.me-1
+                  | Cancelar Turno
+              else if turno.estado === 'cancelado'
+                .alert.alert-info.mb-0
+                  i.bi.bi-info-circle.me-2
+                  | Este turno está cancelado
+
+    // Modal Confirmar Turno
+    .modal.fade#confirmarModal(tabindex='-1' aria-labelledby='confirmarModalLabel' aria-hidden='true')
+      .modal-dialog.modal-dialog-centered
+        .modal-content
+          .modal-header.bg-success.text-white
+            h5.modal-title#confirmarModalLabel
+              i.bi.bi-check-circle.me-2
+              | Confirmar Turno
+            button.btn-close.btn-close-white(type='button' data-bs-dismiss='modal' aria-label='Close')
+          .modal-body
+            p
+              strong ¿Está seguro de confirmar este turno?
+            hr
+            p.mb-1
+              strong Paciente: 
+              = turno.Paciente.persona.nombre + ' ' + turno.Paciente.persona.apellido
+            p.mb-1
+              strong Fecha: 
+              = new Date(turno.fecha).toLocaleString('es-AR', { dateStyle: 'full', timeStyle: 'short' })
+            p.mb-0
+              strong Motivo: 
+              = turno.Motivo.motivo
+          .modal-footer
+            button.btn.btn-secondary(type='button' data-bs-dismiss='modal') Cancelar
+            form(method='POST' action=`/turno/confirmar/${turno.id}` style='display: inline;')
+              button.btn.btn-success(type='submit')
+                i.bi.bi-check-circle.me-1
+                | Confirmar
+
+    // Modal Cancelar Turno
+    .modal.fade#cancelarModal(tabindex='-1' aria-labelledby='cancelarModalLabel' aria-hidden='true')
+      .modal-dialog.modal-dialog-centered
+        .modal-content
+          .modal-header.bg-danger.text-white
+            h5.modal-title#cancelarModalLabel
+              i.bi.bi-x-circle.me-2
+              | Cancelar Turno
+            button.btn-close.btn-close-white(type='button' data-bs-dismiss='modal' aria-label='Close')
+          .modal-body
+            p
+              strong ¿Está seguro de cancelar este turno?
+            .alert.alert-warning
+              i.bi.bi-exclamation-triangle.me-2
+              | Esta acción no se puede deshacer
+            hr
+            p.mb-1
+              strong Paciente: 
+              = turno.Paciente.persona.nombre + ' ' + turno.Paciente.persona.apellido
+            p.mb-1
+              strong Fecha: 
+              = new Date(turno.fecha).toLocaleString('es-AR', { dateStyle: 'full', timeStyle: 'short' })
+            p.mb-0
+              strong Motivo: 
+              = turno.Motivo.motivo
+          .modal-footer
+            button.btn.btn-secondary(type='button' data-bs-dismiss='modal') Volver
+            form(method='POST' action=`/turno/cancelar/${turno.id}` style='display: inline;')
+              button.btn.btn-danger(type='submit')
+                i.bi.bi-x-circle.me-1
+                | Cancelar Turno
