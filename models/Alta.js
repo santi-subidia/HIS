@@ -40,7 +40,7 @@ module.exports = (sequelize) => {
     },
     id_plan_cuidado_final: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: true,
       validate: {
         isInt: { msg: "Debe ser un número entero" },
         min: 1
