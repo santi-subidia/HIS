@@ -229,10 +229,16 @@ module.exports = {
           {
             model: Medico,
             as: 'medico',
-            include: [{
-              model: Persona,
-              as: 'persona'
-            }]
+            include: [
+              {
+                model: Persona,
+                as: 'persona'
+              },
+              {
+                model: require('../models').Especialidad,
+                as: 'especialidad'
+              }
+            ]
           },
           {
             model: Plan_cuidado,

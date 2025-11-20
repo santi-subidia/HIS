@@ -34,10 +34,13 @@ block content
           .card-body
             p
               strong Paciente: 
-              if alta.internacion.PacienteSeguro.isDesconocido
-                span.badge.bg-warning.text-dark Paciente No Identificado
+              if alta.internacion.PacienteSeguro
+                if alta.internacion.PacienteSeguro.isDesconocido
+                  span.badge.bg-warning.text-dark Paciente No Identificado
+                else
+                  = alta.internacion.PacienteSeguro.paciente.persona.nombre + ' ' + alta.internacion.PacienteSeguro.paciente.persona.apellido
               else
-                = alta.internacion.PacienteSeguro.paciente.persona.nombre + ' ' + alta.internacion.PacienteSeguro.paciente.persona.apellido
+                span.badge.bg-info Paciente de Emergencia
             p
               strong Ubicación durante internación: 
               = `Cama ${alta.internacion.Cama.numero_cama}`
@@ -60,8 +63,8 @@ block content
               strong Nombre: 
               = alta.medico.persona.nombre + ' ' + alta.medico.persona.apellido
             p
-              strong Matrícula: 
-              = alta.medico.matricula
+              strong Especialidad: 
+              = alta.medico.especialidad.nombre
 
       // Columna derecha: Info del alta
       .col-md-6
@@ -80,9 +83,10 @@ block content
                 span.badge.bg-dark Defunción
               else if alta.tipo_alta === 'Traslado'
                 span.badge.bg-info Traslado
-            p
-              strong Plan de Cuidado Final: 
-              = alta.plan_cuidado_final.diagnostico
+            if alta.plan_cuidado_final
+              p
+                strong Plan de Cuidado Final: 
+                = alta.plan_cuidado_final.diagnostico
             hr
             p
               strong Diagnóstico Final:
