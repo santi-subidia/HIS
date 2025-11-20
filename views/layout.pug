@@ -77,46 +77,14 @@ html(lang="es")
                       a.dropdown-item(href="/habitacion") Gestión de Habitaciones
               
               else if usuario.rol === 'Admin'
-                // Menú agrupado para Admin
+                // Menú simplificado para Admin - solo gestión de usuarios
                 li.nav-item.dropdown
-                  a.nav-link.dropdown-toggle(href="#" role="button" data-bs-toggle="dropdown") Admisión y Recepción
+                  a.nav-link.dropdown-toggle(href="#" role="button" data-bs-toggle="dropdown") Usuarios
                   ul.dropdown-menu
-                    // Pacientes
-                    li.dropdown-submenu
-                      a.dropdown-item.dropdown-toggle(href="/paciente") Pacientes
-                      ul.dropdown-menu
-                        li
-                          a.dropdown-item(href="/paciente/create") Registrar nuevo Paciente
-                    // Internación
-                    li.dropdown-submenu
-                      a.dropdown-item.dropdown-toggle(href="/internacion") Internación
-                      ul.dropdown-menu
-                        li
-                          a.dropdown-item(href="/internacion/create") Internacion de Paciente
-                    // Turnos
-                    li.dropdown-submenu
-                      a.dropdown-item.dropdown-toggle(href="/turno") Turnos
-                      ul.dropdown-menu
-                        li
-                          a.dropdown-item(href="/turno/create") Crear turno
-                    // Habitaciones
-                    li.dropdown-submenu
-                      a.dropdown-item.dropdown-toggle(href="/habitacion") Habitaciones
-                      ul.dropdown-menu
-                        li
-                          a.dropdown-item(href="/habitacion/") Gestión de Habitaciones
                     li
-                      a.dropdown-item.bg-danger.text-white(href="/internacion/create/emergencia") Emergencia
-
-                li.nav-item.dropdown
-                  a.nav-link.dropdown-toggle(href="#" role="button" data-bs-toggle="dropdown") Enfermería
-                  ul.dropdown-menu
-                    // Internaciones
-                    li.dropdown-submenu
-                      a.dropdown-item.dropdown-toggle(href="/internacion") Internaciones
-                      ul.dropdown-menu
-                        li
-                          a.dropdown-item(href="/internacion") Ver Internaciones Activas
+                      a.dropdown-item(href="/usuarios/create") Crear Usuario
+                    li
+                      a.dropdown-item(href="/usuarios/gestionar") Gestionar Usuarios
             
             ul.navbar-nav.ms-auto
               li.nav-item.dropdown

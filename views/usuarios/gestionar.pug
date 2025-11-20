@@ -1,0 +1,152 @@
+extends ../layout
+
+block content
+  .container.mt-4
+    .row
+      .col-md-12
+        .d-flex.justify-content-between.align-items-center.mb-3
+          h2 
+            i.bi.bi-person-x.text-danger.me-2
+            | Gestionar Usuarios
+          a(href='/dashboard')
+            button.btn.btn-secondary
+              i.bi.bi-arrow-left.me-1
+              | Volver al Dashboard
+
+    if success
+      .alert.alert-success.alert-dismissible.fade.show(role='alert')
+        i.bi.bi-check-circle.me-2
+        = success
+        button.btn-close(type='button' data-bs-dismiss='alert')
+
+    if mensaje
+      .alert.alert-danger.alert-dismissible.fade.show(role='alert')
+        i.bi.bi-exclamation-triangle.me-2
+        = mensaje
+        button.btn-close(type='button' data-bs-dismiss='alert')
+
+    // Filtros
+    .card.mb-4.shadow-sm
+      .card-header.bg-primary.text-white
+        i.bi.bi-funnel.me-2
+        strong Filtros de Búsqueda
+      .card-body
+        form.row.g-3(method='GET' action='/usuarios/gestionar')
+          .col-md-4
+            label.form-label(for='nombre') Nombre o Apellido
+            input.form-control#nombre(type='text' name='nombre' value=(filters && filters.nombre) || '' placeholder='Buscar por nombre...')
+          .col-md-3
+            label.form-label(for='dni') DNI
+            input.form-control#dni(type='text' name='dni' value=(filters && filters.dni) || '' placeholder='DNI...')
+          .col-md-3
+            label.form-label(for='rol') Rol
+            select.form-select#rol(name='rol')
+              option(value='') Todos los Roles
+              each rol in roles
+                option(value=rol.id selected=(filters && filters.rol == rol.id))= rol.nombre
+          .col-md-2.d-flex.align-items-end
+            button.btn.btn-primary.w-100(type='submit')
+              i.bi.bi-search.me-1
+              | Filtrar
+        if filters && (filters.nombre || filters.dni || filters.rol)
+          .mt-2
+            a.btn.btn-secondary.btn-sm(href='/usuarios/gestionar')
+              i.bi.bi-x-circle.me-1
+              | Limpiar Filtros
+
+    // Tabla de usuarios
+    .card.shadow
+      .card-header.bg-danger.text-white
+        h5.mb-0
+          i.bi.bi-people.me-2
+          | Usuarios Activos del Sistema
+      .card-body
+        if usuarios.length
+          .table-responsive
+            table.table.table-striped.table-hover
+              thead.table-dark
+                tr
+                  th DNI
+                  th Nombre Completo
+                  th Usuario
+                  th Rol
+                  th Acciones
+              tbody
+                each usuario in usuarios
+                  tr
+                    td= usuario.persona.DNI
+                    td= `${usuario.persona.apellido}, ${usuario.persona.nombre}`
+                    td
+                      strong= usuario.usuario
+                    td
+                      if usuario.rol.nombre === 'Admin'
+                        span.badge.bg-danger Admin
+                      else if usuario.rol.nombre === 'Medico'
+                        span.badge.bg-success Médico
+                      else if usuario.rol.nombre === 'Enfermero'
+                        span.badge.bg-info Enfermero
+                      else if usuario.rol.nombre === 'Recepcionista'
+                        span.badge.bg-warning.text-dark Recepcionista
+                      else
+                        span.badge.bg-secondary= usuario.rol.nombre
+                    td
+                      button.btn.btn-danger.btn-sm(type='button' data-bs-toggle='modal' data-bs-target=`#bajaModal${usuario.id}`)
+                        i.bi.bi-person-dash.me-1
+                        | Dar de Baja
+
+          // Modales para confirmar baja
+          each usuario in usuarios
+            .modal.fade(id=`bajaModal${usuario.id}` tabindex='-1' aria-labelledby=`bajaModalLabel${usuario.id}` aria-hidden='true')
+              .modal-dialog.modal-dialog-centered
+                .modal-content
+                  .modal-header.bg-danger.text-white
+                    h5.modal-title(id=`bajaModalLabel${usuario.id}`)
+                      i.bi.bi-exclamation-triangle.me-2
+                      | Confirmar Baja de Usuario
+                    button.btn-close.btn-close-white(type='button' data-bs-dismiss='modal' aria-label='Close')
+                  .modal-body
+                    p
+                      strong ¿Está seguro de dar de baja a este usuario?
+                    .alert.alert-warning
+                      i.bi.bi-exclamation-triangle.me-2
+                      | Esta acción marcará al usuario como inactivo. No podrá iniciar sesión.
+                    hr
+                    p.mb-1
+                      strong Nombre: 
+                      = `${usuario.persona.nombre} ${usuario.persona.apellido}`
+                    p.mb-1
+                      strong DNI: 
+                      = usuario.persona.DNI
+                    p.mb-1
+                      strong Usuario: 
+                      = usuario.usuario
+                    p.mb-0
+                      strong Rol: 
+                      = usuario.rol.nombre
+                    if usuario.rol.nombre === 'Admin'
+                      .alert.alert-danger.mt-3.mb-0
+                        i.bi.bi-shield-exclamation.me-2
+                        strong Advertencia: 
+                        | Está dando de baja a un Administrador. Asegúrese de que exista al menos otro administrador activo.
+                  .modal-footer
+                    button.btn.btn-secondary(type='button' data-bs-dismiss='modal') Cancelar
+                    form(method='POST' action=`/usuarios/dar-baja/${usuario.id}` style='display: inline;')
+                      button.btn.btn-danger(type='submit')
+                        i.bi.bi-person-dash.me-1
+                        | Confirmar Baja
+
+        else
+          .alert.alert-info.mb-0
+            i.bi.bi-info-circle.me-2
+            | No hay usuarios activos que coincidan con los filtros.
+
+    .row.mt-4
+      .col-md-12
+        .alert.alert-info
+          i.bi.bi-info-circle.me-2
+          strong Información sobre la baja de usuarios:
+          ul.mb-0.mt-2
+            li La baja es lógica, el usuario queda inactivo pero sus datos se conservan
+            li Un usuario dado de baja no puede iniciar sesión en el sistema
+            li Si es Médico o Enfermero, también se da de baja su registro profesional
+            li No se puede dar de baja al último administrador del sistema

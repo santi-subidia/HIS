@@ -95,40 +95,15 @@ block content
         .card.shadow
           .card-header.bg-danger.text-white
             h5.mb-0
-              i.fas.fa-tools.me-2
-              | Panel de Administración
+              i.fas.fa-user-cog.me-2
+              | Gestión de Usuarios
           .card-body
             .row.g-3
-              .col-md-3
-                a.btn.btn-primary.btn-lg.w-100.h-100.d-flex.flex-column.align-items-center.justify-content-center(href='/paciente')
-                  i.fas.fa-users.fa-3x.mb-3
-                  | Pacientes
-              .col-md-3
-                a.btn.btn-success.btn-lg.w-100.h-100.d-flex.flex-column.align-items-center.justify-content-center(href='/internacion')
-                  i.fas.fa-hospital.fa-3x.mb-3
-                  | Internaciones
-              .col-md-3
-                a.btn.btn-info.btn-lg.w-100.h-100.d-flex.flex-column.align-items-center.justify-content-center(href='/turno')
-                  i.fas.fa-calendar-alt.fa-3x.mb-3
-                  | Turnos
-              .col-md-3
-                a.btn.btn-warning.btn-lg.w-100.h-100.d-flex.flex-column.align-items-center.justify-content-center(href='/habitacion')
-                  i.fas.fa-door-open.fa-3x.mb-3
-                  | Habitaciones
-              .col-md-3
-                a.btn.btn-secondary.btn-lg.w-100.h-100.d-flex.flex-column.align-items-center.justify-content-center(href='/estudios/pendientes')
-                  i.fas.fa-microscope.fa-3x.mb-3
-                  | Estudios Médicos
-              .col-md-3
-                a.btn.btn-dark.btn-lg.w-100.h-100.d-flex.flex-column.align-items-center.justify-content-center(href='/alta/listado')
-                  i.fas.fa-file-medical.fa-3x.mb-3
-                  | Altas
-              .col-md-3
-                a.btn.btn-outline-primary.btn-lg.w-100.h-100.d-flex.flex-column.align-items-center.justify-content-center(href='/solicitudes-atencion')
-                  i.fas.fa-bell.fa-3x.mb-3
-                  | Solicitudes
-              .col-md-3
-                a.btn.btn-outline-danger.btn-lg.w-100.h-100.d-flex.flex-column.align-items-center.justify-content-center(href='#')
-                  i.fas.fa-user-cog.fa-3x.mb-3
-                  | Usuarios
-                  small.text-muted (Próximamente)
+              .col-md-6
+                a.btn.btn-success.btn-lg.w-100.h-100.d-flex.flex-column.align-items-center.justify-content-center(href='/usuarios/create')
+                  i.fas.fa-user-plus.fa-3x.mb-3
+                  | Crear Usuario
+              .col-md-6
+                a.btn.btn-danger.btn-lg.w-100.h-100.d-flex.flex-column.align-items-center.justify-content-center(href='/usuarios/gestionar')
+                  i.fas.fa-user-times.fa-3x.mb-3
+                  | Dar de Baja Usuario

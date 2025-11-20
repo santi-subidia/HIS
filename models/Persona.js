@@ -9,7 +9,7 @@ module.exports = (sequelize) => {
       Persona.hasOne(models.Medico, { foreignKey: 'id_persona', as: 'medico' });
       // Una persona puede ser un enfermero
       Persona.hasOne(models.Enfermero,{ foreignKey: 'id_persona', as: 'enfermero' });
-      // Una persona puede ser un usuario
+      // Una persona tiene UN usuario (relación 1:1)
       Persona.hasOne(models.Usuario, { foreignKey: 'id_persona', as: 'usuario' });
       // Una persona puede ser un contacto de emergencia (puede haber varios contactos de emergencia con la misma persona)
       Persona.hasMany(models.ContactoEmergencia, { foreignKey: 'id_persona', as: 'contactosEmergencia' });

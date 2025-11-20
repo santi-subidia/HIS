@@ -1,88 +1,175 @@
-extends ../layout
+doctype html
+html(lang='es')
+  head
+    meta(charset='UTF-8')
+    meta(name='viewport' content='width=device-width, initial-scale=1.0')
+    title Login - HIS
+    link(href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css' rel='stylesheet')
+    link(href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css' rel='stylesheet')
+    style.
+      body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+      }
+      .card {
+        border-radius: 20px;
+        border: none;
+        animation: fadeIn 0.5s ease-in;
+      }
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      .bg-gradient-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        border-top-left-radius: 20px !important;
+        border-top-right-radius: 20px !important;
+      }
+      .card-footer {
+        border-bottom-left-radius: 20px !important;
+        border-bottom-right-radius: 20px !important;
+        border-top: 1px solid #e0e0e0;
+      }
+      .input-group-text {
+        background-color: #f8f9fa;
+        border-right: none;
+      }
+      .form-control {
+        border-left: none;
+      }
+      .form-control:focus {
+        box-shadow: none;
+        border-color: #ced4da;
+      }
+      .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        transition: transform 0.2s;
+      }
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+      }
+      #togglePassword {
+        border-left: none;
+      }
+      .alert-danger {
+        border-left: 4px solid #dc3545;
+      }
+  body
+    .container.mt-5
+      .row.justify-content-center
+        .col-md-5
+          .card.shadow-lg
+            .card-header.bg-gradient-primary.text-white.text-center.py-4
+              .mb-2
+                i.fas.fa-hospital.fa-3x
+              h3.mb-0.fw-bold HIS
+              small.d-block.mt-1 Sistema de Gestión Hospitalaria
+          
+            .card-body.p-5
+              h4.text-center.mb-4.text-primary
+                i.fas.fa-sign-in-alt.me-2
+                | Iniciar Sesión
 
-block content
-  .container.mt-5
-    .row.justify-content-center
-      .col-md-5
-        .card.shadow
-          .card-header.bg-primary.text-white.text-center
-            h3.mb-0
-              i.fas.fa-hospital.me-2
-              | HIS - Sistema Hospitalario
-          .card-body.p-4
-            h4.text-center.mb-4 Iniciar Sesión
+              if error
+                .alert.alert-danger.alert-dismissible.fade.show(role='alert')
+                  i.fas.fa-exclamation-triangle.me-2
+                  if error === 'complete-todos-los-campos'
+                    | Complete todos los campos
+                  else if error === 'credenciales-invalidas'
+                    | Usuario o contraseña incorrectos
+                  else if error === 'usuario-sin-perfil-medico'
+                    | El usuario no tiene un perfil de médico asociado
+                  else if error === 'usuario-sin-perfil-enfermero'
+                    | El usuario no tiene un perfil de enfermero asociado
+                  else if error === 'usuario-internado'
+                    strong Acceso Denegado
+                    br
+                    | No puede iniciar sesión porque actualmente tiene una internación activa. Por razones de seguridad, el acceso está bloqueado hasta que reciba el alta.
+                  else if error === 'error-del-servidor'
+                    | Error del servidor. Intente nuevamente
+                  else if error === 'debes-iniciar-sesion'
+                    | Debes iniciar sesión para acceder
+                  else if error === 'sesion-cerrada'
+                    .text-success
+                      i.fas.fa-check-circle.me-2
+                      | Sesión cerrada exitosamente
+                  else if error === 'rol-no-valido'
+                    | Rol de usuario no válido
+                  else
+                    = error
+                  button.btn-close(type='button' data-bs-dismiss='alert')
 
-            if error
-              .alert.alert-danger.alert-dismissible.fade.show(role='alert')
-                i.fas.fa-exclamation-triangle.me-2
-                if error === 'complete-todos-los-campos'
-                  | Complete todos los campos
-                else if error === 'credenciales-invalidas'
-                  | Usuario o contraseña incorrectos
-                else if error === 'usuario-sin-perfil-medico'
-                  | El usuario no tiene un perfil de médico asociado
-                else if error === 'usuario-sin-perfil-enfermero'
-                  | El usuario no tiene un perfil de enfermero asociado
-                else if error === 'usuario-internado'
-                  strong Acceso Denegado
-                  br
-                  | No puede iniciar sesión porque actualmente tiene una internación activa. Por razones de seguridad, el acceso está bloqueado hasta que reciba el alta.
-                else if error === 'error-del-servidor'
-                  | Error del servidor. Intente nuevamente
-                else if error === 'debes-iniciar-sesion'
-                  | Debes iniciar sesión para acceder
-                else if error === 'sesion-cerrada'
-                  | Sesión cerrada exitosamente
-                else if error === 'rol-no-valido'
-                  | Rol de usuario no válido
-                else
-                  = error
-                button.btn-close(type='button' data-bs-dismiss='alert')
+              form(action='/login' method='POST')
+                .mb-4
+                  label.form-label.fw-bold(for='usuario')
+                    i.fas.fa-user.me-2.text-primary
+                    | Usuario
+                  .input-group.input-group-lg
+                    span.input-group-text
+                      i.fas.fa-user
+                    input#usuario.form-control(
+                      type='text'
+                      name='usuario'
+                      placeholder='Ingrese su usuario'
+                      required
+                      autofocus
+                    )
 
-            form(action='/login' method='POST')
-              .mb-3
-                label.form-label(for='usuario')
-                  i.fas.fa-user.me-2
-                  strong Usuario
-                input#usuario.form-control.form-control-lg(
-                  type='text'
-                  name='usuario'
-                  placeholder='Ingrese su usuario'
-                  required
-                  autofocus
-                )
+                .mb-4
+                  label.form-label.fw-bold(for='password')
+                    i.fas.fa-lock.me-2.text-primary
+                    | Contraseña
+                  .input-group.input-group-lg
+                    span.input-group-text
+                      i.fas.fa-lock
+                    input#password.form-control(
+                      type='password'
+                      name='password'
+                      placeholder='Ingrese su contraseña'
+                      required
+                    )
+                    button.btn.btn-outline-secondary(type='button' id='togglePassword')
+                      i.fas.fa-eye#eyeIcon
+                  small.form-text.text-muted.mt-2.d-block
+                    i.fas.fa-info-circle.me-1
+                    | Haga clic en el ojo para mostrar/ocultar la contraseña
 
-              .mb-4
-                label.form-label(for='password')
-                  i.fas.fa-lock.me-2
-                  strong Contraseña
-                input#password.form-control.form-control-lg(
-                  type='password'
-                  name='password'
-                  placeholder='Ingrese su contraseña'
-                  required
-                )
+                .d-grid.gap-2
+                  button.btn.btn-primary.btn-lg(type='submit')
+                    i.fas.fa-sign-in-alt.me-2
+                    | Iniciar Sesión
 
-              .d-grid
-                button.btn.btn-primary.btn-lg(type='submit')
-                  i.fas.fa-sign-in-alt.me-2
-                  | Iniciar Sesión
+            .card-footer.text-center.bg-light.py-3
+              small.text-muted
+                i.fas.fa-shield-alt.me-1
+                | Acceso seguro al sistema
+              br
+              small.text-muted.mt-1.d-block
+                | © 2025 Sistema HIS
 
-          .card-footer.text-center.text-muted
-            small
-              i.fas.fa-info-circle.me-1
-              | Sistema de Gestión Hospitalaria
+    script(src='https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js')
+    script.
+      document.addEventListener('DOMContentLoaded', function() {
+        const togglePassword = document.getElementById('togglePassword');
+        const password = document.getElementById('password');
+        const eyeIcon = document.getElementById('eyeIcon');
 
-  style.
-    body {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      min-height: 100vh;
-    }
-    .card {
-      border-radius: 15px;
-      margin-top: 50px;
-    }
-    .card-header {
-      border-top-left-radius: 15px !important;
-      border-top-right-radius: 15px !important;
-    }
+        if (togglePassword) {
+          togglePassword.addEventListener('click', function() {
+            const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+            password.setAttribute('type', type);
+            
+            if (type === 'password') {
+              eyeIcon.classList.remove('fa-eye-slash');
+              eyeIcon.classList.add('fa-eye');
+            } else {
+              eyeIcon.classList.remove('fa-eye');
+              eyeIcon.classList.add('fa-eye-slash');
+            }
+          });
+        }
+      });

@@ -1,0 +1,178 @@
+extends ../layout
+
+block content
+  .container.mt-4
+    .row
+      .col-md-12
+        .d-flex.justify-content-between.align-items-center.mb-3
+          h2 
+            i.bi.bi-person-plus.text-success.me-2
+            | Crear Usuario
+          a(href='/dashboard')
+            button.btn.btn-secondary
+              i.bi.bi-arrow-left.me-1
+              | Volver al Dashboard
+
+    if exito
+      .alert.alert-success.alert-dismissible.fade.show(role='alert')
+        i.bi.bi-check-circle.me-2
+        = exito
+        button.btn-close(type='button' data-bs-dismiss='alert')
+
+    if mensaje
+      .alert.alert-danger.alert-dismissible.fade.show(role='alert')
+        i.bi.bi-exclamation-triangle.me-2
+        = mensaje
+        button.btn-close(type='button' data-bs-dismiss='alert')
+
+    .row
+      .col-md-8.offset-md-2
+        if paso === 'buscar'
+          // PASO 1: Buscar persona por DNI
+          .card.shadow
+            .card-header.bg-primary.text-white
+              h5.mb-0
+                i.bi.bi-search.me-2
+                | Paso 1: Buscar Persona por DNI
+            .card-body
+              form(method='POST' action='/usuarios/buscar-persona')
+                .mb-3
+                  label.form-label(for='dni') 
+                    strong DNI de la Persona *
+                  input.form-control.form-control-lg#dni(type='text' name='dni' value=valores.dni || '' required pattern='[0-9]{7,9}' maxlength='9' placeholder='Ingrese el DNI' autofocus)
+                  small.form-text.text-muted Si la persona no existe, se mostrará un formulario para crearla
+
+                .d-grid
+                  button.btn.btn-primary.btn-lg(type='submit')
+                    i.bi.bi-search.me-2
+                    | Buscar Persona
+
+        else if paso === 'crear_persona'
+          // PASO 2: Crear nueva persona
+          .card.shadow
+            .card-header.bg-warning.text-dark
+              h5.mb-0
+                i.bi.bi-person-plus.me-2
+                | Paso 2: Crear Nueva Persona
+            .card-body
+              .alert.alert-info
+                i.bi.bi-info-circle.me-2
+                | No existe una persona con DNI <strong>#{valores.dni}</strong>. Complete los datos para crearla.
+              
+              form(method='POST' action='/usuarios/create')
+                input(type='hidden' name='dni' value=valores.dni)
+                
+                .row
+                  .col-md-6.mb-3
+                    label.form-label(for='nombre') 
+                      strong Nombre *
+                    input.form-control#nombre(type='text' name='nombre' value=valores.nombre || '' required minlength='2' maxlength='50' placeholder='Nombre')
+                  
+                  .col-md-6.mb-3
+                    label.form-label(for='apellido') 
+                      strong Apellido *
+                    input.form-control#apellido(type='text' name='apellido' value=valores.apellido || '' required minlength='2' maxlength='50' placeholder='Apellido')
+
+                .mb-3
+                  label.form-label(for='telefono') 
+                    strong Teléfono
+                  input.form-control#telefono(type='text' name='telefono' value=valores.telefono || '' pattern='[0-9]{7,15}' maxlength='15' placeholder='Opcional')
+
+                hr
+
+                .mb-3
+                  label.form-label(for='usuario') 
+                    strong Nombre de Usuario *
+                  input.form-control#usuario(type='text' name='usuario' value=valores.usuario || '' required minlength='3' maxlength='50' placeholder='Ej: juan.perez')
+
+                .mb-3
+                  label.form-label(for='password') 
+                    strong Contraseña *
+                  input.form-control#password(type='password' name='password' required minlength='6' placeholder='Mínimo 6 caracteres')
+
+                .mb-3
+                  label.form-label(for='password_confirm') 
+                    strong Confirmar Contraseña *
+                  input.form-control#password_confirm(type='password' name='password_confirm' required minlength='6' placeholder='Repita la contraseña')
+
+                .mb-3
+                  label.form-label(for='id_rol') 
+                    strong Rol *
+                  select.form-select#id_rol(name='id_rol' required)
+                    option(value='') Seleccione un rol
+                    each rol in roles
+                      option(value=rol.id selected=(valores.id_rol == rol.id))= rol.nombre
+
+                hr
+
+                .d-grid.gap-2
+                  button.btn.btn-success.btn-lg(type='submit')
+                    i.bi.bi-check-circle.me-2
+                    | Crear Persona y Usuario
+                  a.btn.btn-outline-secondary(href='/usuarios/create') Cancelar
+
+        else if paso === 'crear_usuario'
+          // PASO 3: Crear usuario para persona existente
+          .card.shadow
+            .card-header.bg-success.text-white
+              h5.mb-0
+                i.bi.bi-person-fill-add.me-2
+                | Paso 2: Crear Usuario
+            .card-body
+              .alert.alert-success
+                i.bi.bi-check-circle.me-2
+                | Persona encontrada: <strong>#{persona.nombre} #{persona.apellido}</strong> (DNI: #{persona.DNI})
+              
+              if roleActual
+                .alert.alert-info
+                  i.bi.bi-info-circle.me-2
+                  | Esta persona es <strong>#{roleActual}</strong>. Solo puede tener roles compatibles.
+              
+              form(method='POST' action='/usuarios/create')
+                input(type='hidden' name='dni' value=persona.DNI)
+
+                .mb-3
+                  label.form-label(for='usuario') 
+                    strong Nombre de Usuario *
+                  input.form-control#usuario(type='text' name='usuario' value=valores.usuario || '' required minlength='3' maxlength='50' placeholder='Ej: juan.perez')
+                  small.form-text.text-muted Mínimo 3 caracteres
+
+                .mb-3
+                  label.form-label(for='password') 
+                    strong Contraseña *
+                  input.form-control#password(type='password' name='password' required minlength='6' placeholder='Mínimo 6 caracteres')
+
+                .mb-3
+                  label.form-label(for='password_confirm') 
+                    strong Confirmar Contraseña *
+                  input.form-control#password_confirm(type='password' name='password_confirm' required minlength='6' placeholder='Repita la contraseña')
+
+                .mb-3
+                  label.form-label(for='id_rol') 
+                    strong Rol *
+                  select.form-select#id_rol(name='id_rol' required)
+                    option(value='') Seleccione un rol
+                    each rol in roles
+                      option(value=rol.id selected=(valores.id_rol == rol.id))= rol.nombre
+                  if roleActual
+                    small.form-text.text-muted Solo roles compatibles con #{roleActual}
+
+                hr
+
+                .d-grid.gap-2
+                  button.btn.btn-success.btn-lg(type='submit')
+                    i.bi.bi-check-circle.me-2
+                    | Crear Usuario
+                  a.btn.btn-outline-secondary(href='/usuarios/create') Cancelar
+
+    .row.mt-4
+      .col-md-12
+        .alert.alert-info
+          i.bi.bi-info-circle.me-2
+          strong Reglas de Compatibilidad de Roles:
+          ul.mb-0.mt-2
+            li <strong>Médico:</strong> Solo puede ser Admin o mantener rol de Médico
+            li <strong>Enfermero:</strong> Solo puede ser Admin o mantener rol de Enfermero
+            li <strong>Recepcionista:</strong> Solo puede ser Admin o mantener rol de Recepcionista
+            li <strong>Admin:</strong> Puede combinarse con cualquier otro rol
+            li Los pacientes NO pueden tener usuarios en el sistema

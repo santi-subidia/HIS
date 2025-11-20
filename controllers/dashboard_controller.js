@@ -252,7 +252,7 @@ module.exports = {
       
       const turnosHoy = await Turno.count({
         where: {
-          fecha_turno: {
+          fecha: {
             [Op.gte]: hoy,
             [Op.lt]: mañana
           }
