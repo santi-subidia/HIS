@@ -32,11 +32,17 @@ app.use(userLocals);
 // Rutas de autenticación (sin protección)
 app.use('/', require('./routes/auth_routes'));
 
+// Ruta principal (sin protección)
+app.get('/', (req, res) => res.render('index'));
+
+// Proteger TODAS las demás rutas con autenticación
+const { requireAuth } = require('./middlewares/auth');
+app.use(requireAuth);
+
 // Rutas de dashboards (protegidas por rol)
 app.use('/dashboard', require('./routes/dashboard_routes'));
 
-// Rutas principales
-app.get('/', (req, res) => res.render('index'));
+// Rutas principales (ya protegidas por requireAuth arriba)
 app.use('/paciente', require('./routes/paciente_routes'));
 app.use('/internacion', require('./routes/internacion_routes'));
 app.use('/turno', require('./routes/turno_routes'));

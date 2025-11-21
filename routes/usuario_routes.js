@@ -1,20 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const usuarioController = require('../controllers/usuario_controller');
-const { requireAuth } = require('../middlewares/auth');
+const { requireRole } = require('../middlewares/auth');
 
-// Proteger todas las rutas con autenticación
-router.use(requireAuth);
-
-// Middleware para verificar que sea Admin
-const requireAdmin = (req, res, next) => {
-  if (!req.session.usuario || req.session.usuario.rol !== 'Admin') {
-    return res.status(403).send('Acceso denegado. Solo administradores pueden acceder a esta sección.');
-  }
-  next();
-};
-
-router.use(requireAdmin);
+// Solo administradores pueden acceder a estas rutas
+router.use(requireRole(['Admin']));
 
 router.get('/create', usuarioController.Create_GET);
 router.post('/buscar-persona', usuarioController.BuscarPersona_POST);

@@ -1,10 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const altaController = require('../controllers/alta_controller');
-const { requireAuth } = require('../middlewares/auth');
+const { requireRole } = require('../middlewares/auth');
 
-// Proteger todas las rutas con autenticación
-router.use(requireAuth);
+router.use(requireRole(['Medico']));
 
 // Crear alta
 router.get('/crear/:id', altaController.Crear_GET);

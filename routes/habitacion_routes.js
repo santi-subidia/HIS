@@ -1,10 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const habitacionController = require('../controllers/habitacion_controller');
-const { requireAuth } = require('../middlewares/auth');
+const { requireRole } = require('../middlewares/auth');
 
-// Proteger todas las rutas con autenticación
-router.use(requireAuth);
+router.use(requireRole(['Recepcionista']));
 
 router.get('/', habitacionController.Index);
 

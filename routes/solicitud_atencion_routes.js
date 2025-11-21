@@ -1,10 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const solicitudAtencionController = require('../controllers/solicitud_atencion_controller');
-const { requireAuth } = require('../middlewares/auth');
+const { requireRole } = require('../middlewares/auth');
 
-// Proteger todas las rutas con autenticación
-router.use(requireAuth);
+router.use(requireRole(['Enfermero']));
 
 // Rutas para enfermeros
 router.get('/crear/:id_internacion', solicitudAtencionController.Crear_GET);

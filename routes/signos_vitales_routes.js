@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const signosVitalesController = require('../controllers/signos_vitales_controller');
-const { requireAuth } = require('../middlewares/auth');
+const { requireRole } = require('../middlewares/auth');
 
-// Proteger todas las rutas con autenticación
-router.use(requireAuth);
+router.use(requireRole(['Enfermero', 'Medico']));
+
 
 // Ruta para ver el historial de signos vitales de una internación
 router.get('/:id', signosVitalesController.Index_GET);

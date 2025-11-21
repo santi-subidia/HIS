@@ -1,10 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const planCuidadoController = require('../controllers/plan_cuidado_controller');
-const { requireAuth } = require('../middlewares/auth');
+const { requireRole } = require('../middlewares/auth');
 
-// Proteger todas las rutas con autenticación
-router.use(requireAuth);
+router.use(requireRole(['Medico', 'Enfermero']));
 
 // Ver detalles de un plan de cuidado específico
 router.get('/details/:id', planCuidadoController.Details_GET);
