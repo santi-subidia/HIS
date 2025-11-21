@@ -140,13 +140,92 @@ block content
             i.bi.bi-info-circle.me-2
             | No hay usuarios activos que coincidan con los filtros.
 
+    // Usuarios dados de baja
+    if usuariosBaja && usuariosBaja.length
+      .card.shadow.mt-4
+        .card-header.bg-warning.text-dark
+          h5.mb-0
+            i.bi.bi-person-x.me-2
+            | Usuarios Dados de Baja
+        .card-body
+          .table-responsive
+            table.table.table-striped.table-hover
+              thead.table-warning
+                tr
+                  th DNI
+                  th Nombre Completo
+                  th Usuario
+                  th Rol
+                  th Fecha de Baja
+                  th Acciones
+              tbody
+                each usuario in usuariosBaja
+                  tr
+                    td= usuario.persona.DNI
+                    td= `${usuario.persona.apellido}, ${usuario.persona.nombre}`
+                    td
+                      strong= usuario.usuario
+                    td
+                      if usuario.rol.nombre === 'Admin'
+                        span.badge.bg-danger Admin
+                      else if usuario.rol.nombre === 'Medico'
+                        span.badge.bg-success Médico
+                      else if usuario.rol.nombre === 'Enfermero'
+                        span.badge.bg-info Enfermero
+                      else if usuario.rol.nombre === 'Recepcionista'
+                        span.badge.bg-warning.text-dark Recepcionista
+                      else
+                        span.badge.bg-secondary= usuario.rol.nombre
+                    td= usuario.deletedAt ? new Date(usuario.deletedAt).toLocaleDateString('es-AR') : '-'
+                    td
+                      button.btn.btn-success.btn-sm(type='button' data-bs-toggle='modal' data-bs-target=`#reincorporarModal${usuario.id}`)
+                        i.bi.bi-arrow-counterclockwise.me-1
+                        | Reincorporar
+
+          // Modales para confirmar reincorporación
+          each usuario in usuariosBaja
+            .modal.fade(id=`reincorporarModal${usuario.id}` tabindex='-1' aria-labelledby=`reincorporarModalLabel${usuario.id}` aria-hidden='true')
+              .modal-dialog.modal-dialog-centered
+                .modal-content
+                  .modal-header.bg-success.text-white
+                    h5.modal-title(id=`reincorporarModalLabel${usuario.id}`)
+                      i.bi.bi-arrow-counterclockwise.me-2
+                      | Confirmar Reincorporación de Usuario
+                    button.btn-close.btn-close-white(type='button' data-bs-dismiss='modal' aria-label='Close')
+                  .modal-body
+                    p
+                      strong ¿Está seguro de reincorporar a este usuario?
+                    .alert.alert-info
+                      i.bi.bi-info-circle.me-2
+                      | El usuario podrá volver a iniciar sesión en el sistema.
+                    hr
+                    p.mb-1
+                      strong Nombre: 
+                      = `${usuario.persona.nombre} ${usuario.persona.apellido}`
+                    p.mb-1
+                      strong DNI: 
+                      = usuario.persona.DNI
+                    p.mb-1
+                      strong Usuario: 
+                      = usuario.usuario
+                    p.mb-0
+                      strong Rol: 
+                      = usuario.rol.nombre
+                  .modal-footer
+                    button.btn.btn-secondary(type='button' data-bs-dismiss='modal') Cancelar
+                    form(method='POST' action=`/usuarios/reincorporar/${usuario.id}` style='display: inline;')
+                      button.btn.btn-success(type='submit')
+                        i.bi.bi-arrow-counterclockwise.me-1
+                        | Confirmar Reincorporación
+
     .row.mt-4
       .col-md-12
         .alert.alert-info
           i.bi.bi-info-circle.me-2
-          strong Información sobre la baja de usuarios:
+          strong Información sobre la gestión de usuarios:
           ul.mb-0.mt-2
             li La baja es lógica, el usuario queda inactivo pero sus datos se conservan
             li Un usuario dado de baja no puede iniciar sesión en el sistema
-            li Si es Médico o Enfermero, también se da de baja su registro profesional
+            li Los usuarios dados de baja pueden ser reincorporados en cualquier momento
+            li Si es Médico o Enfermero, la baja/reincorporación también afecta su registro profesional
             li No se puede dar de baja al último administrador del sistema

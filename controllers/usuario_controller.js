@@ -376,12 +376,35 @@ module.exports = {
         order: [[{ model: Persona, as: 'persona' }, 'apellido', 'ASC']]
       });
 
+      // Obtener usuarios dados de baja (soft deleted)
+      const usuariosBaja = await Usuario.findAll({
+        paranoid: false,
+        where: {
+          deletedAt: { [Op.ne]: null }
+        },
+        include: [
+          {
+            model: Persona,
+            as: 'persona',
+            where: Object.keys(wherePersona).length ? wherePersona : undefined,
+            required: true
+          },
+          {
+            model: Rol,
+            as: 'rol',
+            where: Object.keys(whereRol).length ? whereRol : undefined
+          }
+        ],
+        order: [[{ model: Persona, as: 'persona' }, 'apellido', 'ASC']]
+      });
+
       // Obtener todos los roles para el filtro
       const roles = await Rol.findAll();
 
       res.render('usuarios/gestionar', {
         title: 'Gestionar Usuarios',
         usuarios,
+        usuariosBaja,
         roles,
         filters: req.query,
         mensaje: null,
@@ -460,6 +483,57 @@ module.exports = {
     } catch (error) {
       console.error('Error al dar de baja usuario:', error);
       res.status(500).send('Error al dar de baja el usuario');
+    }
+  },
+
+  // POST /usuarios/reincorporar/:id - Reincorporar un usuario dado de baja
+  Reincorporar_POST: async (req, res) => {
+    try {
+      const { id } = req.params;
+
+      const usuario = await Usuario.findByPk(id, {
+        paranoid: false,
+        include: [
+          {
+            model: Persona,
+            as: 'persona'
+          },
+          {
+            model: Rol,
+            as: 'rol'
+          }
+        ]
+      });
+
+      if (!usuario) {
+        return res.status(404).send('Usuario no encontrado');
+      }
+
+      if (!usuario.deletedAt) {
+        return res.status(400).send('Este usuario no está dado de baja');
+      }
+
+      // Reincorporar al usuario
+      await usuario.restore();
+
+      // Si es médico o enfermero, reincorporar también esos registros
+      if (usuario.rol.nombre === 'Medico') {
+        const medico = await Medico.findOne({ where: { id_persona: usuario.id_persona } });
+        if (medico && medico.fecha_eliminacion !== null) {
+          await medico.update({ fecha_eliminacion: null });
+        }
+      } else if (usuario.rol.nombre === 'Enfermero') {
+        const enfermero = await Enfermero.findOne({ where: { id_persona: usuario.id_persona } });
+        if (enfermero && enfermero.fecha_eliminacion !== null) {
+          await enfermero.update({ fecha_eliminacion: null });
+        }
+      }
+
+      res.redirect('/usuarios/gestionar?success=Usuario reincorporado exitosamente');
+
+    } catch (error) {
+      console.error('Error al reincorporar usuario:', error);
+      res.status(500).send('Error al reincorporar el usuario');
     }
   }
 };

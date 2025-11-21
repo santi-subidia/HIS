@@ -22,5 +22,6 @@ router.post('/create', usuarioController.Create_POST);
 
 router.get('/gestionar', usuarioController.Gestionar_GET);
 router.post('/dar-baja/:id', usuarioController.DarBaja_POST);
+router.post('/reincorporar/:id', usuarioController.Reincorporar_POST);
 
 module.exports = router;
