@@ -5,7 +5,7 @@ module.exports = {
   Crear_GET: async (req, res) => {
     try {
       const { id } = req.params;
-      const { id_receta, desde_alta, return: returnUrl } = req.query;
+      const { id_receta, desde_alta, tipo_alta, return: returnUrl } = req.query;
       
       // Buscar la internación con todos sus datos relacionados
       const internacion = await Internacion.findByPk(id, {
@@ -70,6 +70,7 @@ module.exports = {
         esFinal: esFinal,
         id_receta: id_receta || null,
         returnUrl: returnUrl || null,
+        tipoAlta: tipo_alta || null,
         title: 'Crear Plan de Cuidado'
       });
     } catch (error) {
@@ -82,7 +83,7 @@ module.exports = {
   Crear_POST: async (req, res) => {
     try {
       const { id } = req.params;
-      const { id_tipo, diagnostico, tratamiento, id_reseta, returnUrl } = req.body;
+      const { id_tipo, diagnostico, tratamiento, id_reseta, returnUrl, tipo_alta } = req.body;
 
       // Validar que la internación existe
       const internacion = await Internacion.findByPk(id);
@@ -111,12 +112,16 @@ module.exports = {
         id_reseta: id_reseta || null,
         fecha: new Date()
       });
-
-      console.log(`Plan de cuidado creado para internación ${id}`);
       
       // Redirigir según el parámetro returnUrl o por defecto a detalles de internación
       if (returnUrl) {
-        res.redirect(returnUrl);
+        // Si viene tipo_alta, agregarlo al returnUrl
+        if (tipo_alta && returnUrl.includes('/alta/crear/')) {
+          const separator = returnUrl.includes('?') ? '&' : '?';
+          res.redirect(`${returnUrl}${separator}tipo_alta=${tipo_alta}`);
+        } else {
+          res.redirect(returnUrl);
+        }
       } else {
         res.redirect(`/internacion/details/${id}`);
       }

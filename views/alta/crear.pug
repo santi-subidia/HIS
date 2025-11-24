@@ -55,18 +55,25 @@ block content
               input(type='hidden' name='id_internacion' value=internacion.id)
               if planCuidadoFinal
                 input(type='hidden' name='id_plan_cuidado_final' value=planCuidadoFinal.id)
+              if tipoAltaPreseleccionado
+                input(type='hidden' name='tipo_alta' value=tipoAltaPreseleccionado)
 
               .mb-4
                 label.form-label(for='tipo_alta')
                   strong Tipo de Alta 
                   span.text-danger *
-                select.form-select(name='tipo_alta' id='tipo_alta' required)
-                  option(value='') Seleccione tipo de alta
-                  option(value='Medica') Médica
-                  option(value='Voluntaria') Voluntaria
-                  option(value='Defuncion') Defunción
-                  option(value='Traslado') Traslado
-                small.form-text.text-muted Seleccione el tipo de alta para continuar
+                if tipoAltaPreseleccionado
+                  select.form-select(id='tipo_alta' disabled)
+                    option(value=tipoAltaPreseleccionado selected)= tipoAltaPreseleccionado
+                  small.form-text.text-muted Tipo de alta seleccionado previamente
+                else
+                  select.form-select(name='tipo_alta' id='tipo_alta' required)
+                    option(value='') Seleccione tipo de alta
+                    option(value='Medica') Médica
+                    option(value='Voluntaria') Voluntaria
+                    option(value='Defuncion') Defunción
+                    option(value='Traslado') Traslado
+                  small.form-text.text-muted Seleccione el tipo de alta para continuar
 
               // Alerta dinámica según tipo de alta
               #alertaPlanCuidado.mb-4(style='display: none;')
@@ -134,10 +141,24 @@ block content
     const planCuidadoExiste = #{planCuidadoFinal ? 'true' : 'false'};
     const internacionId = '#{internacion.id}';
     const pacienteTieneDatos = #{internacion.PacienteSeguro ? 'true' : 'false'};
+    const tipoAltaPreseleccionado = '#{tipoAltaPreseleccionado || ''}';
+    
+    // Si hay tipo preseleccionado, activar la lógica automáticamente
+    if (tipoAltaPreseleccionado && tipoAltaSelect) {
+      // Simular el cambio para activar la lógica
+      setTimeout(() => {
+        procesarTipoAlta(tipoAltaPreseleccionado);
+      }, 100);
+    }
     
     // Lógica según tipo de alta
-    tipoAltaSelect.addEventListener('change', function() {
-      const tipoAlta = this.value;
+    if (tipoAltaSelect) {
+      tipoAltaSelect.addEventListener('change', function() {
+        procesarTipoAlta(this.value);
+      });
+    }
+    
+    function procesarTipoAlta(tipoAlta) {
       
       // Ocultar todo primero
       alertaPlanCuidado.style.display = 'none';
@@ -211,7 +232,7 @@ block content
               <i class="bi bi-exclamation-triangle me-2"></i>
               <strong>Se requiere Plan de Cuidado Final</strong>
               <p class="mb-2 mt-2">Para este tipo de alta, debe crear un plan de cuidado tipo "Final" que indique el seguimiento post-internación del paciente.</p>
-              <a class="btn btn-primary" href="/enfermeria/planes-cuidado/crear/${internacionId}?desde_alta=true&return=/alta/crear/${internacionId}">
+              <a class="btn btn-primary" href="/enfermeria/planes-cuidado/crear/${internacionId}?desde_alta=true&tipo_alta=${tipoAlta}&return=/alta/crear/${internacionId}">
                 <i class="bi bi-clipboard-plus me-2"></i>Crear Plan de Cuidado Final
               </a>
             </div>
@@ -223,7 +244,7 @@ block content
           btnSubmit.disabled = true;
         }
       }
-    });
+    }
     
     // Contadores de caracteres
 

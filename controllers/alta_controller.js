@@ -5,6 +5,7 @@ module.exports = {
   Crear_GET: async (req, res) => {
     try {
       const { id } = req.params; // id_internacion
+      const { tipo_alta } = req.query; // Capturar tipo_alta del query param
 
       const internacion = await Internacion.findByPk(id, {
         include: [
@@ -59,7 +60,8 @@ module.exports = {
       res.render('alta/crear', {
         title: 'Dar de Alta a Paciente',
         internacion,
-        planCuidadoFinal
+        planCuidadoFinal,
+        tipoAltaPreseleccionado: tipo_alta || null
       });
 
     } catch (error) {

@@ -15,10 +15,11 @@ block content
             i.bi.bi-file-medical-fill.text-success.me-2
             | Detalles del Alta
           div
-            a(href=`/internacion/details/${alta.id_internacion}`)
-              button.btn.btn-primary.me-2
-                i.bi.bi-hospital.me-1
-                | Ver Internación
+            if usuario && usuario.rol !== 'Recepcionista'
+              a(href=`/internacion/details/${alta.id_internacion}`)
+                button.btn.btn-primary.me-2
+                  i.bi.bi-hospital.me-1
+                  | Ver Internación
             a(href='/alta/listado')
               button.btn.btn-secondary
                 i.bi.bi-list.me-1
