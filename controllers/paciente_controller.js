@@ -80,7 +80,7 @@ module.exports = {
       // Crear el paciente vinculado a la persona
       await Paciente.create({ ...pacienteValido, id_persona: persona.id });
 
-      res.redirect('/pacientes?mensaje=Paciente registrado correctamente');
+      res.redirect('/Paciente?mensaje=Paciente registrado correctamente');
 
     } catch (error) {
       console.error('Error al registrar paciente:', error);

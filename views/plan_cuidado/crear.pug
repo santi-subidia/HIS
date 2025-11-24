@@ -101,7 +101,7 @@ block content
                   | Receta ##{id_receta} creada y vinculada correctamente
               else
                 a.btn.btn-outline-primary.w-100(
-                  href=`/recetas/crear?id_internacion=${internacion.id}&return=/enfermeria/planes-cuidado/crear/${internacion.id}`
+                  href=`/recetas/crear?id_internacion=${internacion.id}&return=/enfermeria/planes-cuidado/crear/${internacion.id}${esFinal ? '?desde_alta=true' : ''}`
                 )
                   i.fas.fa-plus.me-2
                   | Crear Receta Médica

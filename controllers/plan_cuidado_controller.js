@@ -90,6 +90,10 @@ module.exports = {
         return res.status(404).send('Internación no encontrada');
       }
 
+      if(internacion.estado !== 'activa'){
+        return res.status(400).send('No se pueden agregar planes de cuidado a una internación que no está activa');
+      }
+
       // TODO: Obtener id_persona del usuario autenticado
       const id_persona = req.session.usuario ? req.session.usuario.id_persona : null;
 

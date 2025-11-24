@@ -18,7 +18,8 @@ block content
           th Ala
           th Habitación
           th Cama
-          th Acciones
+          if usuario && usuario.rol !== 'Recepcionista'
+            th Acciones
       tbody
         each internacion in internaciones
           tr
@@ -36,9 +37,10 @@ block content
             td= internacion.Cama && internacion.Cama.Habitacion && internacion.Cama.Habitacion.Ala ? internacion.Cama.Habitacion.Ala.ubicacion : 'Desconocido'
             td= internacion.Cama && internacion.Cama.Habitacion ? internacion.Cama.Habitacion.codigo : 'Desconocido'
             td= internacion.Cama ? internacion.Cama.numero_cama : 'Desconocido'
-            td
-              a.btn.btn-info.btn-sm(href=`/internacion/details/${internacion.id}`)
-                i.fas.fa-eye.me-1
-                | Detalles
+            if usuario && usuario.rol !== 'Recepcionista'
+              td
+                a.btn.btn-info.btn-sm(href=`/internacion/details/${internacion.id}`)
+                  i.fas.fa-eye.me-1
+                  | Detalles
   else
     div.alert.alert-info No hay internaciones registradas.

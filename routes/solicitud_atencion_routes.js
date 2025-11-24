@@ -3,7 +3,7 @@ const router = express.Router();
 const solicitudAtencionController = require('../controllers/solicitud_atencion_controller');
 const { requireRole } = require('../middlewares/auth');
 
-router.use(requireRole(['Enfermero']));
+router.use(requireRole(['Enfermero', 'Medico']));
 
 // Rutas para enfermeros
 router.get('/crear/:id_internacion', solicitudAtencionController.Crear_GET);

@@ -130,7 +130,7 @@ block content
         .row
           .col-12.d-flex.justify-content-end.gap-2
             if returnUrl
-              button.btn.btn-secondary(type="button" onclick="window.close()")
+              a.btn.btn-secondary(href=returnUrl)
                 i.fas.fa-times.me-1
                 | Cancelar
             else
