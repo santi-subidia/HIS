@@ -1,5 +1,6 @@
 const { Usuario, Persona, Rol, Medico, Enfermero, Paciente } = require('../models');
 const { Op } = require('sequelize');
+const { usuarioSchema } = require('../schemas/usuario_schema');
 
 module.exports = {
   // GET /usuarios/create - Formulario para crear usuario (búsqueda por DNI)
@@ -151,21 +152,44 @@ module.exports = {
   // POST /usuarios/create - Crear usuario
   Create_POST: async (req, res) => {
     try {
-      const { dni, usuario, password, password_confirm, id_rol, nombre, apellido, telefono } = req.body;
       const roles = await Rol.findAll();
 
-      // Validaciones básicas
-      const errores = [];
+      // Validar con Zod
+      const validacion = usuarioSchema.safeParse(req.body);
 
-      if (!dni || !/^\d{7,9}$/.test(dni)) errores.push('DNI inválido');
-      if (!usuario || usuario.trim().length < 3) errores.push('El nombre de usuario debe tener al menos 3 caracteres');
-      if (!password || password.length < 6) errores.push('La contraseña debe tener al menos 6 caracteres');
-      if (password !== password_confirm) errores.push('Las contraseñas no coinciden');
-      if (!id_rol) errores.push('Debe seleccionar un rol');
+      if (!validacion.success) {
+        // Extraer el primer error
+        const primerError = validacion.error.errors[0];
+        const mensajeError = primerError.message;
+
+        // Buscar persona si existe DNI válido
+        let persona = null;
+        if (req.body.DNI && /^\d{7,9}$/.test(req.body.DNI)) {
+          persona = await Persona.findOne({
+            where: { DNI: req.body.DNI },
+            include: [{
+              model: Usuario,
+              as: 'usuario'
+            }]
+          });
+        }
+
+        return res.render('usuarios/create', {
+          title: 'Crear Usuario',
+          roles,
+          mensaje: mensajeError,
+          exito: null,
+          paso: persona ? 'crear_usuario' : (req.body.nombre ? 'crear_persona' : 'buscar'),
+          persona,
+          valores: req.body
+        });
+      }
+
+      const { DNI, usuario, password, id_rol, nombre, apellido, telefono } = validacion.data;
 
       // Buscar o crear persona
       let persona = await Persona.findOne({
-        where: { DNI: dni },
+        where: { DNI: DNI },
         include: [{
           model: Usuario,
           as: 'usuario'
@@ -175,14 +199,10 @@ module.exports = {
       // Si no existe la persona, crearla (requiere datos adicionales)
       if (!persona) {
         if (!nombre || !apellido) {
-          errores.push('Debe proporcionar nombre y apellido para crear la persona');
-        }
-
-        if (errores.length > 0) {
           return res.render('usuarios/create', {
             title: 'Crear Usuario',
             roles,
-            mensaje: errores.join('. '),
+            mensaje: 'Debe proporcionar nombre y apellido para crear la persona',
             exito: null,
             paso: 'crear_persona',
             persona: null,
@@ -192,26 +212,12 @@ module.exports = {
 
         // Crear la persona
         persona = await Persona.create({
-          DNI: dni,
-          nombre: nombre.trim(),
-          apellido: apellido.trim(),
-          telefono: telefono ? telefono.trim() : null
+          DNI: DNI,
+          nombre: nombre,
+          apellido: apellido,
+          telefono: telefono
         });
       } else {
-        // Si la persona existe pero tiene errores de validación
-        if (errores.length > 0) {
-          const rolesDisponibles = roles;
-          return res.render('usuarios/create', {
-            title: 'Crear Usuario',
-            roles: rolesDisponibles,
-            mensaje: errores.join('. '),
-            exito: null,
-            paso: 'crear_usuario',
-            persona,
-            valores: req.body
-          });
-        }
-
         // Verificar que no tenga usuario ya
         if (persona.usuario) {
           return res.render('usuarios/create', {
@@ -228,7 +234,7 @@ module.exports = {
 
       // Verificar que el nombre de usuario no exista
       const usuarioExistente = await Usuario.findOne({
-        where: { usuario: usuario.trim() }
+        where: { usuario: usuario }
       });
 
       if (usuarioExistente) {
@@ -244,7 +250,7 @@ module.exports = {
       }
 
       // Verificar compatibilidad de roles
-      const rolSeleccionado = roles.find(r => r.id === parseInt(id_rol));
+      const rolSeleccionado = roles.find(r => r.id === id_rol);
       const medico = await Medico.findOne({ where: { id_persona: persona.id } });
       const enfermero = await Enfermero.findOne({ where: { id_persona: persona.id } });
 
@@ -279,8 +285,6 @@ module.exports = {
 
       // Si se selecciona rol Medico, crear registro de médico si no existe
       if (rolSeleccionado.nombre === 'Medico' && !medico) {
-        // Necesitamos especialidad para crear médico
-        // Por ahora, asignamos una especialidad por defecto o requerimos ese dato
         return res.render('usuarios/create', {
           title: 'Crear Usuario',
           roles,
@@ -308,9 +312,9 @@ module.exports = {
       // Crear el usuario
       await Usuario.create({
         id_persona: persona.id,
-        usuario: usuario.trim(),
+        usuario: usuario,
         password: password,
-        id_rol: parseInt(id_rol)
+        id_rol: id_rol
       });
 
       // Redirigir con éxito
