@@ -39,7 +39,6 @@ const usuarioSchema = z.object({
       message: 'El rol debe ser un número válido mayor a 0'
     }),
 
-  // Campos opcionales para crear persona (si no existe) - reutilizan validaciones de personaSchema
   nombre: personaSchema.shape.nombre.optional(),
 
   apellido: personaSchema.shape.apellido.optional(),
@@ -50,6 +49,20 @@ const usuarioSchema = z.object({
   {
     message: 'Las contraseñas no coinciden',
     path: ['password_confirm']
+  }
+).refine(
+  (data) => {
+    const tieneNombre = data.nombre && data.nombre.trim().length > 0;
+    const tieneApellido = data.apellido && data.apellido.trim().length > 0;
+    
+    if (tieneNombre || tieneApellido) {
+      return tieneNombre && tieneApellido;
+    }
+    return true;
+  },
+  {
+    message: 'Debe proporcionar nombre y apellido para crear la persona',
+    path: ['nombre']
   }
 );
 

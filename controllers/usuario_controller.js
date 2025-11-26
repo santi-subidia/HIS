@@ -196,20 +196,7 @@ module.exports = {
         }]
       });
 
-      // Si no existe la persona, crearla (requiere datos adicionales)
       if (!persona) {
-        if (!nombre || !apellido) {
-          return res.render('usuarios/create', {
-            title: 'Crear Usuario',
-            roles,
-            mensaje: 'Debe proporcionar nombre y apellido para crear la persona',
-            exito: null,
-            paso: 'crear_persona',
-            persona: null,
-            valores: req.body
-          });
-        }
-
         // Crear la persona
         persona = await Persona.create({
           DNI: DNI,
