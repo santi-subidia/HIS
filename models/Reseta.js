@@ -18,7 +18,15 @@ module.exports = (sequelize) => {
       allowNull: false,
       validate: {
         isInt: { msg: "Debe ser un número entero" },
-        min: -1
+        min: 1
+      }
+    },
+    id_historial: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      validate: {
+        isInt: { msg: "Debe ser un número entero" },
+        min: 1
       }
     },
     fecha: {

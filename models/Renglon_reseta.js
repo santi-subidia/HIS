@@ -15,26 +15,18 @@ module.exports = (sequelize) => {
       type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true,
-      references: {
-        model: 'resetas',
-        key: 'id'
-      },
       validate: {
         isInt: { msg: "Debe ser un número entero" },
-        min: -1
+        min: 1
       }
     },
     id_medicamento: {
       type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true,
-      references: {
-        model: 'medicamentos',
-        key: 'id'
-      },
       validate: {
         isInt: { msg: "Debe ser un número entero" },
-        min: -1
+        min: 1
       }
     },
     dosis: {
