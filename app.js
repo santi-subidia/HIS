@@ -66,7 +66,7 @@ app.listen(PORT, async () => {
     console.log('✅ Conectado a la base de datos');
 
     if (process.env.SYNC_MODELS === 'true') {
-      await sequelize.sync({ alter: true });
+      await sequelize.sync({ force: true });
       console.log('📦 Modelos sincronizados');
     }
 

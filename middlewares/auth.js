@@ -21,14 +21,10 @@ const requireRole = (rolesPermitidos) => {
     const rolUsuario = req.session.usuario.rol;
 
     if (!rolesPermitidos.includes(rolUsuario)) {
-      return res.status(403).send(`
-        <h1>⛔ Acceso Denegado</h1>
-        <p>No tienes permisos para acceder a esta sección.</p>
-        <p><strong>Tu rol:</strong> ${rolUsuario}</p>
-        <p><strong>Roles permitidos:</strong> ${rolesPermitidos.join(', ')}</p>
-        <br>
-        <a href="/dashboard">← Volver al Dashboard</a>
-      `);
+      return res.status(403).render('error403', {
+        usuario: req.session.usuario,
+        rolesPermitidos
+      });
     }
 
     next();

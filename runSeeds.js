@@ -11,7 +11,6 @@ const parentescoSeed = require('./seeds/parentescos_seed');
 const segurosSeed = require('./seeds/seguros_seed');
 const turnosSeed = require('./seeds/turnos_seed');
 const personas = require('./seeds/personas_seed');
-const anonimosSeed = require('./seeds/anonimo_seed');
 const tiposAntecedentesSeed = require('./seeds/tipos_antecedentes_seed');
 const internacionesSeed = require('./seeds/internaciones_seed');
 const enfermerosSeed = require('./seeds/enfermeros_seed');
@@ -21,6 +20,7 @@ const medicamentosSeed = require('./seeds/medicamentos_seed');
 const categoriasTiposEstudiosSeed = require('./seeds/categorias_tipos_estudios_seed');
 const tiposEstudiosSeed = require('./seeds/tipos_estudios_seed');
 const datosInternacionesSeed = require('./seeds/datos_internaciones_seed');
+const internacionesConAltaSeed = require('./seeds/internaciones_con_alta_seed');
 
 async function runSeeds() {
   try {
@@ -47,10 +47,6 @@ async function runSeeds() {
     // Sembrar seguros
     await segurosSeed.up();
     console.log('Seed de seguros ejecutado correctamente.');
-
-    // Sembrar anónimos
-    await anonimosSeed.up();
-    console.log('Seed de anónimos ejecutado correctamente.');
 
     // Sembrar personas
     await personas.up();
@@ -107,6 +103,10 @@ async function runSeeds() {
     // Sembrar datos de internaciones (antecedentes, signos vitales, planes, estudios)
     await datosInternacionesSeed.up();
     console.log('Seed de datos de internaciones ejecutado correctamente.');
+
+    // Sembrar internaciones con alta (para historial médico completo)
+    await internacionesConAltaSeed.up();
+    console.log('Seed de internaciones con alta ejecutado correctamente.');
 
 
   } catch (error) {

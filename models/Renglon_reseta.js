@@ -14,7 +14,12 @@ module.exports = (sequelize) => {
     id_reseta: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      primaryKey: true,
+      references: {
+        model: 'resetas',
+        key: 'id'
+      },
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE',
       validate: {
         isInt: { msg: "Debe ser un número entero" },
         min: 1
@@ -23,7 +28,12 @@ module.exports = (sequelize) => {
     id_medicamento: {
       type: DataTypes.INTEGER,
       allowNull: false,
-      primaryKey: true,
+      references: {
+        model: 'medicamentos',
+        key: 'id'
+      },
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE',
       validate: {
         isInt: { msg: "Debe ser un número entero" },
         min: 1
@@ -63,7 +73,13 @@ module.exports = (sequelize) => {
     sequelize,
     modelName: 'Renglon_reseta',
     tableName: 'renglones_reseta',
-    timestamps: false
+    timestamps: false,
+    indexes: [
+      {
+        unique: true,
+        fields: ['id_reseta', 'id_medicamento']
+      }
+    ]
   });
 
   return Renglon_reseta;

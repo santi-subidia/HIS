@@ -197,10 +197,9 @@ module.exports = {
               defaults: {
                 id_reseta: receta1.id,
                 id_medicamento: medicamentos[0].id,
-                dosis: '50mg',
-                frecuencia: 'Cada 12 horas',
-                via: 'Oral',
-                duracion: '7 días'
+                dosis: '50mg cada 12 horas',
+                duracion: '7 días',
+                indicaciones: 'Tomar con alimentos'
               }
             });
           }

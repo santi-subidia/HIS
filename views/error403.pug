@@ -1,0 +1,57 @@
+extends layout
+
+block content
+  .container.mt-5
+    .row.justify-content-center
+      .col-md-8.col-lg-6
+        .card.border-danger
+          .card-header.bg-danger.text-white.text-center
+            h2.mb-0
+              i.bi.bi-shield-x.me-2
+              | Acceso Denegado
+          
+          .card-body.text-center.py-5
+            .mb-4
+              i.bi.bi-exclamation-triangle-fill.text-danger(style="font-size: 5rem;")
+            
+            h4.mb-3 ⛔ No tienes permisos suficientes
+            
+            p.text-muted.mb-4 
+              | No tienes los permisos necesarios para acceder a esta sección del sistema.
+            
+            .alert.alert-warning.text-start
+              if usuario
+                p.mb-2
+                  strong Tu rol actual: 
+                  span.badge.bg-info.text-dark= usuario.rol
+                
+                if rolesPermitidos && rolesPermitidos.length > 0
+                  p.mb-0
+                    strong Roles permitidos: 
+                    each rol, index in rolesPermitidos
+                      span.badge.bg-success.me-1= rol
+              else
+                p.mb-0 
+                  i.bi.bi-info-circle.me-2
+                  | Debes iniciar sesión para acceder a esta funcionalidad
+            
+            .mt-4
+              if usuario
+                a.btn.btn-primary.me-2(href="/dashboard")
+                  i.bi.bi-house-door.me-2
+                  | Volver al Dashboard
+                a.btn.btn-outline-secondary(href="javascript:history.back()")
+                  i.bi.bi-arrow-left.me-2
+                  | Volver atrás
+              else
+                a.btn.btn-primary.me-2(href="/login")
+                  i.bi.bi-box-arrow-in-right.me-2
+                  | Iniciar Sesión
+                a.btn.btn-outline-secondary(href="/")
+                  i.bi.bi-house.me-2
+                  | Ir al Inicio
+          
+          .card-footer.text-center.text-muted
+            small
+              i.bi.bi-info-circle.me-1
+              | Si crees que deberías tener acceso, contacta al administrador del sistema
