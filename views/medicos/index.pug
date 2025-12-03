@@ -1,0 +1,97 @@
+extends ../layout
+
+block content
+  .container.mt-4
+    .row
+      .col-md-12
+        .d-flex.justify-content-between.align-items-center.mb-3
+          h2 
+            i.bi.bi-hospital.text-primary.me-2
+            | Gestión de Médicos
+          .d-flex.gap-2
+            a(href='/medicos/create')
+              button.btn.btn-success
+                i.bi.bi-plus-circle.me-1
+                | Registrar Médico
+            a(href='/dashboard')
+              button.btn.btn-secondary
+                i.bi.bi-arrow-left.me-1
+                | Dashboard
+
+    if success
+      .alert.alert-success.alert-dismissible.fade.show(role='alert')
+        i.bi.bi-check-circle.me-2
+        = success
+        button.btn-close(type='button' data-bs-dismiss='alert')
+
+    // Filtros de búsqueda
+    .card.mb-4.shadow-sm
+      .card-header.bg-light
+        h5.mb-0
+          i.bi.bi-funnel.me-2
+          | Filtros de Búsqueda
+      .card-body
+        form(method='GET' action='/medicos')
+          .row
+            .col-md-4.mb-3
+              label.form-label(for='nombre') Nombre o Apellido
+              input.form-control#nombre(type='text' name='nombre' value=filters.nombre || '' placeholder='Buscar por nombre')
+            
+            .col-md-3.mb-3
+              label.form-label(for='dni') DNI
+              input.form-control#dni(type='text' name='dni' value=filters.dni || '' placeholder='DNI' pattern='[0-9]*')
+            
+            .col-md-3.mb-3
+              label.form-label(for='especialidad') Especialidad
+              select.form-select#especialidad(name='especialidad')
+                option(value='') Todas las especialidades
+                each esp in especialidades
+                  option(value=esp.id selected=(filters.especialidad == esp.id))= esp.nombre
+            
+            .col-md-2.mb-3.d-flex.align-items-end
+              button.btn.btn-primary.w-100(type='submit')
+                i.bi.bi-search.me-1
+                | Buscar
+
+    // Tabla de médicos
+    .card.shadow-sm
+      .card-header.bg-primary.text-white
+        h5.mb-0
+          i.bi.bi-list-ul.me-2
+          | Listado de Médicos (#{medicos.length})
+      .card-body
+        if medicos && medicos.length > 0
+          .table-responsive
+            table.table.table-hover.table-striped
+              thead.table-light
+                tr
+                  th.text-center #
+                  th Nombre Completo
+                  th.text-center DNI
+                  th.text-center Teléfono
+                  th Especialidad
+                  th.text-center Acciones
+              tbody
+                each medico, index in medicos
+                  tr
+                    td.text-center= index + 1
+                    td
+                      i.bi.bi-person-fill.text-primary.me-2
+                      strong= `${medico.persona.apellido}, ${medico.persona.nombre}`
+                    td.text-center
+                      span.badge.bg-secondary= medico.persona.DNI
+                    td.text-center= medico.persona.telefono || '-'
+                    td
+                      span.badge.bg-info= medico.especialidad.nombre
+                    td.text-center
+                      form(method='POST' action=`/medicos/dar-baja/${medico.id}` style='display:inline' onsubmit="return confirm('¿Está seguro de dar de baja a este médico?')")
+                        button.btn.btn-sm.btn-danger(type='submit' title='Dar de baja')
+                          i.bi.bi-trash.me-1
+                          | Dar de Baja
+        else
+          .alert.alert-info.text-center.mb-0
+            i.bi.bi-info-circle.me-2
+            | No hay médicos registrados
+            if filters.nombre || filters.dni || filters.especialidad
+              |  con los filtros aplicados
+            | .

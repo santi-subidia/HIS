@@ -1,0 +1,108 @@
+extends ../layout
+
+block content
+  .container.mt-4
+    .row
+      .col-md-12
+        .d-flex.justify-content-between.align-items-center.mb-3
+          h2 
+            i.bi.bi-heart-pulse.text-success.me-2
+            | Registrar Enfermero
+          a(href='/enfermeros')
+            button.btn.btn-secondary
+              i.bi.bi-arrow-left.me-1
+              | Volver al Listado
+
+    if mensaje
+      .alert.alert-danger.alert-dismissible.fade.show(role='alert')
+        i.bi.bi-exclamation-triangle.me-2
+        = mensaje
+        button.btn-close(type='button' data-bs-dismiss='alert')
+
+    .row
+      .col-md-8.offset-md-2
+        if paso === 'buscar'
+          // PASO 1: Buscar persona por DNI
+          .card.shadow
+            .card-header.bg-primary.text-white
+              h5.mb-0
+                i.bi.bi-search.me-2
+                | Paso 1: Buscar Persona por DNI
+            .card-body
+              form(method='POST' action='/enfermeros/buscar-persona')
+                .mb-3
+                  label.form-label(for='DNI') 
+                    strong DNI de la Persona *
+                  input.form-control.form-control-lg#DNI(type='text' name='DNI' value=valores.DNI || '' required pattern='[0-9]{7,9}' maxlength='9' placeholder='Ingrese el DNI' autofocus)
+                  small.form-text.text-muted Si la persona no existe, se mostrará un formulario para crearla
+
+                .d-grid
+                  button.btn.btn-primary.btn-lg(type='submit')
+                    i.bi.bi-search.me-2
+                    | Buscar Persona
+
+        else if paso === 'crear_persona'
+          // PASO 2: Crear nueva persona
+          .card.shadow
+            .card-header.bg-warning.text-dark
+              h5.mb-0
+                i.bi.bi-person-plus.me-2
+                | Paso 2: Crear Nueva Persona
+            .card-body
+              .alert.alert-info
+                i.bi.bi-info-circle.me-2
+                | No existe una persona con DNI <strong>#{valores.DNI}</strong>. Complete los datos para crearla.
+              
+              form(method='POST' action='/enfermeros/create')
+                input(type='hidden' name='DNI' value=valores.DNI)
+                
+                .row
+                  .col-md-6.mb-3
+                    label.form-label(for='nombre') 
+                      strong Nombre *
+                    input.form-control#nombre(type='text' name='nombre' value=valores.nombre || '' required minlength='2' maxlength='50' placeholder='Nombre')
+                  
+                  .col-md-6.mb-3
+                    label.form-label(for='apellido') 
+                      strong Apellido *
+                    input.form-control#apellido(type='text' name='apellido' value=valores.apellido || '' required minlength='2' maxlength='50' placeholder='Apellido')
+
+                .mb-3
+                  label.form-label(for='telefono') 
+                    strong Teléfono
+                  input.form-control#telefono(type='text' name='telefono' value=valores.telefono || '' pattern='[0-9]{7,15}' maxlength='15' placeholder='Opcional')
+
+                hr
+
+                .d-grid.gap-2
+                  button.btn.btn-success.btn-lg(type='submit')
+                    i.bi.bi-check-circle.me-2
+                    | Crear Persona y Registrar como Enfermero
+                  a.btn.btn-outline-secondary(href='/enfermeros/create') Cancelar
+
+        else if paso === 'crear_enfermero'
+          // PASO 3: Registrar como enfermero persona existente
+          .card.shadow
+            .card-header.bg-success.text-white
+              h5.mb-0
+                i.bi.bi-heart-pulse.me-2
+                | Paso 2: Registrar como Enfermero
+            .card-body
+              .alert.alert-success
+                i.bi.bi-check-circle.me-2
+                | Persona encontrada: <strong>#{persona.nombre} #{persona.apellido}</strong> (DNI: #{persona.DNI})
+              
+              form(method='POST' action='/enfermeros/create')
+                input(type='hidden' name='DNI' value=persona.DNI)
+
+                .alert.alert-info
+                  i.bi.bi-info-circle.me-2
+                  | Esta persona será registrada como enfermero en el sistema.
+
+                hr
+
+                .d-grid.gap-2
+                  button.btn.btn-success.btn-lg(type='submit')
+                    i.bi.bi-check-circle.me-2
+                    | Registrar como Enfermero
+                  a.btn.btn-outline-secondary(href='/enfermeros/create') Cancelar

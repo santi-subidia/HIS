@@ -37,9 +37,9 @@ block content
             .card-body
               form(method='POST' action='/usuarios/buscar-persona')
                 .mb-3
-                  label.form-label(for='dni') 
+                  label.form-label(for='DNI') 
                     strong DNI de la Persona *
-                  input.form-control.form-control-lg#dni(type='text' name='dni' value=valores.dni || '' required pattern='[0-9]{7,9}' maxlength='9' placeholder='Ingrese el DNI' autofocus)
+                  input.form-control.form-control-lg#DNI(type='text' name='DNI' value=valores.DNI || '' required pattern='[0-9]{7,9}' maxlength='9' placeholder='Ingrese el DNI' autofocus)
                   small.form-text.text-muted Si la persona no existe, se mostrará un formulario para crearla
 
                 .d-grid
@@ -57,10 +57,10 @@ block content
             .card-body
               .alert.alert-info
                 i.bi.bi-info-circle.me-2
-                | No existe una persona con DNI <strong>#{valores.dni}</strong>. Complete los datos para crearla.
+                | No existe una persona con DNI <strong>#{valores.DNI}</strong>. Complete los datos para crearla.
               
               form(method='POST' action='/usuarios/create')
-                input(type='hidden' name='dni' value=valores.dni)
+                input(type='hidden' name='DNI' value=valores.DNI)
                 
                 .row
                   .col-md-6.mb-3
@@ -129,7 +129,7 @@ block content
                   | Esta persona es <strong>#{roleActual}</strong>. Solo puede tener roles compatibles.
               
               form(method='POST' action='/usuarios/create')
-                input(type='hidden' name='dni' value=persona.DNI)
+                input(type='hidden' name='DNI' value=persona.DNI)
 
                 .mb-3
                   label.form-label(for='usuario') 

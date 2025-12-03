@@ -89,8 +89,8 @@ block content
                 h4= stats.estudiosPendientes
                 small.text-muted Estudios Pendientes
 
-    // Accesos Rápidos
-    .row
+    // Accesos Rápidos - Gestión de Usuarios
+    .row.mb-4
       .col-md-12
         .card.shadow
           .card-header.bg-danger.text-white
@@ -107,3 +107,26 @@ block content
                 a.btn.btn-danger.btn-lg.w-100.h-100.d-flex.flex-column.align-items-center.justify-content-center(href='/usuarios/gestionar')
                   i.fas.fa-user-times.fa-3x.mb-3
                   | Dar de Baja Usuario
+
+    // Gestión de Personal Médico
+    .row.mb-4
+      .col-md-12
+        .card.shadow
+          .card-header.bg-primary.text-white
+            h5.mb-0
+              i.fas.fa-user-md.me-2
+              | Gestión de Personal Médico
+          .card-body
+            .row.g-3
+              .col-md-4
+                a.btn.btn-primary.btn-lg.w-100.h-100.d-flex.flex-column.align-items-center.justify-content-center(href='/medicos')
+                  i.fas.fa-hospital-user.fa-3x.mb-3
+                  | Gestionar Médicos
+              .col-md-4
+                a.btn.btn-info.btn-lg.w-100.h-100.d-flex.flex-column.align-items-center.justify-content-center(href='/enfermeros')
+                  i.fas.fa-user-nurse.fa-3x.mb-3
+                  | Gestionar Enfermeros
+              .col-md-4
+                a.btn.btn-success.btn-lg.w-100.h-100.d-flex.flex-column.align-items-center.justify-content-center(href='/habitacion')
+                  i.fas.fa-bed.fa-3x.mb-3
+                  | Gestionar Habitaciones

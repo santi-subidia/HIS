@@ -56,6 +56,8 @@ app.use('/estudios', require('./routes/solicitud_medica_routes'));
 app.use('/alta', require('./routes/alta_routes'));
 app.use('/api', require('./routes/api_routes'));
 app.use('/usuarios', require('./routes/usuario_routes'));
+app.use('/medicos', require('./routes/medico_routes'));
+app.use('/enfermeros', require('./routes/enfermero_routes'));
 
 const PORT = process.env.PORT || 3000;
 

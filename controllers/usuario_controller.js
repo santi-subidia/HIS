@@ -27,11 +27,11 @@ module.exports = {
   // POST /usuarios/buscar-persona - Buscar persona por DNI
   BuscarPersona_POST: async (req, res) => {
     try {
-      const { dni } = req.body;
+      const { DNI } = req.body;
       const roles = await Rol.findAll();
 
       // Validar DNI
-      if (!dni || !/^\d{7,9}$/.test(dni)) {
+      if (!DNI || !/^\d{7,9}$/.test(DNI)) {
         return res.render('usuarios/create', {
           title: 'Crear Usuario',
           roles,
@@ -39,13 +39,13 @@ module.exports = {
           exito: null,
           paso: 'buscar',
           persona: null,
-          valores: { dni }
+          valores: { DNI }
         });
       }
 
       // Buscar persona por DNI
       const persona = await Persona.findOne({
-        where: { DNI: dni },
+        where: { DNI: DNI },
         include: [
           {
             model: Usuario,
@@ -67,7 +67,7 @@ module.exports = {
           exito: null,
           paso: 'crear_persona',
           persona: null,
-          valores: { dni }
+          valores: { DNI }
         });
       }
 
@@ -80,7 +80,7 @@ module.exports = {
           exito: null,
           paso: 'buscar',
           persona: null,
-          valores: { dni }
+          valores: { DNI }
         });
       }
 
@@ -131,7 +131,7 @@ module.exports = {
         paso: 'crear_usuario',
         persona,
         roleActual,
-        valores: { dni }
+        valores: { DNI }
       });
 
     } catch (error) {

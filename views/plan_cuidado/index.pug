@@ -132,8 +132,25 @@ block content
                     td.text-center
                       if plan.persona
                         .d-flex.flex-column.align-items-center
-                          i.fas.fa-user-circle.text-success.mb-1
-                          span= `${plan.persona.nombre} ${plan.persona.apellido}`
+                          if plan.persona.medico
+                            i.fas.fa-user-md.text-primary.mb-1
+                            span= `${plan.persona.nombre} ${plan.persona.apellido}`
+                            small.text-muted
+                              span.badge.bg-primary.mt-1
+                                i.fas.fa-stethoscope.me-1
+                                | Médico
+                          else if plan.persona.enfermero
+                            i.fas.fa-user-nurse.text-info.mb-1
+                            span= `${plan.persona.nombre} ${plan.persona.apellido}`
+                            small.text-muted
+                              span.badge.bg-info.mt-1
+                                i.fas.fa-notes-medical.me-1
+                                | Enfermero
+                          else
+                            i.fas.fa-user-circle.text-success.mb-1
+                            span= `${plan.persona.nombre} ${plan.persona.apellido}`
+                            small.text-muted
+                              span.badge.bg-secondary.mt-1 Personal
                       else
                         span.text-muted -
                     

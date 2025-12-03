@@ -1,4 +1,4 @@
-const { Internacion, PacienteSeguro, Paciente, Persona, Cama, Habitacion, Ala, Sector, Plan_cuidado, Tipo, Enfermero } = require('../models');
+const { Internacion, PacienteSeguro, Paciente, Persona, Cama, Habitacion, Ala, Sector, Plan_cuidado, Tipo, Enfermero, Medico } = require('../models');
 
 module.exports = {
   // GET /enfermeria/planes-cuidado/crear/:id - Formulario para crear plan de cuidado
@@ -162,14 +162,27 @@ module.exports = {
         return res.status(404).send('Internación no encontrada');
       }
 
-      // Obtener todos los planes de cuidado de la internación
       const planes = await Plan_cuidado.findAll({
         where: { id_internacion: id },
         include: [
           {
             model: Persona,
             as: 'persona',
-            attributes: ['nombre', 'apellido']
+            attributes: ['id', 'nombre', 'apellido'],
+            include: [
+              {
+                model: Medico,
+                as: 'medico',
+                attributes: ['id'],
+                required: false
+              },
+              {
+                model: Enfermero,
+                as: 'enfermero',
+                attributes: ['id'],
+                required: false
+              }
+            ]
           },
           {
             model: Tipo,
