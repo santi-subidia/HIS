@@ -1,4 +1,5 @@
 const { Medico, Persona, Especialidad, Usuario, Rol } = require('../models');
+const { personaSchema } = require('../schemas/persona_schema');
 const { Op } = require('sequelize');
 
 module.exports = {
@@ -92,12 +93,15 @@ module.exports = {
       const { DNI } = req.body;
       const especialidades = await Especialidad.findAll({ order: [['nombre', 'ASC']] });
 
-      // Validar DNI
-      if (!DNI || !/^\d{7,9}$/.test(DNI)) {
+      // Validar DNI con Zod
+      const validacion = personaSchema.pick({ DNI: true }).safeParse({ DNI });
+
+      if (!validacion.success) {
+        const primerError = validacion.error.errors[0];
         return res.render('medicos/create', {
           title: 'Registrar Médico',
           especialidades,
-          mensaje: 'DNI inválido. Debe contener entre 7 y 9 dígitos',
+          mensaje: primerError.message,
           paso: 'buscar',
           persona: null,
           valores: { DNI }
@@ -186,24 +190,32 @@ module.exports = {
       let persona = await Persona.findOne({ where: { DNI: DNI } });
 
       if (!persona) {
-        // Validar datos de persona
-        if (!nombre || !apellido) {
+        // Validar datos de persona con Zod
+        const validacion = personaSchema.safeParse({ 
+          DNI, 
+          nombre, 
+          apellido, 
+          telefono: telefono || '' 
+        });
+
+        if (!validacion.success) {
+          const primerError = validacion.error.errors[0];
           return res.render('medicos/create', {
             title: 'Registrar Médico',
             especialidades,
-            mensaje: 'Debe proporcionar nombre y apellido',
+            mensaje: primerError.message,
             paso: 'crear_persona',
             persona: null,
             valores: req.body
           });
         }
 
-        // Crear la persona
+        // Crear la persona con datos validados
         persona = await Persona.create({
-          DNI: DNI,
-          nombre: nombre,
-          apellido: apellido,
-          telefono: telefono || null
+          DNI: validacion.data.DNI,
+          nombre: validacion.data.nombre,
+          apellido: validacion.data.apellido,
+          telefono: validacion.data.telefono || null
         });
       }
 
@@ -252,37 +264,107 @@ module.exports = {
     }
   },
 
-  // POST /medicos/dar-baja/:id - Dar de baja un médico
-  DarBaja_POST: async (req, res) => {
+  // GET /medicos/edit/:id - Formulario para editar médico
+  Edit_GET: async (req, res) => {
     try {
       const { id } = req.params;
+
+      const medico = await Medico.findByPk(id, {
+        include: [
+          { model: Persona, as: 'persona' },
+          { model: Especialidad, as: 'especialidad' }
+        ]
+      });
+
+      if (!medico || medico.fecha_eliminacion) {
+        return res.status(404).send('Médico no encontrado');
+      }
+
+      const especialidades = await Especialidad.findAll({
+        order: [['nombre', 'ASC']]
+      });
+
+      res.render('medicos/edit', {
+        title: 'Editar Médico',
+        medico,
+        especialidades,
+        mensaje: null,
+        valores: {
+          nombre: medico.persona.nombre,
+          apellido: medico.persona.apellido,
+          telefono: medico.persona.telefono,
+          id_especialidad: medico.id_especialidad
+        }
+      });
+
+    } catch (error) {
+      console.error('Error al cargar formulario de edición:', error);
+      res.status(500).send('Error al cargar el formulario');
+    }
+  },
+
+  // POST /medicos/edit/:id - Actualizar médico
+  Edit_POST: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { nombre, apellido, telefono, id_especialidad } = req.body;
 
       const medico = await Medico.findByPk(id, {
         include: [{ model: Persona, as: 'persona' }]
       });
 
       if (!medico || medico.fecha_eliminacion) {
-        return res.status(404).send('Médico no encontrado o ya dado de baja');
+        return res.status(404).send('Médico no encontrado');
       }
 
-      // Dar de baja al médico
-      await medico.update({ fecha_eliminacion: new Date() });
+      const especialidades = await Especialidad.findAll({ order: [['nombre', 'ASC']] });
 
-      // Si tiene usuario con rol Medico, darlo de baja también
-      const usuario = await Usuario.findOne({
-        where: { id_persona: medico.id_persona },
-        include: [{ model: Rol, as: 'rol' }]
+      // Validar especialidad
+      if (!id_especialidad || parseInt(id_especialidad) <= 0) {
+        return res.render('medicos/edit', {
+          title: 'Editar Médico',
+          medico,
+          especialidades,
+          mensaje: 'Debe seleccionar una especialidad',
+          valores: req.body
+        });
+      }
+
+      // Validar datos de persona con Zod (omitir DNI que no se puede editar)
+      const validacion = personaSchema.omit({ DNI: true }).safeParse({ 
+        nombre, 
+        apellido, 
+        telefono: telefono || '' 
       });
 
-      if (usuario && usuario.rol.nombre === 'Medico') {
-        await usuario.destroy();
+      if (!validacion.success) {
+        const primerError = validacion.error.errors[0];
+        return res.render('medicos/edit', {
+          title: 'Editar Médico',
+          medico,
+          especialidades,
+          mensaje: primerError.message,
+          valores: req.body
+        });
       }
 
-      res.redirect('/medicos?success=Médico dado de baja exitosamente');
+      // Actualizar persona (excepto DNI) con datos validados
+      await medico.persona.update({
+        nombre: validacion.data.nombre,
+        apellido: validacion.data.apellido,
+        telefono: validacion.data.telefono || null
+      });
+
+      // Actualizar especialidad del médico
+      await medico.update({
+        id_especialidad: parseInt(id_especialidad)
+      });
+
+      res.redirect('/medicos?success=Médico actualizado exitosamente');
 
     } catch (error) {
-      console.error('Error al dar de baja médico:', error);
-      res.status(500).send('Error al dar de baja el médico');
+      console.error('Error al actualizar médico:', error);
+      res.status(500).send('Error al actualizar el médico');
     }
   }
 };

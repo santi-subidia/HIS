@@ -19,7 +19,10 @@ router.post('/buscar-persona', medicoController.BuscarPersona_POST);
 // POST /medicos/create - Crear médico
 router.post('/create', medicoController.Create_POST);
 
-// POST /medicos/dar-baja/:id - Dar de baja médico
-router.post('/dar-baja/:id', medicoController.DarBaja_POST);
+// GET /medicos/edit/:id - Formulario editar médico
+router.get('/edit/:id', medicoController.Edit_GET);
+
+// POST /medicos/edit/:id - Actualizar médico
+router.post('/edit/:id', medicoController.Edit_POST);
 
 module.exports = router;

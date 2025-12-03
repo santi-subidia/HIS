@@ -305,7 +305,7 @@ module.exports = {
       });
 
       // Redirigir con éxito
-      return res.redirect('/usuarios/create?exito=Usuario creado exitosamente');
+      return res.redirect('/usuarios/gestionar?success=Usuario creado exitosamente');
 
     } catch (error) {
       console.error('Error al crear usuario:', error);

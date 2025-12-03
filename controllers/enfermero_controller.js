@@ -1,4 +1,5 @@
 const { Enfermero, Persona, Usuario, Rol } = require('../models');
+const { personaSchema } = require('../schemas/persona_schema');
 const { Op } = require('sequelize');
 
 module.exports = {
@@ -70,11 +71,14 @@ module.exports = {
     try {
       const { DNI } = req.body;
 
-      // Validar DNI
-      if (!DNI || !/^\d{7,9}$/.test(DNI)) {
+      // Validar DNI con Zod
+      const validacion = personaSchema.pick({ DNI: true }).safeParse({ DNI });
+
+      if (!validacion.success) {
+        const primerError = validacion.error.errors[0];
         return res.render('enfermeros/create', {
           title: 'Registrar Enfermero',
-          mensaje: 'DNI inválido. Debe contener entre 7 y 9 dígitos',
+          mensaje: primerError.message,
           paso: 'buscar',
           persona: null,
           valores: { DNI }
@@ -145,23 +149,34 @@ module.exports = {
       let persona = await Persona.findOne({ where: { DNI: DNI } });
 
       if (!persona) {
-        // Validar datos de persona
-        if (!nombre || !apellido) {
+        // Validar datos de persona con Zod
+        const validacion = personaSchema.safeParse({ 
+          DNI, 
+          nombre, 
+          apellido, 
+          telefono: telefono || '' 
+        });
+
+        if (!validacion.success) {
+          // Extraer el primer error
+          const primerError = validacion.error.errors[0];
+          const mensajeError = primerError.message;
+
           return res.render('enfermeros/create', {
             title: 'Registrar Enfermero',
-            mensaje: 'Debe proporcionar nombre y apellido',
+            mensaje: mensajeError,
             paso: 'crear_persona',
             persona: null,
             valores: req.body
           });
         }
 
-        // Crear la persona
+        // Crear la persona con datos validados
         persona = await Persona.create({
-          DNI: DNI,
-          nombre: nombre,
-          apellido: apellido,
-          telefono: telefono || null
+          DNI: validacion.data.DNI,
+          nombre: validacion.data.nombre,
+          apellido: validacion.data.apellido,
+          telefono: validacion.data.telefono || null
         });
       }
 
@@ -203,8 +218,8 @@ module.exports = {
     }
   },
 
-  // POST /enfermeros/dar-baja/:id - Dar de baja un enfermero
-  DarBaja_POST: async (req, res) => {
+  // GET /enfermeros/edit/:id - Formulario para editar enfermero
+  Edit_GET: async (req, res) => {
     try {
       const { id } = req.params;
 
@@ -213,27 +228,69 @@ module.exports = {
       });
 
       if (!enfermero || enfermero.fecha_eliminacion) {
-        return res.status(404).send('Enfermero no encontrado o ya dado de baja');
+        return res.status(404).send('Enfermero no encontrado');
       }
 
-      // Dar de baja al enfermero
-      await enfermero.update({ fecha_eliminacion: new Date() });
-
-      // Si tiene usuario con rol Enfermero, darlo de baja también
-      const usuario = await Usuario.findOne({
-        where: { id_persona: enfermero.id_persona },
-        include: [{ model: Rol, as: 'rol' }]
+      res.render('enfermeros/edit', {
+        title: 'Editar Enfermero',
+        enfermero,
+        mensaje: null,
+        valores: {
+          nombre: enfermero.persona.nombre,
+          apellido: enfermero.persona.apellido,
+          telefono: enfermero.persona.telefono
+        }
       });
 
-      if (usuario && usuario.rol.nombre === 'Enfermero') {
-        await usuario.destroy();
+    } catch (error) {
+      console.error('Error al cargar formulario de edición:', error);
+      res.status(500).send('Error al cargar el formulario');
+    }
+  },
+
+  // POST /enfermeros/edit/:id - Actualizar enfermero
+  Edit_POST: async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { nombre, apellido, telefono } = req.body;
+
+      const enfermero = await Enfermero.findByPk(id, {
+        include: [{ model: Persona, as: 'persona' }]
+      });
+
+      if (!enfermero || enfermero.fecha_eliminacion) {
+        return res.status(404).send('Enfermero no encontrado');
       }
 
-      res.redirect('/enfermeros?success=Enfermero dado de baja exitosamente');
+      // Validar datos con Zod (omitir DNI que no se puede editar)
+      const validacion = personaSchema.omit({ DNI: true }).safeParse({ 
+        nombre, 
+        apellido, 
+        telefono: telefono || '' 
+      });
+
+      if (!validacion.success) {
+        const primerError = validacion.error.errors[0];
+        return res.render('enfermeros/edit', {
+          title: 'Editar Enfermero',
+          enfermero,
+          mensaje: primerError.message,
+          valores: req.body
+        });
+      }
+
+      // Actualizar persona (excepto DNI) con datos validados
+      await enfermero.persona.update({
+        nombre: validacion.data.nombre,
+        apellido: validacion.data.apellido,
+        telefono: validacion.data.telefono || null
+      });
+
+      res.redirect('/enfermeros?success=Enfermero actualizado exitosamente');
 
     } catch (error) {
-      console.error('Error al dar de baja enfermero:', error);
-      res.status(500).send('Error al dar de baja el enfermero');
+      console.error('Error al actualizar enfermero:', error);
+      res.status(500).send('Error al actualizar el enfermero');
     }
   }
 };

@@ -1,0 +1,70 @@
+extends ../layout
+
+block content
+  .container.mt-4
+    .row
+      .col-md-12
+        .d-flex.justify-content-between.align-items-center.mb-3
+          h2 
+            i.bi.bi-pencil-square.text-primary.me-2
+            | Editar Médico
+          a(href='/medicos')
+            button.btn.btn-secondary
+              i.bi.bi-arrow-left.me-1
+              | Volver al Listado
+
+    if mensaje
+      .alert.alert-danger.alert-dismissible.fade.show(role='alert')
+        i.bi.bi-exclamation-triangle.me-2
+        = mensaje
+        button.btn-close(type='button' data-bs-dismiss='alert')
+
+    .row
+      .col-md-8.offset-md-2
+        .card.shadow
+          .card-header.bg-primary.text-white
+            h5.mb-0
+              i.bi.bi-hospital.me-2
+              | Datos del Médico
+          .card-body
+            form(method='POST' action=`/medicos/edit/${medico.id}`)
+              .alert.alert-info
+                i.bi.bi-info-circle.me-2
+                strong DNI: 
+                = medico.persona.DNI
+                br
+                small.text-muted El DNI no puede ser modificado
+
+              hr
+
+              .row
+                .col-md-6.mb-3
+                  label.form-label(for='nombre') 
+                    strong Nombre *
+                  input.form-control#nombre(type='text' name='nombre' value=valores.nombre || '' required minlength='2' maxlength='50' placeholder='Nombre')
+                
+                .col-md-6.mb-3
+                  label.form-label(for='apellido') 
+                    strong Apellido *
+                  input.form-control#apellido(type='text' name='apellido' value=valores.apellido || '' required minlength='2' maxlength='50' placeholder='Apellido')
+
+              .mb-3
+                label.form-label(for='telefono') 
+                  strong Teléfono
+                input.form-control#telefono(type='text' name='telefono' value=valores.telefono || '' pattern='[0-9]{7,15}' maxlength='15' placeholder='Opcional')
+
+              .mb-3
+                label.form-label(for='id_especialidad') 
+                  strong Especialidad *
+                select.form-select#id_especialidad(name='id_especialidad' required)
+                  option(value='') Seleccione una especialidad
+                  each esp in especialidades
+                    option(value=esp.id selected=(valores.id_especialidad == esp.id))= esp.nombre
+
+              hr
+
+              .d-grid.gap-2
+                button.btn.btn-primary.btn-lg(type='submit')
+                  i.bi.bi-save.me-2
+                  | Guardar Cambios
+                a.btn.btn-outline-secondary(href='/medicos') Cancelar

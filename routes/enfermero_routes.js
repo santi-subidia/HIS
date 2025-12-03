@@ -19,7 +19,10 @@ router.post('/buscar-persona', enfermeroController.BuscarPersona_POST);
 // POST /enfermeros/create - Crear enfermero
 router.post('/create', enfermeroController.Create_POST);
 
-// POST /enfermeros/dar-baja/:id - Dar de baja enfermero
-router.post('/dar-baja/:id', enfermeroController.DarBaja_POST);
+// GET /enfermeros/edit/:id - Formulario editar enfermero
+router.get('/edit/:id', enfermeroController.Edit_GET);
+
+// POST /enfermeros/edit/:id - Actualizar enfermero
+router.post('/edit/:id', enfermeroController.Edit_POST);
 
 module.exports = router;

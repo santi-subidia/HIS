@@ -1,0 +1,62 @@
+extends ../layout
+
+block content
+  .container.mt-4
+    .row
+      .col-md-12
+        .d-flex.justify-content-between.align-items-center.mb-3
+          h2 
+            i.bi.bi-pencil-square.text-info.me-2
+            | Editar Enfermero
+          a(href='/enfermeros')
+            button.btn.btn-secondary
+              i.bi.bi-arrow-left.me-1
+              | Volver al Listado
+
+    if mensaje
+      .alert.alert-danger.alert-dismissible.fade.show(role='alert')
+        i.bi.bi-exclamation-triangle.me-2
+        = mensaje
+        button.btn-close(type='button' data-bs-dismiss='alert')
+
+    .row
+      .col-md-8.offset-md-2
+        .card.shadow
+          .card-header.bg-info.text-white
+            h5.mb-0
+              i.bi.bi-heart-pulse.me-2
+              | Datos del Enfermero
+          .card-body
+            form(method='POST' action=`/enfermeros/edit/${enfermero.id}`)
+              .alert.alert-info
+                i.bi.bi-info-circle.me-2
+                strong DNI: 
+                = enfermero.persona.DNI
+                br
+                small.text-muted El DNI no puede ser modificado
+
+              hr
+
+              .row
+                .col-md-6.mb-3
+                  label.form-label(for='nombre') 
+                    strong Nombre *
+                  input.form-control#nombre(type='text' name='nombre' value=valores.nombre || '' required minlength='2' maxlength='50' placeholder='Nombre')
+                
+                .col-md-6.mb-3
+                  label.form-label(for='apellido') 
+                    strong Apellido *
+                  input.form-control#apellido(type='text' name='apellido' value=valores.apellido || '' required minlength='2' maxlength='50' placeholder='Apellido')
+
+              .mb-3
+                label.form-label(for='telefono') 
+                  strong Teléfono
+                input.form-control#telefono(type='text' name='telefono' value=valores.telefono || '' pattern='[0-9]{7,15}' maxlength='15' placeholder='Opcional')
+
+              hr
+
+              .d-grid.gap-2
+                button.btn.btn-info.btn-lg(type='submit')
+                  i.bi.bi-save.me-2
+                  | Guardar Cambios
+                a.btn.btn-outline-secondary(href='/enfermeros') Cancelar
