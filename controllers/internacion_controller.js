@@ -189,6 +189,11 @@ module.exports = {
         });
       }
 
+      // Verificar que el contacto de emergencia no sea el mismo paciente
+      if (req.body.dniContacto === req.body.dniPaciente) {
+        throw new Error('El contacto de emergencia no puede ser el mismo que el paciente.');
+      }
+
       // 1. Parsear y crear/actualizar contacto de emergencia
       const personaData = personaSchema.parse({
         DNI: req.body.dniContacto,
