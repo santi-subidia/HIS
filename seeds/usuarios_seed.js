@@ -1,4 +1,4 @@
-const { Usuario, Rol, Medico, Enfermero } = require('../models');
+const { Usuario, Rol, Medico, Enfermero, Persona } = require('../models');
 
 module.exports = {
   up: async () => {
@@ -64,22 +64,47 @@ module.exports = {
         console.log('✅ Usuario enfermero 2 preparado (usuario: enfermero2, password: 123456)');
       }
 
-      // Crear usuario admin (usar la primera persona disponible o crear una genérica)
+      // Crear persona para Admin
+      const [personaAdmin] = await Persona.findOrCreate({
+        where: { DNI: '42165489' },
+        defaults: {
+          DNI: '42165489',
+          nombre: 'Hector',
+          apellido: 'Hugo',
+          telefono: '1234567890'
+        }
+      });
+      console.log('✅ Persona para admin creada/encontrada');
+
+      // Crear usuario admin
       usuarios.push({
-        id_persona: 10, // Ajusta esto según tu BD
+        id_persona: personaAdmin.id,
         usuario: 'admin',
         password: '123456',
         id_rol: rolAdmin.id
       });
       console.log('✅ Usuario admin preparado (usuario: admin, password: 123456)');
 
-      // Crear usuario recepcionista (usar la segunda persona disponible o crear una genérica)
+      // Crear persona para Recepcionista
+      const [personaRecepcionista] = await Persona.findOrCreate({
+        where: { DNI: '40123486' },
+        defaults: {
+          DNI: '40123486',
+          nombre: 'Guadalupe',
+          apellido: 'Gonzalez',
+          telefono: '1234567891'
+        }
+      });
+      console.log('✅ Persona para recepcionista creada/encontrada');
+
+      // Crear usuario recepcionista
       usuarios.push({
-        id_persona: 11, // Ajusta esto según tu BD
+        id_persona: personaRecepcionista.id,
         usuario: 'recepcionista',
         password: '123456',
         id_rol: rolRecepcionista.id
       });
+      console.log('✅ Usuario recepcionista preparado (usuario: recepcionista, password: 123456)');
 
       // Insertar usuarios
       for (const usuario of usuarios) {
